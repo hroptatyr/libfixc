@@ -69,7 +69,7 @@ enum {
 	/** tag type unknown */
 	FIXC_TYP_UNK,
 	/** tag type corresponds to off slot */
-	FIXC_TYP_OFF,
+	FIXC_TYP_OFF = FIXC_TYP_UNK,
 	/** tag type is a version number */
 	FIXC_TYP_VER,
 	/** tag type is a unsigned char */
