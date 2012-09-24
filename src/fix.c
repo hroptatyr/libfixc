@@ -179,36 +179,22 @@ fixc_render_fld(
 size_t
 fixc_render_msg(char *restrict buf, size_t bsz, fixc_msg_t msg)
 {
-	size_t chksum_i = msg->nflds - 1;
 	size_t hdrz;
 	size_t lenz;
 	size_t totz;
 	size_t blen = 0;
 
-	/* check for sanity, first of all BEGIN_STR */
-	if (msg->nflds == 0) {
-		return 0;
-	} else if (msg->flds[0].tag != FIXC_BEGIN_STRING) {
-		return 0;
-	} else if (msg->flds[1].tag != FIXC_BODY_LENGTH) {
-		return 0;
-	}
-
-	/* check if the checksum field is in */
-	if (msg->flds[chksum_i].tag != FIXC_CHECK_SUM) {
-		/* add it */
-		chksum_i = msg->nflds++;
-		msg->flds[chksum_i].tag = FIXC_CHECK_SUM;
-	}
-
 	/* first 2 fields are unrolled */
-	hdrz = fixc_render_fld(buf, bsz, msg->pr, msg->flds[0]);
-	lenz = fixc_render_fld(buf + hdrz, bsz - hdrz, msg->pr, msg->flds[1]);
+	hdrz = fixc_render_fld(buf, bsz, msg->pr, msg->f8);
+	lenz = fixc_render_fld(buf + hdrz, bsz - hdrz, msg->pr, msg->f9);
 	/* just leave some room for this */
 	totz = ROUND(hdrz + (lenz = ROUND(lenz, 8)), sizeof(void*));
 	bsz -= totz;
 
-	for (size_t i = 2; i < msg->nflds - 1 && blen < bsz; i++) {
+	/* render message type */
+	blen = fixc_render_fld(buf + totz, bsz, msg->pr, msg->f35);
+
+	for (size_t i = 0; i < msg->nflds && blen < bsz; i++) {
 		blen += fixc_render_fld(
 			buf + totz + blen, bsz - blen, msg->pr, msg->flds[i]);
 	}
