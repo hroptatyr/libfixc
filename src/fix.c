@@ -46,6 +46,57 @@
 #define SOH	"\001"
 #define SOHC	(*SOH)
 
+static struct fixc_fld_s
+fixc_parse_tag(const char *str, size_t UNUSED(len))
+{
+	long unsigned int tmp;
+	struct fixc_fld_s res;
+
+	/* will be replace with our own reader */
+	if ((tmp = strtoul(str, NULL, 10)) < 65536) {
+		res.tag = tmp;
+	} else {
+		res.tag = FIXC_TAG_UNK;
+	}
+	return res;
+}
+
+static void
+fixc_parse_fld(fixc_msg_t msg, const char *str, size_t UNUSED(len))
+{
+	size_t cur = msg->nflds;
+
+	switch (msg->flds[cur].tag) {
+	case FIXC_BEGIN_STRING:
+		msg->f8.tag = FIXC_BEGIN_STRING;
+		msg->f8.typ = FIXC_TYP_VER;
+		/* we should properly parse this */
+		msg->f8.ver = FIXC_VER_T11;
+		break;
+	case FIXC_BODY_LENGTH:
+		msg->f9.tag = FIXC_BODY_LENGTH;
+		msg->f9.typ = FIXC_TYP_INT;
+		msg->f9.i32 = strtol(str, NULL, 10);
+		break;
+	case FIXC_CHECK_SUM:
+		msg->f10.tag = FIXC_CHECK_SUM;
+		msg->f10.typ = FIXC_TYP_UCHAR;
+		msg->f10.u8 = str[0];
+		break;
+	case FIXC_MSG_TYPE:
+		msg->f35.tag = FIXC_MSG_TYPE;
+		msg->f35.typ = FIXC_TYP_OFF;
+		msg->f35.off = str - msg->pr;
+		break;
+	default:
+		msg->flds[cur].off = str - msg->pr;
+		msg->nflds++;
+	case FIXC_TAG_UNK:
+		break;
+	}
+	return;
+}
+
 fixc_msg_t
 make_fixc_msg(const char *msg, size_t msglen)
 {
@@ -70,17 +121,11 @@ make_fixc_msg(const char *msg, size_t msglen)
 		switch (kv_state) {
 		case KEY:
 			if (*p == '=') {
-				long unsigned int tmp;
 				size_t i = res->nflds;
 
 				/* finish string q */
 				*p = '\0';
-				if ((tmp = strtoul(q, NULL, 10)) < 65536) {
-					res->flds[i].tag = tmp;
-					res->flds[i].off = p + 1 - res->pr;
-				} else {
-					res->flds[i].tag = 0;
-				}
+				res->flds[i] = fixc_parse_tag(q, p - q);
 
 				/* switch to value state */
 				kv_state = VALUE;
@@ -89,15 +134,11 @@ make_fixc_msg(const char *msg, size_t msglen)
 			break;
 		case VALUE:
 			if (*p == SOHC || *p == '\0') {
-				size_t i = res->nflds;
+				/* finish string q */
+				*p = '\0';
 
-				if (res->flds[i].tag) {
-					/* finish string q */
-					*p = '\0';
-
-					/* add this field */
-					res->nflds++;
-				}
+				/* add this field */
+				fixc_parse_fld(res, q, p - q);
 
 				/* switch to key state */
 				kv_state = KEY;
