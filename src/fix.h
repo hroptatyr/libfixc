@@ -79,6 +79,20 @@ enum {
 	FIXC_TYP_INT,
 };
 
+/** version numbers we support */
+enum {
+	FIXC_VER_UNK,
+	FIXC_VER_40,
+	FIXC_VER_41,
+	FIXC_VER_42,
+	FIXC_VER_43,
+	FIXC_VER_44,
+	FIXC_VER_50,
+	FIXC_VER_50_SP1,
+	FIXC_VER_50_SP2,
+	FIXC_VER_T11,
+};
+
 struct fixc_fld_s {
 	/** numerical representation of the fix field */
 	uint16_t tag;
@@ -90,18 +104,7 @@ struct fixc_fld_s {
 		int32_t i32;
 		uint8_t u8;
 		int8_t i8;
-		enum {
-			FIXC_VER_UNK,
-			FIXC_VER_40,
-			FIXC_VER_41,
-			FIXC_VER_42,
-			FIXC_VER_43,
-			FIXC_VER_44,
-			FIXC_VER_50,
-			FIXC_VER_50_SP1,
-			FIXC_VER_50_SP2,
-			FIXC_VER_T11,
-		} ver;
+		unsigned int ver;
 	};
 };
 
