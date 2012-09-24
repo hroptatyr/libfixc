@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "fix.h"
 #include "nifty.h"
@@ -168,11 +169,31 @@ fixc_render_fld(
 	size_t res = 0;
 
 	res = snprintf(buf, bsz, "%hu=", fld.tag);
-	if ((stz = strlen(b + fld.off)) + 1 > bsz - res) {
-		return 0;
+	switch (fld.typ) {
+	case FIXC_TYP_OFF:
+		if ((stz = strlen(b + fld.off)) + 1 > bsz - res) {
+			return 0;
+		}
+		memcpy(buf + res, b + fld.off, stz);
+		res += stz;
+		break;
+	case FIXC_TYP_VER:
+		memcpy(buf + res, "FIXT.1.1", 8);
+		res += 8;
+		break;
+	case FIXC_TYP_UCHAR:
+		buf[res++] = fld.u8;
+		break;
+	case FIXC_TYP_CHAR:
+		buf[res++] = fld.i8;
+		break;
+	case FIXC_TYP_INT:
+		res += snprintf(buf + res, bsz - res, "%" PRIi32, fld.i32);
+		break;
+	default:
+		break;
 	}
-	memcpy(buf + res, b + fld.off, stz);
-	buf[res += stz] = SOHC;
+	buf[res] = SOHC;
 	return res + 1;
 }
 
@@ -211,12 +232,10 @@ fixc_render_msg(char *restrict buf, size_t bsz, fixc_msg_t msg)
 
 	/* compute and paste checksum */
 	if (totz + 5/*10=x\nul*/ < bsz) {
-		uint8_t c = fixc_chksum(buf, totz);
-
-		buf[totz++] = '1';
-		buf[totz++] = '0';
-		buf[totz++] = '=';
-		buf[totz++] = c;
+		msg->f10.u8 = fixc_chksum(buf, totz);
+		fixc_render_fld(buf + totz, bsz - totz, msg->pr, msg->f10);
+		/* no final SOH here */
+		totz += 4;
 	}
 
 	buf[totz] = '\0';
