@@ -44,6 +44,7 @@ typedef struct fixc_msg_s *fixc_msg_t;
 
 /** known tags */
 enum {
+	FIXC_TAG_UNK,
 	/* header */
 	FIXC_BEGIN_STRING = 8,
 	FIXC_BODY_LENGTH = 9,
