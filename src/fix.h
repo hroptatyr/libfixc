@@ -84,4 +84,6 @@ struct fixc_msg_s {
 
 extern fixc_msg_t make_fixc_msg(const char *msg, size_t msglen);
 
+extern size_t fixc_render_msg(char *restrict buf, size_t bsz, fixc_msg_t msg);
+
 #endif	/* INCLUDED_fix_h_ */
