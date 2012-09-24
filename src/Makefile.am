@@ -15,7 +15,9 @@ BUILT_SOURCES =
 CLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
 
-## nothing at the mo
+noinst_PROGRAMS += fix
+fix_CPPFLAGS = $(AM_CPPFLAGS)
+fix_CPPFLAGS += -DSTANDALONE
 
 # 
 # Help the developers get nice post-processed source files
