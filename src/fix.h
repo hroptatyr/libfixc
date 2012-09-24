@@ -42,6 +42,7 @@
 typedef uint16_t fixc_fld_t;
 typedef struct fixc_msg_s *fixc_msg_t;
 
+/** known tags */
 enum {
 	/* header */
 	FIXC_BEGIN_STRING = 8,
@@ -62,13 +63,46 @@ enum {
 	FIXC_DEFAULT_APPL_VER_ID = 1137,
 };
 
+/** tag types */
+enum {
+	/** tag type unknown */
+	FIXC_TYP_UNK,
+	/** tag type corresponds to off slot */
+	FIXC_TYP_OFF,
+	/** tag type is a version number */
+	FICX_TYP_VER,
+	/** tag type is a unsigned char */
+	FIXC_TYP_UCHAR,
+	/** tag type is a signed char */
+	FIXC_TYP_CHAR,
+	/** tag type is a (32b) integer */
+	FIXC_TYP_INT,
+};
+
 struct fixc_fld_s {
 	/** numerical representation of the fix field */
 	uint16_t tag;
 	/** fix field type, or generally 0 if not computed or known */
 	uint16_t typ;
 	/** offset (from the beginning of the message) to the value */
-	uint32_t off;
+	union {
+		uint32_t off;
+		int32_t i32;
+		uint8_t u8;
+		int8_t i8;
+		enum {
+			FIXC_VER_UNK,
+			FIXC_VER_40,
+			FIXC_VER_41,
+			FIXC_VER_42,
+			FIXC_VER_43,
+			FIXC_VER_44,
+			FIXC_VER_50,
+			FIXC_VER_50_SP1,
+			FIXC_VER_50_SP2,
+			FIXC_VER_T11,
+		} ver;
+	};
 };
 
 struct fixc_msg_s {
@@ -76,6 +110,12 @@ struct fixc_msg_s {
 	char *pr;
 	/** length of the printed representation */
 	size_t pz;
+
+	/* fixed fields, must be present in every msg */
+	struct fixc_fld_s f8;
+	struct fixc_fld_s f9;
+	struct fixc_fld_s f35;
+	struct fixc_fld_s f10;
 
 	/** number of fields */
 	size_t nflds;
