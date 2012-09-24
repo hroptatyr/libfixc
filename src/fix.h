@@ -66,9 +66,7 @@ struct fixc_fld_s {
 	/** numerical representation of the fix field */
 	uint16_t tag;
 	/** fix field type, or generally 0 if not computed or known */
-	uint8_t typ;
-	/** summand to go to the beginning of the key-val entity */
-	int8_t beg;
+	uint16_t typ;
 	/** offset (from the beginning of the message) to the value */
 	uint32_t off;
 };

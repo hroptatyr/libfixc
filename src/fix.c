@@ -86,7 +86,6 @@ make_fixc_msg(const char *msg, size_t msglen)
 				if ((tmp = strtoul(q, NULL, 10)) < 65536) {
 					res->flds[i].tag = tmp;
 					res->flds[i].off = p + 1 - res->pr;
-					res->flds[i].beg = q - (p + 1);
 				} else {
 					res->flds[i].tag = 0;
 				}
