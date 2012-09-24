@@ -46,14 +46,6 @@
 #define SOH	"\001"
 #define SOHC	(*SOH)
 
-static uint8_t
-fix_chksum(const char *str, size_t len)
-{
-        unsigned int res = 0;
-        for (const char *p = str, *ep = str + len; p < ep; res += *p++);
-        return (uint8_t)(res & 0xff);
-}
-
 fixc_msg_t
 make_fixc_msg(const char *msg, size_t msglen)
 {
