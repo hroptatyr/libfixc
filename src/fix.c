@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "fix.h"
 #include "nifty.h"
@@ -46,12 +47,55 @@
 #define SOH	"\001"
 #define SOHC	(*SOH)
 
-static uint8_t
-fix_chksum(const char *str, size_t len)
+static struct fixc_fld_s
+fixc_parse_tag(const char *str, size_t UNUSED(len))
 {
-        unsigned int res = 0;
-        for (const char *p = str, *ep = str + len; p < ep; res += *p++);
-        return (uint8_t)(res & 0xff);
+	long unsigned int tmp;
+	struct fixc_fld_s res;
+
+	/* will be replace with our own reader */
+	if ((tmp = strtoul(str, NULL, 10)) < 65536) {
+		res.tag = tmp;
+	} else {
+		res.tag = FIXC_TAG_UNK;
+	}
+	return res;
+}
+
+static void
+fixc_parse_fld(fixc_msg_t msg, const char *str, size_t UNUSED(len))
+{
+	size_t cur = msg->nflds;
+
+	switch (msg->flds[cur].tag) {
+	case FIXC_BEGIN_STRING:
+		msg->f8.tag = FIXC_BEGIN_STRING;
+		msg->f8.typ = FIXC_TYP_VER;
+		/* we should properly parse this */
+		msg->f8.ver = FIXC_VER_T11;
+		break;
+	case FIXC_BODY_LENGTH:
+		msg->f9.tag = FIXC_BODY_LENGTH;
+		msg->f9.typ = FIXC_TYP_INT;
+		msg->f9.i32 = strtol(str, NULL, 10);
+		break;
+	case FIXC_CHECK_SUM:
+		msg->f10.tag = FIXC_CHECK_SUM;
+		msg->f10.typ = FIXC_TYP_UCHAR;
+		msg->f10.u8 = str[0];
+		break;
+	case FIXC_MSG_TYPE:
+		msg->f35.tag = FIXC_MSG_TYPE;
+		msg->f35.typ = FIXC_TYP_OFF;
+		msg->f35.off = str - msg->pr;
+		break;
+	default:
+		msg->flds[cur].off = str - msg->pr;
+		msg->nflds++;
+	case FIXC_TAG_UNK:
+		break;
+	}
+	return;
 }
 
 fixc_msg_t
@@ -78,17 +122,11 @@ make_fixc_msg(const char *msg, size_t msglen)
 		switch (kv_state) {
 		case KEY:
 			if (*p == '=') {
-				long unsigned int tmp;
 				size_t i = res->nflds;
 
 				/* finish string q */
 				*p = '\0';
-				if ((tmp = strtoul(q, NULL, 10)) < 65536) {
-					res->flds[i].tag = tmp;
-					res->flds[i].off = p + 1 - res->pr;
-				} else {
-					res->flds[i].tag = 0;
-				}
+				res->flds[i] = fixc_parse_tag(q, p - q);
 
 				/* switch to value state */
 				kv_state = VALUE;
@@ -97,15 +135,11 @@ make_fixc_msg(const char *msg, size_t msglen)
 			break;
 		case VALUE:
 			if (*p == SOHC || *p == '\0') {
-				size_t i = res->nflds;
+				/* finish string q */
+				*p = '\0';
 
-				if (res->flds[i].tag) {
-					/* finish string q */
-					*p = '\0';
-
-					/* add this field */
-					res->nflds++;
-				}
+				/* add this field */
+				fixc_parse_fld(res, q, p - q);
 
 				/* switch to key state */
 				kv_state = KEY;
@@ -135,47 +169,53 @@ fixc_render_fld(
 	size_t res = 0;
 
 	res = snprintf(buf, bsz, "%hu=", fld.tag);
-	if ((stz = strlen(b + fld.off)) + 1 > bsz - res) {
-		return 0;
+	switch (fld.typ) {
+	case FIXC_TYP_OFF:
+		if ((stz = strlen(b + fld.off)) + 1 > bsz - res) {
+			return 0;
+		}
+		memcpy(buf + res, b + fld.off, stz);
+		res += stz;
+		break;
+	case FIXC_TYP_VER:
+		memcpy(buf + res, "FIXT.1.1", 8);
+		res += 8;
+		break;
+	case FIXC_TYP_UCHAR:
+		buf[res++] = fld.u8;
+		break;
+	case FIXC_TYP_CHAR:
+		buf[res++] = fld.i8;
+		break;
+	case FIXC_TYP_INT:
+		res += snprintf(buf + res, bsz - res, "%" PRIi32, fld.i32);
+		break;
+	default:
+		break;
 	}
-	memcpy(buf + res, b + fld.off, stz);
-	buf[res += stz] = SOHC;
+	buf[res] = SOHC;
 	return res + 1;
 }
 
 size_t
 fixc_render_msg(char *restrict buf, size_t bsz, fixc_msg_t msg)
 {
-	size_t chksum_i = msg->nflds - 1;
 	size_t hdrz;
 	size_t lenz;
 	size_t totz;
 	size_t blen = 0;
 
-	/* check for sanity, first of all BEGIN_STR */
-	if (msg->nflds == 0) {
-		return 0;
-	} else if (msg->flds[0].tag != FIXC_BEGIN_STRING) {
-		return 0;
-	} else if (msg->flds[1].tag != FIXC_BODY_LENGTH) {
-		return 0;
-	}
-
-	/* check if the checksum field is in */
-	if (msg->flds[chksum_i].tag != FIXC_CHECK_SUM) {
-		/* add it */
-		chksum_i = msg->nflds++;
-		msg->flds[chksum_i].tag = FIXC_CHECK_SUM;
-	}
-
 	/* first 2 fields are unrolled */
-	hdrz = fixc_render_fld(buf, bsz, msg->pr, msg->flds[0]);
-	lenz = fixc_render_fld(buf + hdrz, bsz - hdrz, msg->pr, msg->flds[1]);
+	hdrz = fixc_render_fld(buf, bsz, msg->pr, msg->f8);
+	lenz = fixc_render_fld(buf + hdrz, bsz - hdrz, msg->pr, msg->f9);
 	/* just leave some room for this */
 	totz = ROUND(hdrz + (lenz = ROUND(lenz, 8)), sizeof(void*));
 	bsz -= totz;
 
-	for (size_t i = 2; i < msg->nflds - 1 && blen < bsz; i++) {
+	/* render message type */
+	blen = fixc_render_fld(buf + totz, bsz, msg->pr, msg->f35);
+
+	for (size_t i = 0; i < msg->nflds && blen < bsz; i++) {
 		blen += fixc_render_fld(
 			buf + totz + blen, bsz - blen, msg->pr, msg->flds[i]);
 	}
@@ -192,12 +232,10 @@ fixc_render_msg(char *restrict buf, size_t bsz, fixc_msg_t msg)
 
 	/* compute and paste checksum */
 	if (totz + 5/*10=x\nul*/ < bsz) {
-		uint8_t c = fixc_chksum(buf, totz);
-
-		buf[totz++] = '1';
-		buf[totz++] = '0';
-		buf[totz++] = '=';
-		buf[totz++] = c;
+		msg->f10.u8 = fixc_chksum(buf, totz);
+		fixc_render_fld(buf + totz, bsz - totz, msg->pr, msg->f10);
+		/* no final SOH here */
+		totz += 4;
 	}
 
 	buf[totz] = '\0';
