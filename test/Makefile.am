@@ -4,8 +4,8 @@
 LANG = C
 LC_ALL = C
 
-libsrcdir = $(abs_top_srcdir)/lib
-libblddir = $(abs_top_builddir)/lib
+libsrcdir = $(top_srcdir)/src
+libblddir = $(top_builddir)/src
 
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
 AM_CPPFLAGS += -DTEST -I$(libsrcdir) -I$(libblddir)
