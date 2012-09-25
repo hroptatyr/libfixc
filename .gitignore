@@ -15,6 +15,7 @@ m4/libtool.m4
 compile
 config.h.in
 libltdl/
+test-driver
 *~
 ++*
 =*
