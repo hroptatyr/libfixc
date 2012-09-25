@@ -104,7 +104,7 @@ fixc_parse_fld(fixc_msg_t msg, const char *str, size_t UNUSED(len))
 }
 
 fixc_msg_t
-make_fixc_msg(const char *msg, size_t msglen)
+make_fixc_from_fix(const char *msg, size_t msglen)
 {
 #define ROUNDv(x)	ROUND(x, sizeof(void*))
 	enum {
@@ -160,6 +160,17 @@ make_fixc_msg(const char *msg, size_t msglen)
 	return res;
 }
 
+void
+free_fixc(fixc_msg_t msg)
+{
+	if (msg->flds && msg->flds != msg->these) {
+		free(msg->flds);
+		msg->flds = NULL;
+	}
+	free(msg);
+	return;
+}
+
 static uint8_t
 fixc_chksum(const char *str, size_t len)
 {
@@ -205,7 +216,7 @@ fixc_render_fld(
 }
 
 size_t
-fixc_render_msg(char *restrict buf, size_t bsz, fixc_msg_t msg)
+fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 {
 	size_t hdrz;
 	size_t lenz;
@@ -302,7 +313,7 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 }
 
 int
-fixc_msg_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
+fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 {
 	/* see if someone wants us to add offset fields */
 	if (fld.typ == FIXC_TYP_OFF) {
@@ -340,7 +351,7 @@ fixc_msg_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 }
 
 int
-fixc_msg_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
+fixc_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
 {
 	/* see if someone tricks us into adding the special fields */
 	switch (tag) {
@@ -377,7 +388,7 @@ main(void)
 		"35=S" SOH "117=112" SOH
 		"132=1.03" SOH "133=1.04" SOH "10=0";
 	char test[256];
-	fixc_msg_t msg = make_fixc_msg(foo, sizeof(foo) - 1);
+	fixc_msg_t msg = make_fixc_from_fix(foo, sizeof(foo) - 1);
 
 	fprintf(stdout, "%zu fields\n", msg->nflds);
 	for (size_t i = 0; i < msg->nflds; i++) {
@@ -385,21 +396,31 @@ main(void)
 			i, msg->flds[i].tag, msg->pr + msg->flds[i].off);
 	}
 
-	fixc_render_msg(test, sizeof(test), msg);
+	fixc_render_fix(test, sizeof(test), msg);
 	fputs(test, stdout);
 	fputc('\n', stdout);
 
-	fixc_msg_add_fld(msg, (struct fixc_fld_s){
+	fixc_add_fld(msg, (struct fixc_fld_s){
 				 .tag = 54/*Side*/,
 					 .typ = FIXC_TYP_UCHAR,
 					 .u8 = '1'
 					 });
-	fixc_msg_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_render_msg(test, sizeof(test), msg);
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket") - 1);
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket") - 1);
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_render_fix(test, sizeof(test), msg);
 	fputs(test, stdout);
 	fputc('\n', stdout);
 
-	free(msg);
+	free_fixc(msg);
 	return 0;
 }
 #endif	/* STANDALONE */
