@@ -15,7 +15,20 @@ BUILT_SOURCES =
 CLEANFILES =
 EXTRA_DIST = $(BUILT_SOURCES)
 
-## nothing at the mo
+lib_LTLIBRARIES += libfixc.la
+libfixc_la_SOURCES = fix.c fix.h
+libfixc_la_SOURCES += fix-msg-type.h
+libfixc_la_SOURCES += nifty.h
+libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
+libfixc_la_LDFLAGS = $(AM_LDFLAGS)
+
+header_HEADERS += fix.h
+header_HEADERS += fix-msg-type.h
+
+## just for debugging and fun
+noinst_PROGRAMS += fix
+fix_CPPFLAGS = $(AM_CPPFLAGS)
+fix_CPPFLAGS += -DSTANDALONE
 
 # 
 # Help the developers get nice post-processed source files
