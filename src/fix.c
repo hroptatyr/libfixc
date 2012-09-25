@@ -120,10 +120,12 @@ make_fixc_from_fix(const char *msg, size_t msglen)
 
 	/* generate the husk */
 	res = malloc(totz);
+	memset(res, 0, sizeof(*res));
 	res->flds = res->these;
 	res->pr = (void*)(res->flds + fspc);
 	res->pz = msglen;
 	memcpy(res->pr, msg, msglen);
+	res->pr[msglen] = '\0';
 
 	for (char *p = res->pr, *ep = res->pr + msglen, *q = p; p <= ep; p++) {
 		switch (kv_state) {
