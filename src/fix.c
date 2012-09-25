@@ -56,13 +56,11 @@ static struct fixc_fld_s
 fixc_parse_tag(const char *str, size_t UNUSED(len))
 {
 	long unsigned int tmp;
-	struct fixc_fld_s res;
+	struct fixc_fld_s res = {0};
 
 	/* will be replace with our own reader */
 	if ((tmp = strtoul(str, NULL, 10)) < 65536) {
 		res.tag = tmp;
-	} else {
-		res.tag = FIXC_TAG_UNK;
 	}
 	return res;
 }
