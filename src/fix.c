@@ -53,6 +53,10 @@
 /* value we like our fspc (the fields) to be rounded to */
 #define FSPC_RND	(32)
 
+#if !defined CHAR_BIT
+# define CHAR_BIT	(8U)
+#endif	/* !CHAR_BIT */
+
 
 /* fix guts */
 #define SOH	"\001"
@@ -71,8 +75,26 @@ fixc_parse_tag(const char *str, size_t UNUSED(len))
 	return res;
 }
 
+static fixc_msg_type_t
+fixc_parse_mtyp(const char str[static 1], size_t len)
+{
+	unsigned int res = FIXC_MSGTYP_UNK;
+
+	switch (len) {
+	case 0:
+	default:
+		break;
+	case 2:
+		res |= (unsigned int)(str[1] & 0xff) << 0U;
+	case 1:
+		res |= (unsigned int)(str[0] & 0xff) << CHAR_BIT;
+		break;
+	}
+	return (fixc_msg_type_t)(res);
+}
+
 static void
-fixc_parse_fld(fixc_msg_t msg, const char *str, size_t UNUSED(len))
+fixc_parse_fld(fixc_msg_t msg, const char *str, size_t len)
 {
 	size_t cur = msg->nflds;
 
@@ -95,8 +117,8 @@ fixc_parse_fld(fixc_msg_t msg, const char *str, size_t UNUSED(len))
 		break;
 	case FIXC_MSG_TYPE:
 		msg->f35.tag = FIXC_MSG_TYPE;
-		msg->f35.typ = FIXC_TYP_OFF;
-		msg->f35.off = str - msg->pr;
+		msg->f35.typ = FIXC_TYP_MSGTYP;
+		msg->f35.mtyp = fixc_parse_mtyp(str, len);
 		break;
 	default:
 		msg->flds[cur].off = str - msg->pr;
@@ -213,6 +235,17 @@ fixc_render_fld(
 		break;
 	case FIXC_TYP_INT:
 		res += snprintf(buf + res, bsz - res, "%" PRIi32, fld.i32);
+		break;
+
+	case FIXC_TYP_MSGTYP:
+		/* coincidentally the value of mtyp corresponds to the
+		 * ascii representation already */
+		if ((buf[res] = (uint8_t)((fld.mtyp & 0xff00) >> CHAR_BIT))) {
+			res++;
+		}
+		if ((buf[res] = (uint8_t)((fld.mtyp & 0x00ff) >> 0U))) {
+			res++;
+		}
 		break;
 	default:
 		break;
