@@ -42,6 +42,12 @@
 #include "fix.h"
 #include "nifty.h"
 
+#if defined DEBUG_FLAG
+# define FIXC_DEBUG(args...)	fprintf(stderr, args)
+#else  /* !DEBUG_FLAG */
+# define FIXC_DEBUG(args...)
+#endif	/* DEBUG_FLAG */
+
 /* value we like our vspc to be rounded to */
 #define VSPC_RND	(128)
 /* value we like our fspc (the fields) to be rounded to */
@@ -56,13 +62,11 @@ static struct fixc_fld_s
 fixc_parse_tag(const char *str, size_t UNUSED(len))
 {
 	long unsigned int tmp;
-	struct fixc_fld_s res;
+	struct fixc_fld_s res = {0};
 
 	/* will be replace with our own reader */
 	if ((tmp = strtoul(str, NULL, 10)) < 65536) {
 		res.tag = tmp;
-	} else {
-		res.tag = FIXC_TAG_UNK;
 	}
 	return res;
 }
@@ -104,7 +108,7 @@ fixc_parse_fld(fixc_msg_t msg, const char *str, size_t UNUSED(len))
 }
 
 fixc_msg_t
-make_fixc_msg(const char *msg, size_t msglen)
+make_fixc_from_fix(const char *msg, size_t msglen)
 {
 #define ROUNDv(x)	ROUND(x, sizeof(void*))
 	enum {
@@ -114,16 +118,18 @@ make_fixc_msg(const char *msg, size_t msglen)
 	/* if msg was completely of the form N=V\1 we'd have 4 chars per fld */
 	fixc_msg_t res;
 	size_t base = sizeof(*res);
-	size_t fspc = ROUND(msglen / 4, FSPC_RND) * sizeof(*res->flds);
+	size_t fspc = ROUND(msglen / 4, FSPC_RND);
 	size_t vspc = ROUND(msglen + 1, VSPC_RND);
-	size_t totz = ROUNDv(base + fspc + vspc);
+	size_t totz = ROUNDv(base + fspc * sizeof(*res->flds) + vspc);
 
 	/* generate the husk */
 	res = malloc(totz);
+	memset(res, 0, sizeof(*res));
 	res->flds = res->these;
-	res->pr = (char*)res->flds + fspc;
+	res->pr = (void*)(res->flds + fspc);
 	res->pz = msglen;
 	memcpy(res->pr, msg, msglen);
+	res->pr[msglen] = '\0';
 
 	for (char *p = res->pr, *ep = res->pr + msglen, *q = p; p <= ep; p++) {
 		switch (kv_state) {
@@ -158,6 +164,17 @@ make_fixc_msg(const char *msg, size_t msglen)
 		}
 	}
 	return res;
+}
+
+void
+free_fixc(fixc_msg_t msg)
+{
+	if (msg->flds && msg->flds != msg->these) {
+		free(msg->flds);
+		msg->flds = NULL;
+	}
+	free(msg);
+	return;
 }
 
 static uint8_t
@@ -205,7 +222,7 @@ fixc_render_fld(
 }
 
 size_t
-fixc_render_msg(char *restrict buf, size_t bsz, fixc_msg_t msg)
+fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 {
 	size_t hdrz;
 	size_t lenz;
@@ -239,7 +256,11 @@ fixc_render_msg(char *restrict buf, size_t bsz, fixc_msg_t msg)
 
 	/* compute and paste checksum */
 	if (totz + 5/*10=x\nul*/ < bsz) {
-		msg->f10.u8 = fixc_chksum(buf, totz);
+		msg->f10 = (struct fixc_fld_s){
+			.tag = FIXC_CHECK_SUM,
+			.typ = FIXC_TYP_UCHAR,
+			.u8 = fixc_chksum(buf, totz),
+		};
 		fixc_render_fld(buf + totz, bsz - totz, msg->pr, msg->f10);
 		/* no final SOH here */
 		totz += 4;
@@ -267,12 +288,14 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 	/* determine the size of the pr section, multiple of VSPC_RND */
 	vspc = ROUND(msg->pz + 1, VSPC_RND);
 
-	if (add_flds + msg->nflds <= fspc &&
-	    add_vspc + msg->pz <= vspc) {
+	if (add_flds + msg->nflds < fspc &&
+	    add_vspc + msg->pz < vspc) {
 		/* nothing to do, time for trip home */
 		return;
 	}
 	/* grrr, otherwise there's lots of work to do :/ */
+	FIXC_DEBUG("resz %zu %zu -> ~%zu ~%zu\n",
+		   fspc, vspc, fspc + add_flds, vspc + add_vspc);
 
 	/* find out how big the whole dynamic room was */
 	old_sz = vspc + fspc * sizeof(*msg->flds);
@@ -302,7 +325,7 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 }
 
 int
-fixc_msg_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
+fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 {
 	/* see if someone wants us to add offset fields */
 	if (fld.typ == FIXC_TYP_OFF) {
@@ -340,7 +363,7 @@ fixc_msg_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 }
 
 int
-fixc_msg_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
+fixc_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
 {
 	/* see if someone tricks us into adding the special fields */
 	switch (tag) {
@@ -377,7 +400,7 @@ main(void)
 		"35=S" SOH "117=112" SOH
 		"132=1.03" SOH "133=1.04" SOH "10=0";
 	char test[256];
-	fixc_msg_t msg = make_fixc_msg(foo, sizeof(foo) - 1);
+	fixc_msg_t msg = make_fixc_from_fix(foo, sizeof(foo) - 1);
 
 	fprintf(stdout, "%zu fields\n", msg->nflds);
 	for (size_t i = 0; i < msg->nflds; i++) {
@@ -385,21 +408,36 @@ main(void)
 			i, msg->flds[i].tag, msg->pr + msg->flds[i].off);
 	}
 
-	fixc_render_msg(test, sizeof(test), msg);
+	fixc_render_fix(test, sizeof(test), msg);
 	fputs(test, stdout);
 	fputc('\n', stdout);
 
-	fixc_msg_add_fld(msg, (struct fixc_fld_s){
+	fixc_add_fld(msg, (struct fixc_fld_s){
 				 .tag = 54/*Side*/,
 					 .typ = FIXC_TYP_UCHAR,
 					 .u8 = '1'
 					 });
-	fixc_msg_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_render_msg(test, sizeof(test), msg);
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket") - 1);
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket") - 1);
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_fld(msg, (struct fixc_fld_s){
+				 .tag = 54/*Side*/,
+					 .typ = FIXC_TYP_UCHAR,
+					 .u8 = '2'
+					 });
+	fixc_render_fix(test, sizeof(test), msg);
 	fputs(test, stdout);
 	fputc('\n', stdout);
 
-	free(msg);
+	free_fixc(msg);
 	return 0;
 }
 #endif	/* STANDALONE */

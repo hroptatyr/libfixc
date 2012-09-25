@@ -128,17 +128,24 @@ struct fixc_msg_s {
 };
 
 
-extern fixc_msg_t make_fixc_msg(const char *msg, size_t msglen);
+/**
+ * Generate a fixc message from a FIX message string in MSG of length MSGLEN */
+extern fixc_msg_t make_fixc_from_fix(const char *msg, size_t msglen);
 
-extern size_t fixc_render_msg(char *restrict buf, size_t bsz, fixc_msg_t msg);
+/**
+ * Free a fixc message MSG and all its resources. */
+extern void free_fixc(fixc_msg_t);
+
+/**
+ * Render MSG into a fix string in BUF (of size BSZ). */
+extern size_t fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg);
 
 /**
  * Add FLD to MSG. */
-extern int fixc_msg_add_fld(fixc_msg_t, struct fixc_fld_s fld);
+extern int fixc_add_fld(fixc_msg_t, struct fixc_fld_s fld);
 
 /**
  * Add TAG to MSG copying VAL (of size VSZ) to representation space. */
-extern int
-fixc_msg_add_tag(fixc_msg_t, uint16_t tag, const char *val, size_t vsz);
+extern int fixc_add_tag(fixc_msg_t, uint16_t tag, const char *val, size_t vsz);
 
 #endif	/* INCLUDED_fix_h_ */
