@@ -243,6 +243,112 @@ fixc_render_msg(char *restrict buf, size_t bsz, fixc_msg_t msg)
 	return totz;
 }
 
+static void
+check_size(fixc_msg_t msg, size_t add_flds)
+{
+/* check if MSG can hold ADD_FLDS additional fields, if not, resize */
+	size_t breath;
+
+	/* let's hope msg->pr is aligned, fingers crossed */
+	breath = (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
+
+	if (breath < add_flds + msg->nflds) {
+		/* grrr, lots of work to do :/ */
+		size_t old_sz = msg->pz + 1 + breath * sizeof(*msg->flds);
+		/* leave room for 32 new fields and 128 bytes msg */
+		size_t add_sz = 128 + (breath + 32) * sizeof(*msg->flds);
+		void *old_flds = NULL;
+		void *new_flds;
+		void *new_pr;
+
+		/* make sure not to realloc the flexible array */
+		if (msg->flds != msg->these) {
+			old_flds = msg->flds;
+		}
+		/* final reallocing */
+		new_flds = realloc(old_flds, ROUNDv(old_sz + add_sz));
+
+		/* move the fields first */
+		if (new_flds != old_flds) {
+			size_t mvz = msg->nflds * sizeof(*msg->flds);
+			memmove(new_flds, msg->flds, mvz);
+			msg->flds = new_flds;
+		}
+		/* always move the pr */
+		new_pr = msg->flds + breath + 32;
+		memmove(new_pr, msg->pr, msg->pz);
+		msg->pr = new_pr;
+	}
+	return;
+}
+
+int
+fixc_msg_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
+{
+	/* see if someone wants us to add offset fields */
+	if (fld.typ == FIXC_TYP_OFF) {
+		return -1;
+	}
+
+	/* see if someone tricks us into adding the special fields */
+	switch (fld.tag) {
+	case FIXC_TAG_UNK:
+		return -1;
+	default:
+		/* check if there's enough room for another 4 msgs */
+		check_size(msg, /*aribtrary hard-coded value*/4);
+
+		/* finally time to adopt this fld */
+		msg->flds[msg->nflds++] = fld;
+		break;
+	case FIXC_BEGIN_STRING:
+		/* don't bother checking the actual field */
+		msg->f8 = fld;
+		break;
+	case FIXC_BODY_LENGTH:
+		/* again, don't bother checking */
+		msg->f9 = fld;
+		break;
+	case FIXC_CHECK_SUM:
+		/* will be computed anyway */
+		msg->f10 = fld;
+		break;
+	case FIXC_MSG_TYPE:
+		msg->f35 = fld;
+		break;
+	}
+	return 0;
+}
+
+int
+fixc_msg_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
+{
+	/* see if someone tricks us into adding the special fields */
+	switch (tag) {
+		size_t cur;
+	case FIXC_TAG_UNK:
+	case FIXC_BEGIN_STRING:
+	case FIXC_BODY_LENGTH:
+	case FIXC_CHECK_SUM:
+	case FIXC_MSG_TYPE:
+		return -1;
+	default:
+		/* check if there's enough room for another 4 msgs */
+		check_size(msg, /*aribtrary hard-coded value*/4);
+
+		/* finally time to adopt this fld */
+		cur = msg->nflds++;
+		msg->flds[cur].tag = tag;
+		msg->flds[cur].typ = FIXC_TYP_OFF;
+		msg->flds[cur].off = msg->pz;
+		memcpy(msg->pr + msg->pz, val, vsz);
+		msg->pr[msg->pz += vsz] = '\0';
+		msg->pz++;
+		break;
+	}
+	return 0;
+}
+
 
 #if defined STANDALONE
 int
@@ -260,6 +366,16 @@ main(void)
 			i, msg->flds[i].tag, msg->pr + msg->flds[i].off);
 	}
 
+	fixc_render_msg(test, sizeof(test), msg);
+	fputs(test, stdout);
+	fputc('\n', stdout);
+
+	fixc_msg_add_fld(msg, (struct fixc_fld_s){
+				 .tag = 54/*Side*/,
+					 .typ = FIXC_TYP_UCHAR,
+					 .u8 = '1'
+					 });
+	fixc_msg_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
 	fixc_render_msg(test, sizeof(test), msg);
 	fputs(test, stdout);
 	fputc('\n', stdout);
