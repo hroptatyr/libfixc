@@ -39,6 +39,7 @@
 
 /* the enum values chosen, correspond to the ASCII representation */
 typedef enum {
+	FIXC_MSGTYP_UNK = 0x0000,
 	FIXC_MSGTYP_HEARTBEAT = 0x3000/*"0"*/,
 	FIXC_MSGTYP_TEST_REQUEST = 0x3100/*"1"*/,
 	FIXC_MSGTYP_RESEND_REQUEST = 0x3200/*"2"*/,
