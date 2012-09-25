@@ -81,6 +81,9 @@ enum {
 	FIXC_TYP_CHAR,
 	/** tag type is a (32b) integer */
 	FIXC_TYP_INT,
+
+	/** for tag #35 (MsgType) */
+	FIXC_TYP_MSGTYP,
 };
 
 /** version numbers we support */
@@ -109,6 +112,8 @@ struct fixc_fld_s {
 		uint8_t u8;
 		int8_t i8;
 		unsigned int ver;
+
+		fixc_msg_type_t mtyp;
 	};
 };
 
