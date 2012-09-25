@@ -37,6 +37,7 @@
 #if !defined INCLUDED_fix_h_
 #define INCLUDED_fix_h_
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "fix-msg-type.h"
