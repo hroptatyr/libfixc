@@ -114,14 +114,14 @@ make_fixc_from_fix(const char *msg, size_t msglen)
 	/* if msg was completely of the form N=V\1 we'd have 4 chars per fld */
 	fixc_msg_t res;
 	size_t base = sizeof(*res);
-	size_t fspc = ROUND(msglen / 4, FSPC_RND) * sizeof(*res->flds);
+	size_t fspc = ROUND(msglen / 4, FSPC_RND);
 	size_t vspc = ROUND(msglen + 1, VSPC_RND);
-	size_t totz = ROUNDv(base + fspc + vspc);
+	size_t totz = ROUNDv(base + fspc * sizeof(*res->flds) + vspc);
 
 	/* generate the husk */
 	res = malloc(totz);
 	res->flds = res->these;
-	res->pr = (char*)res->flds + fspc;
+	res->pr = (void*)(res->flds + fspc);
 	res->pz = msglen;
 	memcpy(res->pr, msg, msglen);
 
