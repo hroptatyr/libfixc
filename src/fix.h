@@ -149,6 +149,10 @@ extern void free_fixc(fixc_msg_t);
 extern size_t fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg);
 
 /**
+ * Render MSG into a fixml object in BUF (of size BSZ). */
+extern size_t fixc_render_fixml(char *restrict buf, size_t bsz, fixc_msg_t msg);
+
+/**
  * Add FLD to MSG. */
 extern int fixc_add_fld(fixc_msg_t, struct fixc_fld_s fld);
 

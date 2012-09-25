@@ -30,6 +30,12 @@ noinst_PROGRAMS += fix
 fix_CPPFLAGS = $(AM_CPPFLAGS)
 fix_CPPFLAGS += -DSTANDALONE
 
+## just for debugging and fun
+noinst_PROGRAMS += fixml
+fixml_CPPFLAGS = $(AM_CPPFLAGS)
+fixml_CPPFLAGS += -DSTANDALONE
+fixml_LDADD = libfixc.la
+
 # 
 # Help the developers get nice post-processed source files
 
