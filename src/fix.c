@@ -278,8 +278,8 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 	/* determine the size of the pr section, multiple of VSPC_RND */
 	vspc = ROUND(msg->pz + 1, VSPC_RND);
 
-	if (add_flds + msg->nflds <= fspc &&
-	    add_vspc + msg->pz <= vspc) {
+	if (add_flds + msg->nflds < fspc &&
+	    add_vspc + msg->pz < vspc) {
 		/* nothing to do, time for trip home */
 		return;
 	}
