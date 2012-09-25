@@ -17,6 +17,7 @@ EXTRA_DIST = $(BUILT_SOURCES)
 
 lib_LTLIBRARIES += libfixc.la
 libfixc_la_SOURCES = fix.c fix.h
+libfixc_la_SOURCES += nifty.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
 
