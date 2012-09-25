@@ -18,4 +18,7 @@ CLEANFILES = $(check_PROGRAMS)
 
 struct_tests =
 
+check_PROGRAMS += struct_layout_01
+struct_tests += struct_layout_01
+
 ## Makefile.am ends here
