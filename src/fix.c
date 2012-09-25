@@ -114,6 +114,7 @@ make_fixc_msg(const char *msg, size_t msglen)
 	/* generate the husk */
 	res = malloc(alloc_sz);
 	memset(res, 0, alloc_sz);
+	res->flds = res->these;
 	res->pr = (char*)res->flds + overhead - sizeof(*res);
 	res->pz = msglen;
 	memcpy(res->pr, msg, msglen);

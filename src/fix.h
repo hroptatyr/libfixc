@@ -39,7 +39,7 @@
 
 #include <stdint.h>
 
-typedef uint16_t fixc_fld_t;
+typedef struct fixc_fld_s *fixc_fld_t;
 typedef struct fixc_msg_s *fixc_msg_t;
 
 /** known tags */
@@ -123,7 +123,8 @@ struct fixc_msg_s {
 
 	/** number of fields */
 	size_t nflds;
-	struct fixc_fld_s flds[];
+	fixc_fld_t flds;
+	struct fixc_fld_s these[];
 };
 
 extern fixc_msg_t make_fixc_msg(const char *msg, size_t msglen);
