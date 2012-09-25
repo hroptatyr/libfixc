@@ -42,6 +42,12 @@
 #include "fix.h"
 #include "nifty.h"
 
+#if defined DEBUG_FLAG
+# define FIXC_DEBUG(args...)	fprintf(stderr, args)
+#else  /* !DEBUG_FLAG */
+# define FIXC_DEBUG(args...)
+#endif	/* DEBUG_FLAG */
+
 /* value we like our vspc to be rounded to */
 #define VSPC_RND	(128)
 /* value we like our fspc (the fields) to be rounded to */
@@ -284,6 +290,8 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		return;
 	}
 	/* grrr, otherwise there's lots of work to do :/ */
+	FIXC_DEBUG("resz %zu %zu -> ~%zu ~%zu\n",
+		   fspc, vspc, fspc + add_flds, vspc + add_vspc);
 
 	/* find out how big the whole dynamic room was */
 	old_sz = vspc + fspc * sizeof(*msg->flds);
