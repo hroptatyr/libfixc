@@ -256,7 +256,11 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 
 	/* compute and paste checksum */
 	if (totz + 5/*10=x\nul*/ < bsz) {
-		msg->f10.u8 = fixc_chksum(buf, totz);
+		msg->f10 = (struct fixc_fld_s){
+			.tag = FIXC_CHECK_SUM,
+			.typ = FIXC_TYP_UCHAR,
+			.u8 = fixc_chksum(buf, totz),
+		};
 		fixc_render_fld(buf + totz, bsz - totz, msg->pr, msg->f10);
 		/* no final SOH here */
 		totz += 4;
@@ -424,6 +428,11 @@ main(void)
 	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
 	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
 	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+	fixc_add_fld(msg, (struct fixc_fld_s){
+				 .tag = 54/*Side*/,
+					 .typ = FIXC_TYP_UCHAR,
+					 .u8 = '2'
+					 });
 	fixc_render_fix(test, sizeof(test), msg);
 	fputs(test, stdout);
 	fputc('\n', stdout);
