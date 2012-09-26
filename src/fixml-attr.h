@@ -1,4 +1,4 @@
-/*** fix-msg-type.h -- fixml attributes
+/*** fixml-attr.h -- fixml attributes
  *
  * Copyright (C) 2010-2012 Sebastian Freundt
  *
