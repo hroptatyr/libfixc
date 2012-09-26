@@ -15,10 +15,24 @@ TESTS_ENVIRONMENT =
 TEST_EXTENSIONS =
 check_PROGRAMS =
 CLEANFILES = $(check_PROGRAMS)
+EXTRA_DIST =
 
 struct_tests =
 
 check_PROGRAMS += struct_layout_01
 struct_tests += struct_layout_01
+
+EXTRA_DIST += fixml_to_fixc_prep.c
+check_PROGRAMS += fixml_to_fixc_hash_01
+struct_tests += fixml_to_fixc_hash_01
+
+check_PROGRAMS += fixml_to_fixc_hash_02
+struct_tests += fixml_to_fixc_hash_02
+
+check_PROGRAMS += fixml_to_fixc_hash_03
+struct_tests += fixml_to_fixc_hash_03
+
+check_PROGRAMS += fixml_to_fixc_hash_04
+struct_tests += fixml_to_fixc_hash_04
 
 ## Makefile.am ends here
