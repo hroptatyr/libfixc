@@ -50,6 +50,10 @@
 #include "fixml-comp.c"
 #include "fixml-comp-rev.c"
 
+#include "fix-msg-type.h"
+#include "fixml-msg-type.c"
+#include "fixml-msg-type-rev.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
