@@ -40,6 +40,8 @@
 typedef enum {
 	/* these ones are our own */
 	FIXC_COMP_UNK,
+	/* fixml's root element */
+	FIXC_COMP_FIXML,
 	/* auto-gen'd by
 	   cat spec/fixml_comp.all | \
 	   cut -f2 | sort -u | \
