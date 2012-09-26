@@ -20,9 +20,11 @@ libfixc_la_SOURCES = fix.c fix.h
 libfixc_la_SOURCES += fix-msg-type.h
 libfixc_la_SOURCES += nifty.h
 libfixc_la_SOURCES += fixml-attr.gperf fixml-attr.h
+libfixc_la_SOURCES += switch-group.awk
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += fixml-attr.c
+BUILT_SOURCES += fixml-attr-rev.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
@@ -41,6 +43,10 @@ fixml_LDADD = libfixc.la
 ## our rule for gperf
 %.c: %.gperf
 	$(AM_V_GEN) $(GPERF) $< --output-file $@
+
+fixml-attr-rev.c: $(top_builddir)/spec/fixml_attr.50SP2 switch_group.awk
+	sort -k2 $< | \
+	awk -f $(word 2,$+) > $@
 
 # 
 # Help the developers get nice post-processed source files
