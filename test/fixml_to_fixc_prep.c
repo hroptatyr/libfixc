@@ -1,6 +1,8 @@
 #if !defined INCLUDED_fixml_to_fixc_prep_c_
 #define INCLUDED_fixml_to_fixc_prep_c_
 
+#include "fixml-attr.h"
+
 static __attribute__((unused)) const char attrs[][24] = {
 	"xmlns",
 	"v",
@@ -1014,7 +1016,7 @@ static __attribute__((unused)) const char attrs[][24] = {
 	"Yld",
 };
 
-static __attribute__((unused)) const uint16_t tags[] = {
+static __attribute__((unused)) const fixc_attr_t tags[] = {
 	FIXC_ATTR_XMLNS,
 	FIXC_ATTR_V,
 	FIXC_ATTR_AOS_CURR,
