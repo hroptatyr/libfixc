@@ -20,9 +20,9 @@ libfixc_la_SOURCES = fix.c fix.h
 libfixc_la_SOURCES += fix-msg-type.h
 libfixc_la_SOURCES += nifty.h
 libfixc_la_SOURCES += fixml-attr.gperf fixml-attr.h
-libfixc_la_SOURCES += switch-group.awk
+libfixc_la_SOURCES += switch-group-attr.awk
 libfixc_la_SOURCES += fixml-comp.gperf fixml-comp.h
-libfixc_la_SOURCES += switch-group_comp.awk
+libfixc_la_SOURCES += switch-group-comp.awk
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += fixml-attr.c
@@ -48,13 +48,13 @@ fixml_LDADD = libfixc.la
 %.c: %.gperf
 	$(AM_V_GEN) $(GPERF) $< --output-file $@
 
-fixml-attr-rev.c: $(top_builddir)/spec/fixml_attr.50SP2 switch_group.awk
+fixml-attr-rev.c: $(top_builddir)/spec/fixml_attr.50SP2 switch-group-attr.awk
 	sort -k2 $< | \
 	awk -f $(word 2,$+) > $@
 
 fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 		$(top_srcdir)/spec/uncamel.sed \
-		switch_group_comp.awk
+		switch-group-comp.awk
 	cut -f2 $< | sort -u > fixml-comp-rev.tgt
 	cat fixml-comp-rev.tgt | sed -f $(word 2,$+) -e 's/^/FIXC_COMP_/' | \
 		tr 'a-z' 'A-Z' > fixml-comp-rev.src
