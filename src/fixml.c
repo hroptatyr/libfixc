@@ -48,11 +48,6 @@
 # define FIXC_DEBUG(args...)
 #endif	/* DEBUG_FLAG */
 
-/* value we like our vspc to be rounded to */
-#define VSPC_RND	(128)
-/* value we like our fspc (the fields) to be rounded to */
-#define FSPC_RND	(32)
-
 #if !defined CHAR_BIT
 # define CHAR_BIT	(8U)
 #endif	/* !CHAR_BIT */
