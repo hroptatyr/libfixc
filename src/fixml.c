@@ -44,6 +44,7 @@
 
 #include "fixml-attr.h"
 #include "fixml-attr.c"
+#include "fixml-attr-rev.c"
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
