@@ -84,10 +84,10 @@ fixc_parse_mtyp(const char str[static 1], size_t len)
 	case 0:
 	default:
 		break;
-	case 2:
-		res |= (unsigned int)(str[1] & 0xff) << 0U;
 	case 1:
+	case 2:
 		res |= (unsigned int)(str[0] & 0xff) << CHAR_BIT;
+		res |= (unsigned int)(str[1] & 0xff) << 0U;
 		break;
 	}
 	return (fixc_msg_type_t)(res);
