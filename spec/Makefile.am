@@ -30,7 +30,7 @@ fixml_attr.all: fixml_attr.44 fixml_attr.50 fixml_attr.50SP1 fixml_attr.50SP2
 	cat $? | sort -k1n -k2 | uniq > $@
 
 fixml_comp.all: fixml_comp.44 fixml_comp.50 fixml_comp.50SP1 fixml_comp.50SP2
-	cat $? | sort | uniq > $@
+	cat $? | sort -k1 -k2 -u > $@
 
 fixml_literal.all: fixml_attr.all uncamel.sed
 	cat $< | \
