@@ -10,29 +10,27 @@ libblddir = $(top_builddir)/src
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
 AM_CPPFLAGS += -DTEST -I$(libsrcdir) -I$(libblddir)
 
-TESTS = $(struct_tests)
+TESTS =
 TESTS_ENVIRONMENT =
 TEST_EXTENSIONS =
 check_PROGRAMS =
 CLEANFILES = $(check_PROGRAMS)
 EXTRA_DIST =
 
+TESTS += $(struct_tests)
+check_PROGRAMS += $(struct_tests)
 struct_tests =
 
-check_PROGRAMS += struct_layout_01
+TESTS += $(fixml_tests)
+check_PROGRAMS += $(fixml_tests)
+fixml_tests =
+
 struct_tests += struct_layout_01
 
 EXTRA_DIST += fixml_to_fixc_prep.c
-check_PROGRAMS += fixml_to_fixc_hash_01
-struct_tests += fixml_to_fixc_hash_01
-
-check_PROGRAMS += fixml_to_fixc_hash_02
-struct_tests += fixml_to_fixc_hash_02
-
-check_PROGRAMS += fixml_to_fixc_hash_03
-struct_tests += fixml_to_fixc_hash_03
-
-check_PROGRAMS += fixml_to_fixc_hash_04
-struct_tests += fixml_to_fixc_hash_04
+fixml_tests += fixml_to_fixc_hash_01
+fixml_tests += fixml_to_fixc_hash_02
+fixml_tests += fixml_to_fixc_hash_03
+fixml_tests += fixml_to_fixc_hash_04
 
 ## Makefile.am ends here
