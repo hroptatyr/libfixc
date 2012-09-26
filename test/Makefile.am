@@ -35,10 +35,17 @@ fixml_tests += fixml_to_fixc_hash_04
 fixml_tests += fixml_to_fixc_hash_05
 fixml_tests += fixml_to_fixc_hash_06
 fixml_tests += fixml_to_fixc_hash_07
+fixml_tests += fixml_to_fixc_hash_08
+fixml_tests += fixml_to_fixc_hash_09
+fixml_tests += fixml_to_fixc_hash_10
+fixml_tests += fixml_to_fixc_hash_11
+fixml_tests += fixml_to_fixc_hash_12
 
 fixml_tests += fixc_to_fixml_hash_01
 fixml_tests += fixc_to_fixml_hash_02
 fixml_tests += fixc_to_fixml_hash_03
 fixml_tests += fixc_to_fixml_hash_04
+fixml_tests += fixc_to_fixml_hash_05
+fixml_tests += fixc_to_fixml_hash_06
 
 ## Makefile.am ends here
