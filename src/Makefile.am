@@ -30,6 +30,7 @@ BUILT_SOURCES += fixml-attr-rev.c
 BUILT_SOURCES += fixml-comp.c
 BUILT_SOURCES += fixml-comp-rev.c
 BUILT_SOURCES += fixml-msg-type.c
+BUILT_SOURCES += fixml-msg-type-rev.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
