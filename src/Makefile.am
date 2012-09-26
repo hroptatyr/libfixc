@@ -21,10 +21,12 @@ libfixc_la_SOURCES += fix-msg-type.h
 libfixc_la_SOURCES += nifty.h
 libfixc_la_SOURCES += fixml-attr.gperf fixml-attr.h
 libfixc_la_SOURCES += switch-group.awk
+libfixc_la_SOURCES += fixml-comp.gperf fixml-comp.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += fixml-attr.c
 BUILT_SOURCES += fixml-attr-rev.c
+BUILT_SOURCES += fixml-comp.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
