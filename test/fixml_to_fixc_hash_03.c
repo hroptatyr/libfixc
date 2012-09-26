@@ -7,7 +7,7 @@
 
 #define countof(x)	(sizeof(x) / sizeof(*x))
 
-static uint16_t
+static fixc_attr_t
 lookup(const char *attr)
 {
 	for (size_t i = 0; i < countof(attrs); i++) {
@@ -39,7 +39,7 @@ main(void)
 	for (size_t i = 0; i < 100000; i++) {
 		size_t idx = gen() % countof(attrs);
 		const char *attr = attrs[idx];
-		uint16_t tag = lookup(attr);
+		fixc_attr_t tag = lookup(attr);
 
 		if (tag == FIXC_ATTR_UNK) {
 			res = 1;
