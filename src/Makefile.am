@@ -36,6 +36,10 @@ fixml_CPPFLAGS = $(AM_CPPFLAGS)
 fixml_CPPFLAGS += -DSTANDALONE
 fixml_LDADD = libfixc.la
 
+## our rule for gperf
+%.c: %.gperf
+	$(AM_V_GEN) $(GPERF) $< --output-file $@
+
 # 
 # Help the developers get nice post-processed source files
 
