@@ -6,6 +6,7 @@ compiler:
 
 before_script:
   - autoreconf -vfi
+  - sudo apt-get install -qq gperf
 
 script: ./configure && make clean all check distcheck
 
