@@ -42,6 +42,9 @@
 #include "fix.h"
 #include "nifty.h"
 
+#include "fixml-attr.h"
+#include "fixml-attr.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
