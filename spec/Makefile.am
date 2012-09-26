@@ -10,6 +10,11 @@ EXTRA_DIST += fixml_attr.50
 EXTRA_DIST += fixml_attr.50SP1
 EXTRA_DIST += fixml_attr.50SP2
 
+EXTRA_DIST += fixml_comp.44
+EXTRA_DIST += fixml_comp.50
+EXTRA_DIST += fixml_comp.50SP1
+EXTRA_DIST += fixml_comp.50SP2
+
 EXTRA_DIST += uncamel.sed
 
 BUILT_SOURCES += fixml_attr.all
