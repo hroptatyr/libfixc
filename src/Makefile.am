@@ -22,7 +22,7 @@ libfixc_la_SOURCES += nifty.h
 libfixc_la_SOURCES += fixml-attr.gperf
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
-BUILT_SOURCES = fixml-attr.c
+BUILT_SOURCES += fixml-attr.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
