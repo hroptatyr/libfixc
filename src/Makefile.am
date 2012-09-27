@@ -79,8 +79,13 @@ fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 #			-e 's/^/FIXC_MSGTYP_/' -e 's/\t/\tFIXC_COMP_/' | \
 #		tr 'a-z' 'A-Z'
 
-fixml-comp-sub.c: fixml-comp-sub.xsl $(top_srcdir)/spec/FIX50SP2.xml
-	xsltproc $+ > $@
+fixml-comp-sub.c: $(top_srcdir)/spec/FIX50SP2.xml \
+		fixml-comp-sub.xsl \
+		$(top_srcdir)/spec/uncamel.sed
+	xsltproc $(word 2,$+) $< | \
+		sed -f $(word 3,$+) \
+			-e 's/FIXC_MSGTYP_.*/\U&/' \
+			-e 's/FIXC_COMP_.*/\U&/' > $@
 
 fixml-names.h: $(top_builddir)/spec/fixml_comp.all \
 		$(top_srcdir)/spec/uncamel.sed
