@@ -1,0 +1,9 @@
+The files fixml_{attr,comp,msg}.* have been auto-gen'd by snarfing the FIX
+website.  Using curl and sed along the lines of:
+
+curl -q 'http://fixprotocol.org/FIXimate3.0/en/FIX.4.4/fields_sorted_by_name.html' | \
+html2text | grep -F " @" | \
+sed '/^[0-9]/!d; s/^\([0-9]*\).*\(@[^ ]*\).*/\1\t\2/' > fixml_attr.44
+etc.
+
+The files FIX*.xml are taken from quickfix repository.
