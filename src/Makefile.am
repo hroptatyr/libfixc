@@ -64,6 +64,18 @@ fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 		awk -f $(word 3,$+) > $@
 	$(RM) fixml-comp-rev.src fixml-comp-rev.tgt
 
+#fixml-comp-sub.c: $(top_srcdir)/spec/FIX50SP2.xml \
+#		$(top_srcdir)/spec/fixml_comp.50SP2 \
+#		fixml-msg-type-sub.xsl \
+#		$(top_srcdir)/spec/uncamel.sed
+#	xsltproc $(word 3,$+) $(word 1,$+) | \
+#		sort -k2 | \
+#		join -t'	' -1 2 -2 1 -o 1.1,2.2 - $(word 2,$+) | \
+#		sort | \
+#		sed -f $(word 4,$+) \
+#			-e 's/^/FIXC_MSGTYP_/' -e 's/\t/\tFIXC_COMP_/' | \
+#		tr 'a-z' 'A-Z'
+
 # 
 # Help the developers get nice post-processed source files
 
