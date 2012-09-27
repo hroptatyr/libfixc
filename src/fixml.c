@@ -64,65 +64,54 @@
 # define CHAR_BIT	(8U)
 #endif	/* !CHAR_BIT */
 
-
-/* generic rendering */
-static size_t
-__render_attr(
-	char *restrict buf, size_t bsz, const char *b, struct fixc_fld_s fld)
+static char*
+sncpy(char *restrict buf, const char *eb, const char *s, size_t slen)
 {
-	size_t res = 0UL;
-
-	switch (fld.tag) {
-	case 117/*QID*/:
-		memcpy(buf + res, " QID=\"", sizeof(" QID=\"") - 1);
-		res += sizeof(" QID=\"") - 1;
-
-		buf[res++] = '"';
-		break;
-	default:
-		break;
+/* copy S (of size SLEN) to BUF but don't go beyond EB. */
+	if (UNLIKELY(buf + slen > eb)) {
+		slen = eb - buf;
 	}
-	return res;
-}
-
-
-static int
-__quot_attr_p(struct fixc_fld_s fld)
-{
-	return 1;
-}
-
-static size_t
-fixc_render_quote(char *restrict buf, size_t bsz, fixc_msg_t msg)
-{
-	static const char quot_pre[] = "<Quot";
-	static const char quot_post[] = "</Quot>";
-	size_t res = 0UL;
-
-	/* let's open the tag */
-	memcpy(buf + res, quot_pre, sizeof(quot_pre) - 1);
-	res += sizeof(quot_pre) - 1;
-
-	for (size_t i = 0; i < msg->nflds && res < bsz; i++) {
-		if (__quot_attr_p(msg->flds[i])) {
-			res += __render_attr(
-				buf + res, bsz - res, msg->pr, msg->flds[i]);
-		}
-	}
-
-	/* close the tag */
-	buf[res++] = '>';
-
-	/* and we're off */
-	memcpy(buf + res, quot_post, sizeof(quot_post));
-	res += sizeof(quot_post) - 1;
-	return res;
+	memcpy(buf, s, slen);
+	return buf + slen;
 }
 
 
 /* fixml guts */
+static size_t
+__render_msgtyp(char *restrict const buf, size_t bsz, fixc_msg_t msg)
+{
+	const char *mty = __mty_fixmlify(msg->f35.mtyp);
+	size_t mtylen = strlen(mty);
+	char *p = buf;
+	const char *ep = buf + bsz;
+
+	if (!mtylen) {
+		/* probably fubar'd or an unknown msgtyp */
+		return 0UL;
+	}
+
+	/* start the msg tag */
+	*p++ = '<';
+	p = sncpy(p, ep, mty, mtylen);
+
+	/* all msg attributes here */
+	;
+	/* close the start-tag */
+	*p++ = '>';
+
+	/* all components of the message */
+	;
+
+	/* closing tag */
+	*p++ = '<';
+	*p++ = '/';
+	p = sncpy(p, ep, mty, mtylen);
+	*p++ = '>';
+	return p - buf;
+}
+
 size_t
-fixc_render_fixml(char *restrict buf, size_t bsz, fixc_msg_t msg)
+fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 {
 	static const char xml_pre[] = "\
 <?xml version=\"1.0\"?>";
@@ -130,32 +119,22 @@ fixc_render_fixml(char *restrict buf, size_t bsz, fixc_msg_t msg)
 <FIXML xmlns=\"http://www.fixprotocol.org/FIXML-5-0-SP2\">";
 	static const char fixml_post[] = "\
 </FIXML>";
-	size_t totz = 0;
+	const char *ep = buf + bsz;
+	char *restrict p = buf;
 
-	/* just the usual stuff */
-	memcpy(buf + totz, xml_pre, sizeof(xml_pre) - 1);
-	buf[(totz += sizeof(xml_pre)) - 1] = '\n';
-	memcpy(buf + totz, fixml_pre, sizeof(fixml_pre) - 1);
-	totz += sizeof(fixml_pre) - 1;
+	/* the usual stuff upfront, xml PI */
+	p = sncpy(p, ep, xml_pre, sizeof(xml_pre) - 1);
+	/* newline this one, all other tags will have no indentation */
+	*p++ = '\n';
+	/* ... and open our tag */
+	p = sncpy(p, ep, fixml_pre, sizeof(fixml_pre) - 1);
 
-	if (msg->f35.typ != FIXC_TYP_MSGTYP) {
-		goto grrr;
-	}
-	switch (msg->f35.mtyp) {
-	default:
-	case FIXC_MSGTYP_UNK:
-	grrr:
-		/* do fuckall */
-		break;
-	case FIXC_MSGTYP_QUOTE:
-		totz += fixc_render_quote(buf + totz, bsz - totz, msg);
-		break;
-	}
+	/* there ought to be just one message in there innit? */
+	p += __render_msgtyp(p, ep - p, msg);
 
 	/* final verdict */
-	memcpy(buf + totz, fixml_post, sizeof(fixml_post));
-	totz += sizeof(fixml_post);
-	return totz;
+	p = sncpy(p, ep, fixml_post, sizeof(fixml_post));
+	return p - buf - 1/*final \nul*/;
 }
 
 
