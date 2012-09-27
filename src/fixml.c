@@ -88,6 +88,13 @@ sncpy(char *restrict buf, const char *eob, const char *s, size_t slen)
 
 
 /* fixml guts */
+static int
+__attr_in_ctx_p(fixc_attr_t a, uint16_t c)
+{
+/* return non-0 if tag A is a member of component C or msg-type C. */
+	return 1;
+}
+
 static size_t
 __render_attr(
 	char *restrict const buf, size_t bsz,
@@ -131,39 +138,88 @@ __render_attr(
 	return p - buf;
 }
 
+/* fwd decl */
+static size_t
+__render_comp(
+	char *restrict const buf, size_t bsz,
+	fixc_msg_t msg, fixc_comp_t cid);
+
+static size_t
+__render_ctx(
+	char *restrict const buf, size_t bsz,
+	fixc_msg_t msg, uint16_t ctx,
+	const char *elem, size_t elen)
+{
+	char *p = buf;
+	const char *ep = buf + bsz;
+	int subcompp = 0;
+
+	/* start the tag */
+	/* start the comp tag */
+	p = sputc(p, ep, '<');
+	p = sncpy(p, ep, elem, elen);
+
+	/* all them attrs belonging in context CID */
+	for (size_t i = 0; i < msg->nflds && p < ep; i++) {
+		fixc_attr_t aid = (fixc_attr_t)msg->flds[i].tag;
+		if (__attr_in_ctx_p(aid, ctx)) {
+			p += __render_attr(p, ep - p, msg->pr, msg->flds[i]);
+		} else {
+			subcompp = 1;
+		}
+	}
+
+	/* closing tag */
+	if (!subcompp) {
+		p = sputc(p, ep, '/');
+		p = sputc(p, ep, '>');
+		goto out;
+	}
+	/* otherwise finish the tag */
+	p = sputc(p, ep, '>');
+
+	/* sub components */
+	{
+		fixc_comp_t cid = FIXC_COMP_INSTRMT;
+		__render_comp(p, ep - p, msg, cid);
+	}
+
+	/* and finish this component */
+	p = sputc(p, ep, '<');
+	p = sputc(p, ep, '/');
+	p = sncpy(p, ep, elem, elen);
+	p = sputc(p, ep, '>');
+out:
+	return p - buf;
+}
+
+static size_t
+__render_comp(
+	char *restrict const buf, size_t bsz,
+	fixc_msg_t msg, fixc_comp_t cid)
+{
+	const char *comp = __cid_fixmlify(cid);
+	size_t clen = strlen(comp);
+
+	if (!clen) {
+		/* must be fubar'd */
+		return 0UL;
+	}
+	return __render_ctx(buf, bsz, msg, (uint16_t)cid, comp, clen);
+}
+
 static size_t
 __render_msgtyp(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 {
-	const char *mty = __mty_fixmlify(msg->f35.mtyp);
-	size_t mtylen = strlen(mty);
-	char *p = buf;
-	const char *ep = buf + bsz;
+	fixc_msg_type_t mty = msg->f35.mtyp;
+	const char *mstr = __mty_fixmlify(mty);
+	size_t mlen = strlen(mstr);
 
-	if (!mtylen) {
+	if (!mlen) {
 		/* probably fubar'd or an unknown msgtyp */
 		return 0UL;
 	}
-
-	/* start the msg tag */
-	p = sputc(p, ep, '<');
-	p = sncpy(p, ep, mty, mtylen);
-
-	/* all msg attributes here */
-	for (size_t i = 0; i < msg->nflds && p < ep; i++) {
-		p += __render_attr(p, ep - p, msg->pr, msg->flds[i]);
-	}
-	/* close the start-tag */
-	p = sputc(p, ep, '>');
-
-	/* all components of the message */
-	;
-
-	/* closing tag */
-	p = sputc(p, ep, '<');
-	p = sputc(p, ep, '/');
-	p = sncpy(p, ep, mty, mtylen);
-	p = sputc(p, ep, '>');
-	return p - buf;
+	return __render_ctx(buf, bsz, msg, (uint16_t)mty, mstr, mlen);
 }
 
 
