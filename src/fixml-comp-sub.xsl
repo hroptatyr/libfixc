@@ -62,4 +62,6 @@
     </xsl:call-template>
   </xsl:template>
 
+  <xsl:template match="component[@name='HopGrp']"/>
+
 </xsl:stylesheet>
