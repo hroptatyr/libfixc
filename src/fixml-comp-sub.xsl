@@ -9,6 +9,7 @@
     <xsl:text>/* do not edit, gen'd by fixml-comp-sub.xsl */&#0010;</xsl:text>
     <xsl:text>&#0010;</xsl:text>
     <xsl:text>#include "fixml-comp-sub.h"&#0010;</xsl:text>
+    <xsl:text>#include "fixml-names.h"&#0010;</xsl:text>
     <xsl:text>&#0010;</xsl:text>
     <xsl:text>&#0010;</xsl:text>
 
