@@ -65,11 +65,22 @@
 #endif	/* !CHAR_BIT */
 
 static char*
-sncpy(char *restrict buf, const char *eb, const char *s, size_t slen)
+sputc(char *restrict buf, const char *eob, char c)
 {
-/* copy S (of size SLEN) to BUF but don't go beyond EB. */
-	if (UNLIKELY(buf + slen > eb)) {
-		slen = eb - buf;
+/* put C into BUF but don't go beyond EOB. */
+	if (UNLIKELY(buf + 1 >= eob)) {
+		return buf;
+	}
+	*buf++ = c;
+	return buf;
+}
+
+static char*
+sncpy(char *restrict buf, const char *eob, const char *s, size_t slen)
+{
+/* copy S (of size SLEN) to BUF but don't go beyond EOB. */
+	if (UNLIKELY(buf + slen >= eob)) {
+		slen = eob - buf;
 	}
 	memcpy(buf, s, slen);
 	return buf + slen;
@@ -77,6 +88,49 @@ sncpy(char *restrict buf, const char *eb, const char *s, size_t slen)
 
 
 /* fixml guts */
+static size_t
+__render_attr(
+	char *restrict const buf, size_t bsz,
+	const char *b, struct fixc_fld_s fld)
+{
+	const char *attr = __aid_fixmlify((fixc_attr_t)fld.tag);
+	size_t alen = strlen(attr);
+	char *p = buf;
+	const char *ep = buf + bsz;
+
+	if (!alen) {
+		/* probably fubar'd or an unknown attr */
+		return 0UL;
+	}
+
+	p = sputc(p, ep, ' ');
+	p = sncpy(p, ep, attr, alen);
+	p = sputc(p, ep, '=');
+	p = sputc(p, ep, '"');
+	switch (fld.typ) {
+		size_t len;
+	case FIXC_TYP_OFF:
+		len = strlen(b + fld.off);
+		p = sncpy(p, ep, b + fld.off, len);
+		break;
+	case FIXC_TYP_UCHAR:
+	case FIXC_TYP_CHAR:
+		p = sputc(p, ep, fld.i8);
+		break;
+	case FIXC_TYP_INT:
+		p += snprintf(p, ep - p - 1, "%" PRIi32, fld.i32);
+		break;
+
+	case FIXC_TYP_VER:
+	case FIXC_TYP_MSGTYP:
+	default:
+		/* huh? */
+		return 0UL;
+	}
+	p = sputc(p, ep, '"');
+	return p - buf;
+}
+
 static size_t
 __render_msgtyp(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 {
@@ -91,25 +145,29 @@ __render_msgtyp(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	}
 
 	/* start the msg tag */
-	*p++ = '<';
+	p = sputc(p, ep, '<');
 	p = sncpy(p, ep, mty, mtylen);
 
 	/* all msg attributes here */
-	;
+	for (size_t i = 0; i < msg->nflds && p < ep; i++) {
+		p += __render_attr(p, ep - p, msg->pr, msg->flds[i]);
+	}
 	/* close the start-tag */
-	*p++ = '>';
+	p = sputc(p, ep, '>');
 
 	/* all components of the message */
 	;
 
 	/* closing tag */
-	*p++ = '<';
-	*p++ = '/';
+	p = sputc(p, ep, '<');
+	p = sputc(p, ep, '/');
 	p = sncpy(p, ep, mty, mtylen);
-	*p++ = '>';
+	p = sputc(p, ep, '>');
 	return p - buf;
 }
 
+
+/* public functions */
 size_t
 fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 {
