@@ -54,6 +54,8 @@
 #include "fixml-msg-type.c"
 #include "fixml-msg-type-rev.c"
 
+#include "fixml-comp-sub.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
