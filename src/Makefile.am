@@ -84,13 +84,12 @@ fixml-comp-sub.c: fixml-comp-sub.xsl $(top_srcdir)/spec/FIX50SP2.xml
 
 fixml-names.h: $(top_builddir)/spec/fixml_comp.all \
 		$(top_srcdir)/spec/uncamel.sed
-	cut -f1,2 $< | uniq | cut -f1 | \
-		sed -e 's/^/#define FIXC_COMP_/' > .tgt
-	cut -f1,2 $< | uniq | cut -f2 | \
-		sed -f $(word 2,$+) -e 's/^/FIXC_COMP_/' | \
-		tr 'a-z' 'A-Z' > .src
-	paste .tgt .src > $@
-	$(RM) .tgt .src
+	cut -f1,2 $< | uniq | \
+		sed -f $(word 2,$+) \
+			-e 's/^/FIXC_COMP_/' \
+			-e 's/\t/\tFIXC_COMP_/' | \
+		tr 'a-z' 'A-Z' | \
+		sed -e 's/^/#define /' > $@
 
 # 
 # Help the developers get nice post-processed source files
