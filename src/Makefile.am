@@ -22,6 +22,7 @@ libfixc_la_SOURCES += fixml-attr.gperf fixml-attr.h
 libfixc_la_SOURCES += switch-group-attr.awk
 libfixc_la_SOURCES += fixml-comp.gperf fixml-comp.h
 libfixc_la_SOURCES += switch-group-comp.awk
+libfixc_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
 libfixc_la_SOURCES += fixml-msg-type.gperf fix-msg-type.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
@@ -29,8 +30,10 @@ BUILT_SOURCES += fixml-attr.c
 BUILT_SOURCES += fixml-attr-rev.c
 BUILT_SOURCES += fixml-comp.c
 BUILT_SOURCES += fixml-comp-rev.c
+BUILT_SOURCES += fixml-comp-sub.c
 BUILT_SOURCES += fixml-msg-type.c
 BUILT_SOURCES += fixml-msg-type-rev.c
+BUILT_SOURCES += fixml-names.h
 
 header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
@@ -75,6 +78,19 @@ fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 #		sed -f $(word 4,$+) \
 #			-e 's/^/FIXC_MSGTYP_/' -e 's/\t/\tFIXC_COMP_/' | \
 #		tr 'a-z' 'A-Z'
+
+fixml-comp-sub.c: fixml-comp-sub.xsl $(top_srcdir)/spec/FIX50SP2.xml
+	xsltproc $+ > $@
+
+fixml-names.h: $(top_builddir)/spec/fixml_comp.all \
+		$(top_srcdir)/spec/uncamel.sed
+	cut -f1,2 $< | uniq | cut -f1 | \
+		sed -e 's/^/#define FIXC_COMP_/' > .tgt
+	cut -f1,2 $< | uniq | cut -f2 | \
+		sed -f $(word 2,$+) -e 's/^/FIXC_COMP_/' | \
+		tr 'a-z' 'A-Z' > .src
+	paste .tgt .src > $@
+	$(RM) .tgt .src
 
 # 
 # Help the developers get nice post-processed source files
