@@ -17,7 +17,7 @@
   </xsl:template>
 
   <xsl:template match="message">
-    <xsl:text>static const struct fixc_comp_sub_s fixc_cs_</xsl:text>
+    <xsl:text>static __attribute__((unused)) const struct fixc_comp_sub_s fixc_cs_</xsl:text>
     <xsl:value-of select="@name"/>
     <xsl:text> = {&#0010;</xsl:text>
 
@@ -40,7 +40,7 @@
   </xsl:template>
 
   <xsl:template match="component">
-    <xsl:text>static const struct fixc_comp_sub_s fixc_cs_</xsl:text>
+    <xsl:text>static __attribute__((unused)) const struct fixc_comp_sub_s fixc_cs_</xsl:text>
     <xsl:value-of select="@name"/>
     <xsl:text> = {&#0010;</xsl:text>
 
