@@ -54,6 +54,8 @@
 #include "fixml-msg-type.c"
 #include "fixml-msg-type-rev.c"
 
+#include "fixml-comp-sub.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
@@ -64,65 +66,168 @@
 # define CHAR_BIT	(8U)
 #endif	/* !CHAR_BIT */
 
-
-/* generic rendering */
-static size_t
-__render_attr(
-	char *restrict buf, size_t bsz, const char *b, struct fixc_fld_s fld)
+static char*
+sputc(char *restrict buf, const char *eob, char c)
 {
-	size_t res = 0UL;
-
-	switch (fld.tag) {
-	case 117/*QID*/:
-		memcpy(buf + res, " QID=\"", sizeof(" QID=\"") - 1);
-		res += sizeof(" QID=\"") - 1;
-
-		buf[res++] = '"';
-		break;
-	default:
-		break;
+/* put C into BUF but don't go beyond EOB. */
+	if (UNLIKELY(buf + 1 >= eob)) {
+		return buf;
 	}
-	return res;
+	*buf++ = c;
+	return buf;
 }
 
-
-static int
-__quot_attr_p(struct fixc_fld_s fld)
+static char*
+sncpy(char *restrict buf, const char *eob, const char *s, size_t slen)
 {
-	return 1;
-}
-
-static size_t
-fixc_render_quote(char *restrict buf, size_t bsz, fixc_msg_t msg)
-{
-	static const char quot_pre[] = "<Quot";
-	static const char quot_post[] = "</Quot>";
-	size_t res = 0UL;
-
-	/* let's open the tag */
-	memcpy(buf + res, quot_pre, sizeof(quot_pre) - 1);
-	res += sizeof(quot_pre) - 1;
-
-	for (size_t i = 0; i < msg->nflds && res < bsz; i++) {
-		if (__quot_attr_p(msg->flds[i])) {
-			res += __render_attr(
-				buf + res, bsz - res, msg->pr, msg->flds[i]);
-		}
+/* copy S (of size SLEN) to BUF but don't go beyond EOB. */
+	if (UNLIKELY(buf + slen >= eob)) {
+		slen = eob - buf;
 	}
-
-	/* close the tag */
-	buf[res++] = '>';
-
-	/* and we're off */
-	memcpy(buf + res, quot_post, sizeof(quot_post));
-	res += sizeof(quot_post) - 1;
-	return res;
+	memcpy(buf, s, slen);
+	return buf + slen;
 }
 
 
 /* fixml guts */
+static int
+__attr_in_ctx_p(fixc_attr_t a, uint16_t c)
+{
+/* return non-0 if tag A is a member of component C or msg-type C. */
+	return 1;
+}
+
+static size_t
+__render_attr(
+	char *restrict const buf, size_t bsz,
+	const char *b, struct fixc_fld_s fld)
+{
+	const char *attr = __aid_fixmlify((fixc_attr_t)fld.tag);
+	size_t alen = strlen(attr);
+	char *p = buf;
+	const char *ep = buf + bsz;
+
+	if (!alen) {
+		/* probably fubar'd or an unknown attr */
+		return 0UL;
+	}
+
+	p = sputc(p, ep, ' ');
+	p = sncpy(p, ep, attr, alen);
+	p = sputc(p, ep, '=');
+	p = sputc(p, ep, '"');
+	switch (fld.typ) {
+		size_t len;
+	case FIXC_TYP_OFF:
+		len = strlen(b + fld.off);
+		p = sncpy(p, ep, b + fld.off, len);
+		break;
+	case FIXC_TYP_UCHAR:
+	case FIXC_TYP_CHAR:
+		p = sputc(p, ep, fld.i8);
+		break;
+	case FIXC_TYP_INT:
+		p += snprintf(p, ep - p - 1, "%" PRIi32, fld.i32);
+		break;
+
+	case FIXC_TYP_VER:
+	case FIXC_TYP_MSGTYP:
+	default:
+		/* huh? */
+		return 0UL;
+	}
+	p = sputc(p, ep, '"');
+	return p - buf;
+}
+
+/* fwd decl */
+static size_t
+__render_comp(
+	char *restrict const buf, size_t bsz,
+	fixc_msg_t msg, fixc_comp_t cid);
+
+static size_t
+__render_ctx(
+	char *restrict const buf, size_t bsz,
+	fixc_msg_t msg, uint16_t ctx,
+	const char *elem, size_t elen)
+{
+	char *p = buf;
+	const char *ep = buf + bsz;
+	int subcompp = 0;
+
+	/* start the tag */
+	/* start the comp tag */
+	p = sputc(p, ep, '<');
+	p = sncpy(p, ep, elem, elen);
+
+	/* all them attrs belonging in context CID */
+	for (size_t i = 0; i < msg->nflds && p < ep; i++) {
+		fixc_attr_t aid = (fixc_attr_t)msg->flds[i].tag;
+		if (__attr_in_ctx_p(aid, ctx)) {
+			p += __render_attr(p, ep - p, msg->pr, msg->flds[i]);
+		} else {
+			subcompp = 1;
+		}
+	}
+
+	/* closing tag */
+	if (!subcompp) {
+		p = sputc(p, ep, '/');
+		p = sputc(p, ep, '>');
+		goto out;
+	}
+	/* otherwise finish the tag */
+	p = sputc(p, ep, '>');
+
+	/* sub components */
+	{
+		fixc_comp_t cid = FIXC_COMP_INSTRMT;
+		__render_comp(p, ep - p, msg, cid);
+	}
+
+	/* and finish this component */
+	p = sputc(p, ep, '<');
+	p = sputc(p, ep, '/');
+	p = sncpy(p, ep, elem, elen);
+	p = sputc(p, ep, '>');
+out:
+	return p - buf;
+}
+
+static size_t
+__render_comp(
+	char *restrict const buf, size_t bsz,
+	fixc_msg_t msg, fixc_comp_t cid)
+{
+	const char *comp = __cid_fixmlify(cid);
+	size_t clen = strlen(comp);
+
+	if (!clen) {
+		/* must be fubar'd */
+		return 0UL;
+	}
+	return __render_ctx(buf, bsz, msg, (uint16_t)cid, comp, clen);
+}
+
+static size_t
+__render_msgtyp(char *restrict const buf, size_t bsz, fixc_msg_t msg)
+{
+	fixc_msg_type_t mty = msg->f35.mtyp;
+	const char *mstr = __mty_fixmlify(mty);
+	size_t mlen = strlen(mstr);
+
+	if (!mlen) {
+		/* probably fubar'd or an unknown msgtyp */
+		return 0UL;
+	}
+	return __render_ctx(buf, bsz, msg, (uint16_t)mty, mstr, mlen);
+}
+
+
+/* public functions */
 size_t
-fixc_render_fixml(char *restrict buf, size_t bsz, fixc_msg_t msg)
+fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 {
 	static const char xml_pre[] = "\
 <?xml version=\"1.0\"?>";
@@ -130,32 +235,22 @@ fixc_render_fixml(char *restrict buf, size_t bsz, fixc_msg_t msg)
 <FIXML xmlns=\"http://www.fixprotocol.org/FIXML-5-0-SP2\">";
 	static const char fixml_post[] = "\
 </FIXML>";
-	size_t totz = 0;
+	const char *ep = buf + bsz;
+	char *restrict p = buf;
 
-	/* just the usual stuff */
-	memcpy(buf + totz, xml_pre, sizeof(xml_pre) - 1);
-	buf[(totz += sizeof(xml_pre)) - 1] = '\n';
-	memcpy(buf + totz, fixml_pre, sizeof(fixml_pre) - 1);
-	totz += sizeof(fixml_pre) - 1;
+	/* the usual stuff upfront, xml PI */
+	p = sncpy(p, ep, xml_pre, sizeof(xml_pre) - 1);
+	/* newline this one, all other tags will have no indentation */
+	*p++ = '\n';
+	/* ... and open our tag */
+	p = sncpy(p, ep, fixml_pre, sizeof(fixml_pre) - 1);
 
-	if (msg->f35.typ != FIXC_TYP_MSGTYP) {
-		goto grrr;
-	}
-	switch (msg->f35.mtyp) {
-	default:
-	case FIXC_MSGTYP_UNK:
-	grrr:
-		/* do fuckall */
-		break;
-	case FIXC_MSGTYP_QUOTE:
-		totz += fixc_render_quote(buf + totz, bsz - totz, msg);
-		break;
-	}
+	/* there ought to be just one message in there innit? */
+	p += __render_msgtyp(p, ep - p, msg);
 
 	/* final verdict */
-	memcpy(buf + totz, fixml_post, sizeof(fixml_post));
-	totz += sizeof(fixml_post);
-	return totz;
+	p = sncpy(p, ep, fixml_post, sizeof(fixml_post));
+	return p - buf - 1/*final \nul*/;
 }
 
 

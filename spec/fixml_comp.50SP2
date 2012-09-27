@@ -146,6 +146,8 @@ TickRules	TickRules	Common	1
 TimeInForceRules	TmInForceRules	Common	1		
 TradeCapLegUnderlyingsGrp	TradeCapLegUndlyGrp	TradeCapture	1		
 TradeReportOrderDetail	TrdRptOrdDetl	TradeCapture	0		
+TradingSessionRules	TrdgSesRules	?	?
+TradingSessionRulesGrp	TrdgSesRulesGrp	?	?
 TrdAllocGrp	Alloc	TradeCapture	1		
 TrdCapDtGrp	TrdCapDt	TradeCapture	1		
 TrdCapRptAckSideGrp	RptSide	TradeCapture	1		
