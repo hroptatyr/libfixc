@@ -26,18 +26,22 @@ noinst_DATA += fixml_comp.all
 BUILT_SOURCES += fixml_literal.all
 noinst_DATA += fixml_literal.all
 
-
 EXTRA_DIST += README
-EXTRA_DIST += FIX40.xml
-EXTRA_DIST += FIX41.xml
-EXTRA_DIST += FIX42.xml
-EXTRA_DIST += FIX44.xml
-EXTRA_DIST += FIX50.xml
-EXTRA_DIST += FIX50SP1.xml
-EXTRA_DIST += FIX50SP2.xml
-EXTRA_DIST += FIXT11.xml
-
 EXTRA_DIST += gen-spec.xsl
+
+## we lack the prereq's of these as we're not allowed to ship the official
+## FIX repository, however if it's there, generate a folder <foo> to have
+## the script below generate <foo>.xml
+BUILT_SOURCES += FIX.4.0.xml
+BUILT_SOURCES += FIX.4.1.xml
+BUILT_SOURCES += FIX.4.2.xml
+BUILT_SOURCES += FIX.4.3.xml
+BUILT_SOURCES += FIX.4.4.xml
+BUILT_SOURCES += FIX.5.0.xml
+BUILT_SOURCES += FIX.5.0SP1.xml
+BUILT_SOURCES += FIX.5.0SP2.xml
+BUILT_SOURCES += FIXT.1.1.xml
+
 
 %.xml: gen-spec.xsl \
 		%/Base/MsgType.xml \
