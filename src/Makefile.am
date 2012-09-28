@@ -70,7 +70,9 @@ fixml-comp-sub.c: $(top_srcdir)/spec/FIX.5.0SP2.xml \
 		fixml-comp-sub.xsl \
 		$(top_srcdir)/spec/uncamel.sed
 	xsltproc $(word 2,$+) $< | \
-		sed -f $(word 3,$+) > $@
+		sed -f $(word 3,$+) \
+			-e 's/FIXC_MSGTYP_.*/\U&/' \
+			-e 's/FIXC_COMP_.*/\U&/' > $@
 
 # 
 # Help the developers get nice post-processed source files
