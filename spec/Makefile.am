@@ -37,6 +37,20 @@ EXTRA_DIST += FIX50SP1.xml
 EXTRA_DIST += FIX50SP2.xml
 EXTRA_DIST += FIXT11.xml
 
+EXTRA_DIST += gen-spec.xsl
+
+%.xml: gen-spec.xsl \
+		%/Base/MsgType.xml \
+		%/Base/MsgContents.xml \
+		%/Base/Components.xml \
+		%/Base/Fields.xml \
+		%/Base/Enums.xml
+	xsltproc -o $@ \
+		--param contents "document('`readlink -f "$(word 3,$+)"`')" \
+		--param components "document('`readlink -f "$(word 4,$+)"`')" \
+		--param fields "document('`readlink -f "$(word 5,$+)"`')" \
+		--param enums "document('`readlink -f "$(word 6,$+)"`')" \
+		$< $(word 2,$+)
 
 ## some rules to auto-gen some code
 fixml_attr.all: fixml_attr.50SP2 fixml_attr.50SP1 fixml_attr.50 fixml_attr.44
