@@ -33,7 +33,6 @@ BUILT_SOURCES += fixml-comp-rev.c
 BUILT_SOURCES += fixml-comp-sub.c
 BUILT_SOURCES += fixml-msg-type.c
 BUILT_SOURCES += fixml-msg-type-rev.c
-BUILT_SOURCES += fixml-names.h
 
 header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
@@ -67,34 +66,11 @@ fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 		awk -f $(word 3,$+) > $@
 	$(RM) fixml-comp-rev.src fixml-comp-rev.tgt
 
-#fixml-comp-sub.c: $(top_srcdir)/spec/FIX50SP2.xml \
-#		$(top_srcdir)/spec/fixml_comp.50SP2 \
-#		fixml-msg-type-sub.xsl \
-#		$(top_srcdir)/spec/uncamel.sed
-#	xsltproc $(word 3,$+) $(word 1,$+) | \
-#		sort -k2 | \
-#		join -t'	' -1 2 -2 1 -o 1.1,2.2 - $(word 2,$+) | \
-#		sort | \
-#		sed -f $(word 4,$+) \
-#			-e 's/^/FIXC_MSGTYP_/' -e 's/\t/\tFIXC_COMP_/' | \
-#		tr 'a-z' 'A-Z'
-
-fixml-comp-sub.c: $(top_srcdir)/spec/FIX50SP2.xml \
+fixml-comp-sub.c: $(top_srcdir)/spec/FIX.5.0SP2.xml \
 		fixml-comp-sub.xsl \
 		$(top_srcdir)/spec/uncamel.sed
 	xsltproc $(word 2,$+) $< | \
-		sed -f $(word 3,$+) \
-			-e 's/FIXC_MSGTYP_.*/\U&/' \
-			-e 's/FIXC_COMP_.*/\U&/' > $@
-
-fixml-names.h: $(top_builddir)/spec/fixml_comp.all \
-		$(top_srcdir)/spec/uncamel.sed
-	cut -f1,2 $< | uniq | \
-		sed -f $(word 2,$+) \
-			-e 's/^/FIXC_COMP_/' \
-			-e 's/\t/\tFIXC_COMP_/' | \
-		tr 'a-z' 'A-Z' | \
-		sed -e 's/^/#define /' > $@
+		sed -f $(word 3,$+) > $@
 
 # 
 # Help the developers get nice post-processed source files
