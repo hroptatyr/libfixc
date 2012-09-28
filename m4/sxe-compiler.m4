@@ -162,12 +162,8 @@ AC_DEFUN([SXE_WARNFLAGS], [dnl
 		warnflags="$warnflags -Wcast-align"])
 
 	## warn about incomplete switches
-	SXE_CHECK_COMPILER_FLAGS([-Wswitch], [
-		warnflags="$warnflags -Wswitch"])
 	SXE_CHECK_COMPILER_FLAGS([-Wswitch-default], [
 		warnflags="$warnflags -Wswitch-default"])
-	SXE_CHECK_COMPILER_FLAGS([-Wswitch-enum], [
-		warnflags="$warnflags -Wswitch-enum"])
 
 	SXE_CHECK_COMPILER_FLAGS([-Wunused-function], [
 		warnflags="$warnflags -Wunused-function"])

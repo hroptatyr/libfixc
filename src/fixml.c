@@ -277,11 +277,21 @@ main(void)
 	fputs(test, stdout);
 	fputc('\n', stdout);
 
+#if defined HAVE_ANON_STRUCTS_INIT
 	fixc_add_fld(msg, (struct fixc_fld_s){
 				 .tag = 54/*Side*/,
 					 .typ = FIXC_TYP_UCHAR,
 					 .u8 = '1'
 					 });
+#else  /* probably broken gcc */
+	{
+		struct fixc_fld_s tmp;
+		tmp.tag = 54/*Side*/;
+		tmp.typ = FIXC_TYP_UCHAR;
+		tmp.u8 = '1';
+		fixc_add_fld(msg, tmp);
+	}
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
 	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket") - 1);
 	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket") - 1);
@@ -293,11 +303,21 @@ main(void)
 	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
 	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
 	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
+#if defined HAVE_ANON_STRUCTS_INIT
 	fixc_add_fld(msg, (struct fixc_fld_s){
 				 .tag = 54/*Side*/,
 					 .typ = FIXC_TYP_UCHAR,
 					 .u8 = '2'
 					 });
+#else  /* probably broken gcc */
+	{
+		struct fixc_fld_s tmp;
+		tmp.tag = 54/*Side*/;
+		tmp.typ = FIXC_TYP_UCHAR;
+		tmp.u8 = '2';
+		fixc_add_fld(msg, tmp);
+	}
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 	fixc_render_fixml(test, sizeof(test), msg);
 	fputs(test, stdout);
 	fputc('\n', stdout);
