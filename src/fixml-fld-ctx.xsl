@@ -19,7 +19,7 @@
 
     <xsl:text>fixc_fld_ctx_t fixc_get_fld_ctx(uint16_t fld)&#0010;</xsl:text>
     <xsl:text>{&#0010;</xsl:text>
-    <xsl:text>&#0009;switch (ctx) {&#0010;</xsl:text>
+    <xsl:text>&#0009;switch (fld) {&#0010;</xsl:text>
     <xsl:apply-templates select="fixc:field"/>
     <xsl:text>&#0009;default: {&#0010;</xsl:text>
     <xsl:text>&#0009;&#0009;static const struct fixc_fld_ctx_s this = {0};&#0010;</xsl:text>
@@ -36,8 +36,10 @@
     <xsl:variable name="aid" select="$node/@aid"/>
 
     <xsl:text>&#0009;case </xsl:text>
+    <xsl:value-of select="$aid"/>
+    <xsl:text>/*</xsl:text>
     <xsl:value-of select="$tag"/>
-    <xsl:text>: {&#0010;</xsl:text>
+    <xsl:text>*/: {&#0010;</xsl:text>
     <xsl:text>&#0009;&#0009;static const struct fixc_fld_ctx_s this = {&#0010;</xsl:text>
 
     <xsl:text>&#0009;&#0009;&#0009;.fld = </xsl:text>
