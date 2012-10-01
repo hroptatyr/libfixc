@@ -52,9 +52,12 @@
     <xsl:value-of select="$tag"/>
     <xsl:text>*/,&#0010;</xsl:text>
 
-    <xsl:text>&#0009;&#0009;&#0009;.nctxs = </xsl:text>
     <xsl:for-each select="/fixc:spec">
-      <xsl:value-of select="count(key('msgf', $aid)) + count(key('compf', $aid))"/>
+      <xsl:text>&#0009;&#0009;&#0009;.nmsgs = </xsl:text>
+      <xsl:value-of select="count(key('msgf', $aid))"/>
+      <xsl:text>,&#0010;</xsl:text>
+      <xsl:text>&#0009;&#0009;&#0009;.ncomps = </xsl:text>
+      <xsl:value-of select="count(key('compf', $aid))"/>
       <xsl:text>,&#0010;</xsl:text>
 
       <xsl:text>&#0009;&#0009;&#0009;.ctxs = {&#0010;</xsl:text>

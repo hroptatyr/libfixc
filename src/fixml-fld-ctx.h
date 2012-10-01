@@ -10,7 +10,8 @@ struct fixc_fld_ctx_s {
 	uint16_t fld;
 	int8_t min;
 	int8_t max;
-	size_t nctxs;
+	size_t nmsgs;
+	size_t ncomps;
 	uint16_t ctxs[];
 };
 
