@@ -56,6 +56,7 @@
 
 #include "fixml-comp-sub.c"
 #include "fixml-comp-fld.c"
+#include "fixml-fld-ctx.c"
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
