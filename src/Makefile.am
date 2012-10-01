@@ -70,26 +70,7 @@ fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 		awk -f $(word 3,$+) > $@
 	$(RM) fixml-comp-rev.src fixml-comp-rev.tgt
 
-fixml-comp-sub.c: $(top_srcdir)/spec/FIX.5.0SP2.xml \
-		fixml-comp-sub.xsl \
-		$(top_srcdir)/spec/uncamel.sed
-	xsltproc $(word 2,$+) $< | \
-		sed -f $(word 3,$+) \
-			-e 's/FIXC_MSGTYP_.*/\U&/' \
-			-e 's/FIXC_COMP_.*/\U&/' > $@
-
-
-fixml-comp-fld.c: $(top_srcdir)/spec/FIX.5.0SP2.xml \
-		fixml-comp-fld.xsl \
-		$(top_srcdir)/spec/uncamel.sed
-	xsltproc $(word 2,$+) $< | \
-		sed -f $(word 3,$+) \
-			-e 's/FIXC_MSGTYP_.*/\U&/' \
-			-e 's/FIXC_COMP_.*/\U&/' > $@
-
-fixml-fld-ctx.c: $(top_srcdir)/spec/FIX.5.0SP2.xml \
-		fixml-fld-ctx.xsl \
-		$(top_srcdir)/spec/uncamel.sed
+%.c: $(top_srcdir)/spec/FIX.5.0SP2.xml %.xsl $(top_srcdir)/spec/uncamel.sed
 	xsltproc $(word 2,$+) $< | \
 		sed -f $(word 3,$+) \
 			-e 's/FIXC_ATTR_.*/\U&/' \
