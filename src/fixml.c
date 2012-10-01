@@ -92,10 +92,17 @@ sncpy(char *restrict buf, const char *eob, const char *s, size_t slen)
 
 /* fixml guts */
 static int
-__attr_in_ctx_p(fixc_attr_t a, uint16_t c)
+__attr_in_ctx_p(fixc_attr_t a, uint16_t ctx)
 {
-/* return non-0 if tag A is a member of component C or msg-type C. */
-	return 1;
+/* return non-0 if tag A is a member of component CTX or msg-type CTX. */
+	fixc_comp_fld_t fld = fixc_get_comp_fld(ctx);
+
+	for (size_t i = 0; i < fld->nflds; i++) {
+		if (a == fld->flds[i]) {
+			return 1;
+		}
+	}
+	return 0;
 }
 
 static size_t
@@ -155,7 +162,7 @@ __render_ctx(
 {
 	char *p = buf;
 	const char *ep = buf + bsz;
-	int subcompp = 0;
+	fixc_comp_sub_t sub;
 
 	/* start the tag */
 	/* start the comp tag */
@@ -167,13 +174,12 @@ __render_ctx(
 		fixc_attr_t aid = (fixc_attr_t)msg->flds[i].tag;
 		if (__attr_in_ctx_p(aid, ctx)) {
 			p += __render_attr(p, ep - p, msg->pr, msg->flds[i]);
-		} else {
-			subcompp = 1;
 		}
 	}
 
 	/* closing tag */
-	if (!subcompp) {
+	sub = fixc_get_comp_sub(ctx);
+	if (sub->nsubs == 0) {
 		p = sputc(p, ep, '/');
 		p = sputc(p, ep, '>');
 		goto out;
@@ -182,9 +188,9 @@ __render_ctx(
 	p = sputc(p, ep, '>');
 
 	/* sub components */
-	{
-		fixc_comp_t cid = FIXC_COMP_INSTRMT;
-		__render_comp(p, ep - p, msg, cid);
+	for (size_t i = 0; i < sub->nsubs; i++) {
+		fixc_comp_t cid = (fixc_comp_t)sub->subs[i];
+		p += __render_comp(p, ep - p, msg, cid);
 	}
 
 	/* and finish this component */
@@ -265,7 +271,7 @@ main(void)
 	static char foo[] = "8=FIXT.1.1" SOH "9=0004" SOH
 		"35=S" SOH "117=112" SOH
 		"132=1.03" SOH "133=1.04" SOH "10=0";
-	char test[256];
+	char test[512];
 	fixc_msg_t msg = make_fixc_from_fix(foo, sizeof(foo) - 1);
 
 	fprintf(stdout, "%zu fields\n", msg->nflds);
