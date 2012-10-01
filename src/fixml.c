@@ -96,6 +96,7 @@ static int
 __attr_in_ctx_p(fixc_attr_t a, uint16_t ctx)
 {
 /* return non-0 if tag A is a member of component CTX or msg-type CTX. */
+#if 0
 	fixc_comp_fld_t fld = fixc_get_comp_fld(ctx);
 
 	for (size_t i = 0; i < fld->nflds; i++) {
@@ -104,6 +105,16 @@ __attr_in_ctx_p(fixc_attr_t a, uint16_t ctx)
 		}
 	}
 	return 0;
+#else  /* !0 */
+	fixc_fld_ctx_t fcm = fixc_get_fld_ctx((uint16_t)a);
+
+	for (size_t i = 0; i < fcm->nmsgs + fcm->ncomps; i++) {
+		if (ctx == fcm->ctxs[i]) {
+			return 1;
+		}
+	}
+	return 0;
+#endif	/* 0 */
 }
 
 static size_t
