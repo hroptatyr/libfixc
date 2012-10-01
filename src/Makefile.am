@@ -23,6 +23,8 @@ libfixc_la_SOURCES += switch-group-attr.awk
 libfixc_la_SOURCES += fixml-comp.gperf fixml-comp.h
 libfixc_la_SOURCES += switch-group-comp.awk
 libfixc_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
+libfixc_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
+libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
 libfixc_la_SOURCES += fixml-msg-type.gperf fix-msg-type.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
@@ -31,6 +33,8 @@ BUILT_SOURCES += fixml-attr-rev.c
 BUILT_SOURCES += fixml-comp.c
 BUILT_SOURCES += fixml-comp-rev.c
 BUILT_SOURCES += fixml-comp-sub.c
+BUILT_SOURCES += fixml-comp-fld.c
+BUILT_SOURCES += fixml-fld-ctx.c
 BUILT_SOURCES += fixml-msg-type.c
 BUILT_SOURCES += fixml-msg-type-rev.c
 
@@ -66,11 +70,10 @@ fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 		awk -f $(word 3,$+) > $@
 	$(RM) fixml-comp-rev.src fixml-comp-rev.tgt
 
-fixml-comp-sub.c: $(top_srcdir)/spec/FIX.5.0SP2.xml \
-		fixml-comp-sub.xsl \
-		$(top_srcdir)/spec/uncamel.sed
+%.c: $(top_srcdir)/spec/FIX.5.0SP2.xml %.xsl $(top_srcdir)/spec/uncamel.sed
 	xsltproc $(word 2,$+) $< | \
 		sed -f $(word 3,$+) \
+			-e 's/FIXC_ATTR_.*/\U&/' \
 			-e 's/FIXC_MSGTYP_.*/\U&/' \
 			-e 's/FIXC_COMP_.*/\U&/' > $@
 
