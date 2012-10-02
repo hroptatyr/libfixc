@@ -178,6 +178,8 @@ __render_ctx(
 	char *p = buf;
 	const char *ep = buf + bsz;
 	fixc_comp_sub_t sub;
+	int nattr = 0;
+	int nsub = 0;
 
 	/* start the tag */
 	/* start the comp tag */
@@ -188,32 +190,44 @@ __render_ctx(
 	for (size_t i = 0; i < msg->nflds && p < ep; i++) {
 		fixc_attr_t aid = (fixc_attr_t)msg->flds[i].tag;
 		if (__attr_in_ctx_p(aid, ctx)) {
+			nattr++;
 			p += __render_attr(p, ep - p, msg->pr, msg->flds[i]);
 		}
 	}
 
 	/* closing tag */
 	sub = fixc_get_comp_sub(ctx);
-	if (sub->nsubs == 0) {
-		p = sputc(p, ep, '/');
-		p = sputc(p, ep, '>');
-		goto out;
-	}
 	/* otherwise finish the tag */
 	p = sputc(p, ep, '>');
 
 	/* sub components */
 	for (size_t i = 0; i < sub->nsubs; i++) {
 		fixc_comp_t cid = (fixc_comp_t)sub->subs[i];
-		p += __render_comp(p, ep - p, msg, cid);
-	}
+		size_t add;
 
-	/* and finish this component */
-	p = sputc(p, ep, '<');
-	p = sputc(p, ep, '/');
-	p = sncpy(p, ep, elem, elen);
-	p = sputc(p, ep, '>');
-out:
+		if ((add = __render_comp(p, ep - p, msg, cid)) > 0) {
+			p += add;
+			nsub++;
+		}
+	}
+	/* check if any sub elements have been added */
+	if (!nsub && !nattr) {
+		/* we printed nothing */
+		return 0UL;
+
+	} else if (!nsub) {
+		/* no subs, but attributes, rewind p a bit */
+		p--;
+		p = sputc(p, ep, '/');
+		p = sputc(p, ep, '>');
+
+	} else {
+		/* we printed at least one sub-tag so finish this component */
+		p = sputc(p, ep, '<');
+		p = sputc(p, ep, '/');
+		p = sncpy(p, ep, elem, elen);
+		p = sputc(p, ep, '>');
+	}
 	return p - buf;
 }
 
