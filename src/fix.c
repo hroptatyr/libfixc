@@ -42,6 +42,9 @@
 #include "fix.h"
 #include "nifty.h"
 
+/* to map fixc_ver_t objects to strings */
+#include "fixml-nsuri-rev.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
@@ -223,10 +226,13 @@ fixc_render_fld(
 		memcpy(buf + res, b + fld.off, stz);
 		res += stz;
 		break;
-	case FIXC_TYP_VER:
-		memcpy(buf + res, "FIXT.1.1", 8);
-		res += 8;
+	case FIXC_TYP_VER: {
+		const char *vstr = __ver_fixify(fld.ver);
+		size_t vlen = strlen(vstr);
+		memcpy(buf + res, vstr, vlen);
+		res += vlen;
 		break;
+	}
 	case FIXC_TYP_UCHAR:
 		buf[res++] = fld.u8;
 		break;
@@ -263,7 +269,9 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 	size_t blen = 0;
 
 	/* first 2 fields are unrolled */
+	msg->f8.tag = FIXC_BEGIN_STRING;
 	hdrz = fixc_render_fld(buf, bsz, msg->pr, msg->f8);
+	msg->f9.tag = FIXC_BODY_LENGTH;
 	lenz = fixc_render_fld(buf + hdrz, bsz - hdrz, msg->pr, msg->f9);
 	/* just leave some room for this */
 	totz = ROUND(hdrz + (lenz = ROUND(lenz, 8)), sizeof(void*));

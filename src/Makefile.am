@@ -26,6 +26,7 @@ libfixc_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
 libfixc_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
 libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
 libfixc_la_SOURCES += fixml-msg-type.gperf fix-msg-type.h
+libfixc_la_SOURCES += fixml-nsuri.gperf fix-nsuri.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += fixml-attr.c
@@ -37,6 +38,8 @@ BUILT_SOURCES += fixml-comp-fld.c
 BUILT_SOURCES += fixml-fld-ctx.c
 BUILT_SOURCES += fixml-msg-type.c
 BUILT_SOURCES += fixml-msg-type-rev.c
+BUILT_SOURCES += fixml-nsuri.c
+BUILT_SOURCES += fixml-nsuri-rev.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
@@ -51,6 +54,16 @@ noinst_PROGRAMS += fixml
 fixml_CPPFLAGS = $(AM_CPPFLAGS)
 fixml_CPPFLAGS += -DSTANDALONE
 fixml_LDADD = libfixc.la
+
+## just for debugging and fun
+noinst_PROGRAMS += fixml-rd
+fixml_rd_CPPFLAGS = $(AM_CPPFLAGS)
+fixml_rd_CPPFLAGS += -DSTANDALONE
+fixml_rd_CPPFLAGS += $(expat_CFLAGS)
+fixml_rd_LDFLAGS = $(AM_LDFLAGS)
+fixml_rd_LDFLAGS += $(expat_LIBS)
+fixml_rd_LDADD = libfixc.la
+
 
 ## our rule for gperf
 %.c: %.gperf

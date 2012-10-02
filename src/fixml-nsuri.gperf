@@ -1,0 +1,26 @@
+%{
+typedef struct fixc_nsuri_s *fixc_nsuri_t;
+
+#include "fix-nsuri.h"
+
+%}
+%7bit
+%readonly-tables
+%enum
+%switch=1
+%struct-type
+%define slot-name nsuri
+%define hash-function-name __fixml_nsid_hash
+%define lookup-function-name __fixml_nsiddify
+%null-strings
+
+struct fixc_nsuri_s {
+	const char *nsuri;
+	fixc_ver_t nsid;
+};
+
+%%
+http://www.fixprotocol.org/FIXML-4-4,	FIXC_VER_44
+http://www.fixprotocol.org/FIXML-5-0,	FIXC_VER_50
+http://www.fixprotocol.org/FIXML-5-0-SP1,	FIXC_VER_50_SP1
+http://www.fixprotocol.org/FIXML-5-0-SP2,	FIXC_VER_50_SP2
