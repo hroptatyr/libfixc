@@ -58,6 +58,8 @@
 #include "fix-msg-type.h"
 #include "fixml-msg-type.c"
 
+#include "fixml-nsuri.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
@@ -163,7 +165,7 @@ __pref_to_ns(__ctx_t ctx, const char *pref, size_t pref_len)
 static __nsid_t
 __nsid_from_href(const char *href, size_t hlen)
 {
-	const struct fixc_nsuri_s *n = __nsiddify(href, hlen);
+	const struct fixc_nsuri_s *n = __fixml_nsiddify(href, hlen);
 	return n != NULL ? n->nsid : FIXC_VER_UNK;
 }
 
