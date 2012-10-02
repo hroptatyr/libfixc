@@ -17,6 +17,8 @@ EXTRA_DIST = $(BUILT_SOURCES)
 
 lib_LTLIBRARIES += libfixc.la
 libfixc_la_SOURCES = fix.c fix.h
+libfixc_la_SOURCES += fixml-wr.c
+libfixc_la_SOURCES += fixml-rd.c
 libfixc_la_SOURCES += nifty.h
 libfixc_la_SOURCES += fixml-attr.gperf fixml-attr.h
 libfixc_la_SOURCES += switch-group-attr.awk
@@ -28,7 +30,9 @@ libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
 libfixc_la_SOURCES += fixml-msg-type.gperf fix-msg-type.h
 libfixc_la_SOURCES += fixml-nsuri.gperf fix-nsuri.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
+libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
+libfixc_la_LDFLAGS += $(expat_LIBS)
 BUILT_SOURCES += fixml-attr.c
 BUILT_SOURCES += fixml-attr-rev.c
 BUILT_SOURCES += fixml-comp.c
@@ -50,18 +54,15 @@ fix_CPPFLAGS = $(AM_CPPFLAGS)
 fix_CPPFLAGS += -DSTANDALONE
 
 ## just for debugging and fun
-noinst_PROGRAMS += fixml
-fixml_CPPFLAGS = $(AM_CPPFLAGS)
-fixml_CPPFLAGS += -DSTANDALONE
-fixml_LDADD = libfixc.la
+noinst_PROGRAMS += fixml-wr
+fixml_wr_CPPFLAGS = $(AM_CPPFLAGS)
+fixml_wr_CPPFLAGS += -DSTANDALONE
+fixml_wr_LDADD = libfixc.la
 
 ## just for debugging and fun
 noinst_PROGRAMS += fixml-rd
 fixml_rd_CPPFLAGS = $(AM_CPPFLAGS)
 fixml_rd_CPPFLAGS += -DSTANDALONE
-fixml_rd_CPPFLAGS += $(expat_CFLAGS)
-fixml_rd_LDFLAGS = $(AM_LDFLAGS)
-fixml_rd_LDFLAGS += $(expat_LIBS)
 fixml_rd_LDADD = libfixc.la
 
 
