@@ -60,10 +60,10 @@ fixml_wr_CPPFLAGS += -DSTANDALONE
 fixml_wr_LDADD = libfixc.la
 
 ## just for debugging and fun
-noinst_PROGRAMS += fixml-rd
-fixml_rd_CPPFLAGS = $(AM_CPPFLAGS)
-fixml_rd_CPPFLAGS += -DSTANDALONE
-fixml_rd_LDADD = libfixc.la
+noinst_PROGRAMS += fixml2fix
+fixml2fix_CPPFLAGS = $(AM_CPPFLAGS)
+fixml2fix_CPPFLAGS += -DSTANDALONE
+fixml2fix_LDADD = libfixc.la
 
 
 ## our rule for gperf

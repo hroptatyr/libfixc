@@ -559,36 +559,4 @@ make_fixc_from_fixml(const char *doc, size_t doclen)
 	return res;
 }
 
-
-#if defined STANDALONE
-int
-main(void)
-{
-	static char foo[] = "\
-<?xml version=\"1.0\"?>\n\
-<FIXML xmlns=\"http://www.fixprotocol.org/FIXML-5-0-SP2\">\n\
-  <SecDef Ccy=\"USD\">\n\
-    <Instrmt Sym=\"GBP.USD\" ID=\"12087797\" Src=\"M\" SecTyp=\"CASH\"\
-      Exch=\"IDEALPRO\" Desc=\"British pound\" MinPxIncr=\"0.000050\"/>\n\
-  </SecDef>\n\
-</FIXML>\n\
-";
-	fixc_msg_t msg = make_fixc_from_fixml(foo, sizeof(foo) - 1);
-	char test[256];
-
-	fprintf(stdout, "%zu fields\n", msg->nflds);
-	for (size_t i = 0; i < msg->nflds; i++) {
-		fprintf(stdout, "+ field %zu: %hu=%s\n",
-			i, msg->flds[i].tag, msg->pr + msg->flds[i].off);
-	}
-
-	fixc_render_fix(test, sizeof(test), msg);
-	fputs(test, stdout);
-	fputc('\n', stdout);
-
-	free_fixc(msg);
-	return 0;
-}
-#endif	/* STANDALONE */
-
 /* fixml-rd.c ends here */
