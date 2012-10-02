@@ -49,17 +49,6 @@ header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
 
 ## just for debugging and fun
-noinst_PROGRAMS += fix
-fix_CPPFLAGS = $(AM_CPPFLAGS)
-fix_CPPFLAGS += -DSTANDALONE
-
-## just for debugging and fun
-noinst_PROGRAMS += fixml-wr
-fixml_wr_CPPFLAGS = $(AM_CPPFLAGS)
-fixml_wr_CPPFLAGS += -DSTANDALONE
-fixml_wr_LDADD = libfixc.la
-
-## just for debugging and fun
 noinst_PROGRAMS += fixml2fix
 fixml2fix_CPPFLAGS = $(AM_CPPFLAGS)
 fixml2fix_CPPFLAGS += -DSTANDALONE
