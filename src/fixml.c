@@ -54,8 +54,11 @@
 #include "fixml-msg-type.c"
 #include "fixml-msg-type-rev.c"
 
+#include "fixml-comp-sub.h"
 #include "fixml-comp-sub.c"
+#include "fixml-comp-fld.h"
 #include "fixml-comp-fld.c"
+#include "fixml-fld-ctx.h"
 #include "fixml-fld-ctx.c"
 
 #if defined DEBUG_FLAG
