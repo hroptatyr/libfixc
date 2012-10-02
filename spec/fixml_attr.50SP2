@@ -150,6 +150,8 @@
 676	@Ccy
 1157	@CcyAmt
 391	@ClBidID
+11	@ClOrdID
+526	@ClOrdID2
 1136	@ClrFeeInd
 635	@ClrFeeInd
 577	@ClrngInstrctn
@@ -392,7 +394,6 @@
 1053	@ID
 1059	@ID
 1063	@ID
-11	@ID
 1117	@ID
 1121	@ID
 1216	@ID
@@ -425,7 +426,6 @@
 909	@ID
 949	@ID
 953	@ID
-526	@ID2
 682	@IOIQty
 808	@ImReqTyp
 547	@ImplctDel
