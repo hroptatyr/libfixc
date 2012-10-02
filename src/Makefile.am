@@ -39,6 +39,7 @@ BUILT_SOURCES += fixml-fld-ctx.c
 BUILT_SOURCES += fixml-msg-type.c
 BUILT_SOURCES += fixml-msg-type-rev.c
 BUILT_SOURCES += fixml-nsuri.c
+BUILT_SOURCES += fixml-nsuri-rev.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
