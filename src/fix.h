@@ -141,6 +141,10 @@ struct fixc_msg_s {
 extern fixc_msg_t make_fixc_from_fix(const char *msg, size_t msglen);
 
 /**
+ * Generate a fixc message from a FIXML document in DOC of length DOCLEN */
+extern fixc_msg_t make_fixc_from_fixml(const char *doc, size_t doclen);
+
+/**
  * Free a fixc message MSG and all its resources. */
 extern void free_fixc(fixc_msg_t);
 

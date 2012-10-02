@@ -52,6 +52,16 @@ fixml_CPPFLAGS = $(AM_CPPFLAGS)
 fixml_CPPFLAGS += -DSTANDALONE
 fixml_LDADD = libfixc.la
 
+## just for debugging and fun
+noinst_PROGRAMS += fixml-rd
+fixml_rd_CPPFLAGS = $(AM_CPPFLAGS)
+fixml_rd_CPPFLAGS += -DSTANDALONE
+fixml_rd_CPPFLAGS += $(expat_CFLAGS)
+fixml_rd_LDFLAGS = $(AM_LDFLAGS)
+fixml_rd_LDFLAGS += $(expat_LIBS)
+fixml_rd_LDADD = libfixc.la
+
+
 ## our rule for gperf
 %.c: %.gperf
 	$(AM_V_GEN) $(GPERF) $< --output-file $@
