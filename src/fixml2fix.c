@@ -51,7 +51,7 @@
 # define FIXC_DEBUG(args...)
 #endif	/* DEBUG_FLAG */
 
-static void
+static int
 proc1(const char *file)
 {
 	static char buf[8192];
@@ -59,24 +59,27 @@ proc1(const char *file)
 	int fd;
 	void *p;
 	fixc_msg_t msg;
+	int res = 0;
 
 	if (stat(file, &st) < 0) {
-		return;
+		return -1;
 	}
 	/* otherwise open the file ... */
 	if ((fd = open(file, O_RDONLY)) < 0) {
 		perror("cannot open file");
-		return;
+		return -1;
 	}
 	/* ... and mmap the file ... */
 	p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
 	if (p == MAP_FAILED) {
 		perror("cannot read file");
+		res = -1;
 		goto clos_out;
 	}
 	/* ... and call the reader */
 	if ((msg = make_fixc_from_fixml(p, st.st_size)) == NULL) {
 		fputs("cannot parse file\n", stderr);
+		res = -1;
 		goto munm_out;
 	}
 	/* render the result */
@@ -92,17 +95,19 @@ munm_out:
 	munmap(p, st.st_size);
 clos_out:
 	close(fd);
-	return;
+	return res;
 }
 
 
 int
 main(int argc, char *argv[])
 {
+	int res = 0;
+
 	for (int i = 1; i < argc; i++) {
-		proc1(argv[i]);
+		res -= proc1(argv[i]);
 	}
-	return 0;
+	return res;
 }
 
 /* fixml2fix.c ends here */
