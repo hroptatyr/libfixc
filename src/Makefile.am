@@ -26,6 +26,7 @@ libfixc_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
 libfixc_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
 libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
 libfixc_la_SOURCES += fixml-msg-type.gperf fix-msg-type.h
+libfixc_la_SOURCES += fixml-nsuri.gperf
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
 BUILT_SOURCES += fixml-attr.c
@@ -37,6 +38,7 @@ BUILT_SOURCES += fixml-comp-fld.c
 BUILT_SOURCES += fixml-fld-ctx.c
 BUILT_SOURCES += fixml-msg-type.c
 BUILT_SOURCES += fixml-msg-type-rev.c
+BUILT_SOURCES += fixml-nsuri.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
