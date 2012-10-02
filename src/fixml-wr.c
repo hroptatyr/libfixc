@@ -43,15 +43,12 @@
 #include "nifty.h"
 
 #include "fixml-attr.h"
-#include "fixml-attr.c"
 #include "fixml-attr-rev.c"
 
 #include "fixml-comp.h"
-#include "fixml-comp.c"
 #include "fixml-comp-rev.c"
 
 #include "fix-msg-type.h"
-#include "fixml-msg-type.c"
 #include "fixml-msg-type-rev.c"
 
 #include "fixml-comp-sub.h"
