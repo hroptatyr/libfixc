@@ -484,6 +484,10 @@ retry:
 			proc_UNK_attr(ctx, ap[0], ap[1]);
 		}
 		ns = ctx->ns;
+		/* assign the version to the msg too */
+		ctx->msg->f8.tag = FIXC_BEGIN_STRING;
+		ctx->msg->f8.typ = FIXC_TYP_VER;
+		ctx->msg->f8.ver = ns->nsid;
 		goto retry;
 
 	default:
