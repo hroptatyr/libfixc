@@ -263,7 +263,9 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 	size_t blen = 0;
 
 	/* first 2 fields are unrolled */
+	msg->f8.tag = FIXC_BEGIN_STRING;
 	hdrz = fixc_render_fld(buf, bsz, msg->pr, msg->f8);
+	msg->f9.tag = FIXC_BODY_LENGTH;
 	lenz = fixc_render_fld(buf + hdrz, bsz - hdrz, msg->pr, msg->f9);
 	/* just leave some room for this */
 	totz = ROUND(hdrz + (lenz = ROUND(lenz, 8)), sizeof(void*));
