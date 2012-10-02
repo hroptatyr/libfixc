@@ -42,6 +42,9 @@
 #include "fix.h"
 #include "nifty.h"
 
+/* to map fixc_ver_t objects to strings */
+#include "fixml-nsuri-rev.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
@@ -223,10 +226,13 @@ fixc_render_fld(
 		memcpy(buf + res, b + fld.off, stz);
 		res += stz;
 		break;
-	case FIXC_TYP_VER:
-		memcpy(buf + res, "FIXT.1.1", 8);
-		res += 8;
+	case FIXC_TYP_VER: {
+		const char *vstr = __ver_fixify(fld.ver);
+		size_t vlen = strlen(vstr);
+		memcpy(buf + res, vstr, vlen);
+		res += vlen;
 		break;
+	}
 	case FIXC_TYP_UCHAR:
 		buf[res++] = fld.u8;
 		break;
