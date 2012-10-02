@@ -289,4 +289,4 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	return p - buf - 1/*final \nul*/;
 }
 
-/* fixml.c ends here */
+/* fixml-wr.c ends here */
