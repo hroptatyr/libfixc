@@ -570,12 +570,17 @@ main(void)
 </FIXML>\n\
 ";
 	fixc_msg_t msg = make_fixc_from_fixml(foo, sizeof(foo) - 1);
+	char test[256];
 
 	fprintf(stdout, "%zu fields\n", msg->nflds);
 	for (size_t i = 0; i < msg->nflds; i++) {
 		fprintf(stdout, "+ field %zu: %hu=%s\n",
 			i, msg->flds[i].tag, msg->pr + msg->flds[i].off);
 	}
+
+	fixc_render_fix(test, sizeof(test), msg);
+	fputs(test, stdout);
+	fputc('\n', stdout);
 
 	free_fixc(msg);
 	return 0;
