@@ -54,6 +54,11 @@ fixml2fix_CPPFLAGS = $(AM_CPPFLAGS)
 fixml2fix_CPPFLAGS += -DSTANDALONE
 fixml2fix_LDADD = libfixc.la
 
+noinst_PROGRAMS += fix2fixml
+fix2fixml_CPPFLAGS = $(AM_CPPFLAGS)
+fix2fixml_CPPFLAGS += -DSTANDALONE
+fix2fixml_LDADD = libfixc.la
+
 
 ## our rule for gperf
 %.c: %.gperf
