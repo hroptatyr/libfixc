@@ -99,7 +99,7 @@ static int
 __attr_in_ctx_p(fixc_attr_t a, uint16_t ctx)
 {
 /* return non-0 if tag A is a member of component CTX or msg-type CTX. */
-#if 0
+#if 1
 	fixc_comp_fld_t fld = fixc_get_comp_fld(ctx);
 
 	for (size_t i = 0; i < fld->nflds; i++) {
