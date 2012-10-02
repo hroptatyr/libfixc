@@ -90,9 +90,8 @@ struct ptx_ctxcb_s {
 
 	/* navigation info, stores the context */
 	__tid_t otag;
-	__nsid_t nsid;
 	union {
-		void *object;
+		void *obj;
 		long int objint;
 	};
 	ptx_ctxcb_t old_state;
@@ -174,6 +173,87 @@ __aid_from_attr(const char *attr, size_t alen)
 {
 	const struct fixml_attr_s *p = __fixml_aiddify(attr, alen);
 	return p != NULL ? p->aid : FIXC_ATTR_UNK;
+}
+
+static fixc_comp_t
+__cid_from_elem(const char *elem, size_t elen)
+{
+	const struct fixml_comp_s *p = __fixml_ciddify(elem, elen);
+	return p != NULL ? p->cid : FIXC_COMP_UNK;
+}
+
+static fixc_msg_type_t
+__mty_from_elem(const char *elem, size_t elen)
+{
+	const struct fixml_msg_type_s *p = __fixml_mtypify(elem, elen);
+	return p != NULL ? p->mty : FIXC_MSGTYP_UNK;
+}
+
+
+static void
+init_ctxcb(__ctx_t ctx)
+{
+	memset(ctx->ctxcb_pool, 0, sizeof(ctx->ctxcb_pool));
+	for (size_t i = 0; i < countof(ctx->ctxcb_pool) - 1; i++) {
+		ctx->ctxcb_pool[i].next = ctx->ctxcb_pool + i + 1;
+	}
+	ctx->ctxcb_head = ctx->ctxcb_pool;
+	return;
+}
+
+static ptx_ctxcb_t
+pop_ctxcb(__ctx_t ctx)
+{
+	ptx_ctxcb_t res = ctx->ctxcb_head;
+
+	if (LIKELY(res != NULL)) {
+		ctx->ctxcb_head = res->next;
+		memset(res, 0, sizeof(*res));
+	}
+	return res;
+}
+
+static void
+push_ctxcb(__ctx_t ctx, ptx_ctxcb_t ctxcb)
+{
+	ctxcb->next = ctx->ctxcb_head;
+	ctx->ctxcb_head = ctxcb;
+	return;
+}
+
+static void*
+pop_state(__ctx_t ctx)
+{
+/* restore the previous current state */
+	ptx_ctxcb_t curr = ctx->state;
+	void *obj = curr->obj;
+
+	ctx->state = curr->old_state;
+	/* queue him in our pool */
+	push_ctxcb(ctx, curr);
+	return obj;
+}
+
+static ptx_ctxcb_t
+push_state(__ctx_t ctx, __tid_t otag, void *obj)
+{
+	ptx_ctxcb_t res = pop_ctxcb(ctx);
+
+	/* stuff it with the object we want to keep track of */
+	res->obj = obj;
+	res->otag = otag;
+	/* fiddle with the states in our context */
+	res->old_state = ctx->state;
+	ctx->state = res;
+	return res;
+}
+
+static void
+ptx_init(__ctx_t ctx)
+{
+	/* initialise the ctxcb pool */
+	init_ctxcb(ctx);
+	return;
 }
 
 static void
@@ -259,7 +339,6 @@ static void
 proc_UNK_attr(__ctx_t ctx, const char *attr, const char *value)
 {
 	const char *rattr = tag_massage(attr);
-	fixc_attr_t aid;
 	size_t alen;
 
 	if (UNLIKELY(rattr > attr && !ptx_pref_p(ctx, attr, rattr - attr))) {
@@ -267,10 +346,9 @@ proc_UNK_attr(__ctx_t ctx, const char *attr, const char *value)
 	} else {
 		alen = strlen(rattr);
 	}
-	/* aiddify */
-	aid = __aid_from_attr(attr, alen);
 
-	switch (aid) {
+	/* aiddify */
+	switch (__aid_from_attr(attr, alen)) {
 	case FIXC_ATTR_XMLNS:
 		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
 		break;
@@ -280,8 +358,105 @@ proc_UNK_attr(__ctx_t ctx, const char *attr, const char *value)
 	return;
 }
 
+static void
+proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
+{
+	const char *rattr = tag_massage(attr);
+	fixc_attr_t aid;
+	size_t alen;
+
+	if (UNLIKELY(rattr > attr && !ptx_pref_p(ctx, attr, rattr - attr))) {
+		alen = rattr - attr - 1;
+	} else {
+		alen = strlen(rattr);
+	}
+	/* aiddify */
+	switch ((aid = __aid_from_attr(attr, alen))) {
+	case FIXC_ATTR_XMLNS:
+		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
+		break;
+	case FIXC_ATTR_UNK:
+		FIXC_DEBUG("found unknown attr: %s (=%s)\n", attr, value);
+		break;
+	default:
+		/* just use fix.c's add_tag thingie for this */
+		fixc_add_tag(ctx->msg, (uint16_t)aid, value, strlen(value));
+		break;
+	}
+	return;
+}
+
 
 /* expat guts */
+static void
+sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
+{
+	const size_t elen = strlen(elem);
+	const fixc_comp_t cid = __cid_from_elem(elem, elen);
+
+	/* all the stuff that needs a new sax handler */
+	switch (cid) {
+	case FIXC_COMP_FIXML:
+		ptx_init(ctx);
+		break;
+
+	case FIXC_COMP_UNK: {
+		/* could be a message */
+		const fixc_msg_type_t mty = __mty_from_elem(elem, elen);
+
+		if (!mty) {
+			FIXC_DEBUG("neither cid nor mty: %s\n", elem);
+			break;
+		}
+
+		ctx->msg->f35.tag = FIXC_MSG_TYPE;
+		ctx->msg->f35.typ = FIXC_TYP_MSGTYP;
+		ctx->msg->f35.mtyp = mty;
+		break;
+	}
+	default:
+		push_state(ctx, cid, NULL);
+		for (const char **ap = attr; ap && *ap; ap += 2) {
+			proc_FIXML_attr(ctx, ap[0], ap[1]);
+		}
+		break;
+	}
+	return;
+}
+
+static void
+sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
+{
+	const size_t elen = strlen(elem);
+	const fixc_comp_t cid = __cid_from_elem(elem, elen);
+
+	/* stuff that needed to be done, fix up state etc. */
+	switch (cid) {
+		/* top-levels */
+	case FIXC_COMP_FIXML:
+		break;
+
+	case FIXC_COMP_UNK: {
+		/* could be a message */
+		const fixc_msg_type_t mty = __mty_from_elem(elem, elen);
+
+		if (!mty) {
+			FIXC_DEBUG("neither cid nor mty\n");
+			break;
+		}
+
+		if (UNLIKELY(mty != ctx->msg->f35.mtyp)) {
+			abort();
+		}
+		break;
+	}
+	default:
+		(void)pop_state(ctx);
+		break;
+	}
+	return;
+}
+
 static void
 el_sta(void *clo, const char *elem, const char **attr)
 {
@@ -297,9 +472,11 @@ el_sta(void *clo, const char *elem, const char **attr)
 
 retry:
 	switch (ns->nsid) {
+	case FIXC_VER_44:
 	case FIXC_VER_50:
 	case FIXC_VER_50_SP1:
 	case FIXC_VER_50_SP2:
+		sax_bo_FIXML_elt(ctx, relem, attr);
 		break;
 
 	case FIXC_VER_UNK:
@@ -325,9 +502,11 @@ el_end(void *clo, const char *elem)
 	ptx_ns_t ns = __pref_to_ns(ctx, elem, relem - elem);
 
 	switch (ns->nsid) {
+	case FIXC_VER_44:
 	case FIXC_VER_50:
 	case FIXC_VER_50_SP1:
 	case FIXC_VER_50_SP2:
+		sax_eo_FIXML_elt(ctx, relem);
 		break;
 
 	case FIXC_VER_UNK:
