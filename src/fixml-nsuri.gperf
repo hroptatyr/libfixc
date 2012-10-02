@@ -1,7 +1,7 @@
 %{
 typedef struct fixc_nsuri_s *fixc_nsuri_t;
 
-#include "fix.h"
+#include "fix-nsuri.h"
 
 %}
 %7bit
@@ -16,7 +16,7 @@ typedef struct fixc_nsuri_s *fixc_nsuri_t;
 
 struct fixc_nsuri_s {
 	const char *nsuri;
-	unsigned int nsid;
+	fixc_ver_t nsid;
 };
 
 %%

@@ -487,7 +487,7 @@ retry:
 		/* assign the version to the msg too */
 		ctx->msg->f8.tag = FIXC_BEGIN_STRING;
 		ctx->msg->f8.typ = FIXC_TYP_VER;
-		ctx->msg->f8.ver = ns->nsid;
+		ctx->msg->f8.ver = (fixc_ver_t)ns->nsid;
 		goto retry;
 
 	default:
