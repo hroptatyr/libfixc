@@ -25,6 +25,10 @@ TESTS += $(fixml_tests)
 check_PROGRAMS += $(fixml_tests)
 fixml_tests =
 
+TESTS += $(rd_tests)
+check_PROGRAMS += $(rd_tests)
+rd_tests =
+
 struct_tests += struct_layout_01
 
 EXTRA_DIST += fixml_to_fixc_prep.c
@@ -47,5 +51,8 @@ fixml_tests += fixc_to_fixml_hash_03
 fixml_tests += fixc_to_fixml_hash_04
 fixml_tests += fixc_to_fixml_hash_05
 fixml_tests += fixc_to_fixml_hash_06
+
+rd_tests += fixml_rd_01
+fixml_rd_01_LDADD = $(top_builddir)/src/libfixc.la
 
 ## Makefile.am ends here

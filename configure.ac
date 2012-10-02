@@ -87,6 +87,15 @@ if test "${have_expat}" = "yes"; then
 	if test "${ac_cv_header_expat_h}" != "yes"; then
 		have_expat="no"
 	fi
+else
+## grrr, for all the distros without an expat.pc file
+	AC_CHECK_HEADERS([expat.h])
+
+	if test "${ac_cv_header_expat_h}" = "yes"; then
+		have_expat="yes"
+		expat_LIBS="-lexpat"
+		expat_CFLAGS=""
+	fi
 fi
 AM_CONDITIONAL([HAVE_EXPAT], [test "${have_expat}" = "yes"])
 

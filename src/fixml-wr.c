@@ -1,4 +1,4 @@
-/*** fixml.c -- guts for fixml elements and attributes
+/*** fixml-wr.c -- guts for fixml element and attribute rendering
  *
  * Copyright (C) 2010-2012 Sebastian Freundt
  *
@@ -43,19 +43,19 @@
 #include "nifty.h"
 
 #include "fixml-attr.h"
-#include "fixml-attr.c"
 #include "fixml-attr-rev.c"
 
 #include "fixml-comp.h"
-#include "fixml-comp.c"
 #include "fixml-comp-rev.c"
 
 #include "fix-msg-type.h"
-#include "fixml-msg-type.c"
 #include "fixml-msg-type-rev.c"
 
+#include "fixml-comp-sub.h"
 #include "fixml-comp-sub.c"
+#include "fixml-comp-fld.h"
 #include "fixml-comp-fld.c"
+#include "fixml-fld-ctx.h"
 #include "fixml-fld-ctx.c"
 
 #if defined DEBUG_FLAG
@@ -96,7 +96,7 @@ static int
 __attr_in_ctx_p(fixc_attr_t a, uint16_t ctx)
 {
 /* return non-0 if tag A is a member of component CTX or msg-type CTX. */
-#if 0
+#if 1
 	fixc_comp_fld_t fld = fixc_get_comp_fld(ctx);
 
 	for (size_t i = 0; i < fld->nflds; i++) {
@@ -175,6 +175,8 @@ __render_ctx(
 	char *p = buf;
 	const char *ep = buf + bsz;
 	fixc_comp_sub_t sub;
+	int nattr = 0;
+	int nsub = 0;
 
 	/* start the tag */
 	/* start the comp tag */
@@ -185,32 +187,44 @@ __render_ctx(
 	for (size_t i = 0; i < msg->nflds && p < ep; i++) {
 		fixc_attr_t aid = (fixc_attr_t)msg->flds[i].tag;
 		if (__attr_in_ctx_p(aid, ctx)) {
+			nattr++;
 			p += __render_attr(p, ep - p, msg->pr, msg->flds[i]);
 		}
 	}
 
 	/* closing tag */
 	sub = fixc_get_comp_sub(ctx);
-	if (sub->nsubs == 0) {
-		p = sputc(p, ep, '/');
-		p = sputc(p, ep, '>');
-		goto out;
-	}
 	/* otherwise finish the tag */
 	p = sputc(p, ep, '>');
 
 	/* sub components */
 	for (size_t i = 0; i < sub->nsubs; i++) {
 		fixc_comp_t cid = (fixc_comp_t)sub->subs[i];
-		p += __render_comp(p, ep - p, msg, cid);
-	}
+		size_t add;
 
-	/* and finish this component */
-	p = sputc(p, ep, '<');
-	p = sputc(p, ep, '/');
-	p = sncpy(p, ep, elem, elen);
-	p = sputc(p, ep, '>');
-out:
+		if ((add = __render_comp(p, ep - p, msg, cid)) > 0) {
+			p += add;
+			nsub++;
+		}
+	}
+	/* check if any sub elements have been added */
+	if (!nsub && !nattr) {
+		/* we printed nothing */
+		return 0UL;
+
+	} else if (!nsub) {
+		/* no subs, but attributes, rewind p a bit */
+		p--;
+		p = sputc(p, ep, '/');
+		p = sputc(p, ep, '>');
+
+	} else {
+		/* we printed at least one sub-tag so finish this component */
+		p = sputc(p, ep, '<');
+		p = sputc(p, ep, '/');
+		p = sncpy(p, ep, elem, elen);
+		p = sputc(p, ep, '>');
+	}
 	return p - buf;
 }
 
@@ -272,78 +286,4 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	return p - buf - 1/*final \nul*/;
 }
 
-
-#if defined STANDALONE
-#define SOH	"\001"
-#define SOHC	(*SOH)
-
-int
-main(void)
-{
-	static char foo[] = "8=FIXT.1.1" SOH "9=0004" SOH
-		"35=S" SOH "117=112" SOH
-		"132=1.03" SOH "133=1.04" SOH "10=0";
-	char test[512];
-	fixc_msg_t msg = make_fixc_from_fix(foo, sizeof(foo) - 1);
-
-	fprintf(stdout, "%zu fields\n", msg->nflds);
-	for (size_t i = 0; i < msg->nflds; i++) {
-		fprintf(stdout, "+ field %zu: %hu=%s\n",
-			i, msg->flds[i].tag, msg->pr + msg->flds[i].off);
-	}
-
-	fixc_render_fixml(test, sizeof(test), msg);
-	fputs(test, stdout);
-	fputc('\n', stdout);
-
-#if defined HAVE_ANON_STRUCTS_INIT
-	fixc_add_fld(msg, (struct fixc_fld_s){
-				 .tag = 54/*Side*/,
-					 .typ = FIXC_TYP_UCHAR,
-					 .u8 = '1'
-					 });
-#else  /* probably broken gcc */
-	{
-		struct fixc_fld_s tmp;
-		tmp.tag = 54/*Side*/;
-		tmp.typ = FIXC_TYP_UCHAR;
-		tmp.u8 = '1';
-		fixc_add_fld(msg, tmp);
-	}
-#endif	/* HAVE_ANON_STRUCTS_INIT */
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket") - 1);
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket") - 1);
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-#if defined HAVE_ANON_STRUCTS_INIT
-	fixc_add_fld(msg, (struct fixc_fld_s){
-				 .tag = 54/*Side*/,
-					 .typ = FIXC_TYP_UCHAR,
-					 .u8 = '2'
-					 });
-#else  /* probably broken gcc */
-	{
-		struct fixc_fld_s tmp;
-		tmp.tag = 54/*Side*/;
-		tmp.typ = FIXC_TYP_UCHAR;
-		tmp.u8 = '2';
-		fixc_add_fld(msg, tmp);
-	}
-#endif	/* HAVE_ANON_STRUCTS_INIT */
-	fixc_render_fixml(test, sizeof(test), msg);
-	fputs(test, stdout);
-	fputc('\n', stdout);
-
-	free_fixc(msg);
-	return 0;
-}
-#endif	/* STANDALONE */
-
-/* fixml.c ends here */
+/* fixml-wr.c ends here */

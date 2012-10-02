@@ -40,6 +40,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "fix-nsuri.h"
 #include "fix-msg-type.h"
 
 typedef struct fixc_fld_s *fixc_fld_t;
@@ -86,20 +87,6 @@ enum {
 	FIXC_TYP_MSGTYP,
 };
 
-/** version numbers we support */
-enum {
-	FIXC_VER_UNK,
-	FIXC_VER_40,
-	FIXC_VER_41,
-	FIXC_VER_42,
-	FIXC_VER_43,
-	FIXC_VER_44,
-	FIXC_VER_50,
-	FIXC_VER_50_SP1,
-	FIXC_VER_50_SP2,
-	FIXC_VER_T11,
-};
-
 struct fixc_fld_s {
 	/** numerical representation of the fix field */
 	uint16_t tag;
@@ -111,7 +98,7 @@ struct fixc_fld_s {
 		int32_t i32;
 		uint8_t u8;
 		int8_t i8;
-		unsigned int ver;
+		fixc_ver_t ver;
 
 		fixc_msg_type_t mtyp;
 	};
@@ -139,6 +126,10 @@ struct fixc_msg_s {
 /**
  * Generate a fixc message from a FIX message string in MSG of length MSGLEN */
 extern fixc_msg_t make_fixc_from_fix(const char *msg, size_t msglen);
+
+/**
+ * Generate a fixc message from a FIXML document in DOC of length DOCLEN */
+extern fixc_msg_t make_fixc_from_fixml(const char *doc, size_t doclen);
 
 /**
  * Free a fixc message MSG and all its resources. */

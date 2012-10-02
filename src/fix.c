@@ -42,6 +42,9 @@
 #include "fix.h"
 #include "nifty.h"
 
+/* to map fixc_ver_t objects to strings */
+#include "fixml-nsuri-rev.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
@@ -223,10 +226,13 @@ fixc_render_fld(
 		memcpy(buf + res, b + fld.off, stz);
 		res += stz;
 		break;
-	case FIXC_TYP_VER:
-		memcpy(buf + res, "FIXT.1.1", 8);
-		res += 8;
+	case FIXC_TYP_VER: {
+		const char *vstr = __ver_fixify(fld.ver);
+		size_t vlen = strlen(vstr);
+		memcpy(buf + res, vstr, vlen);
+		res += vlen;
 		break;
+	}
 	case FIXC_TYP_UCHAR:
 		buf[res++] = fld.u8;
 		break;
@@ -263,7 +269,9 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 	size_t blen = 0;
 
 	/* first 2 fields are unrolled */
+	msg->f8.tag = FIXC_BEGIN_STRING;
 	hdrz = fixc_render_fld(buf, bsz, msg->pr, msg->f8);
+	msg->f9.tag = FIXC_BODY_LENGTH;
 	lenz = fixc_render_fld(buf + hdrz, bsz - hdrz, msg->pr, msg->f9);
 	/* just leave some room for this */
 	totz = ROUND(hdrz + (lenz = ROUND(lenz, 8)), sizeof(void*));
@@ -429,76 +437,5 @@ fixc_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
 	}
 	return 0;
 }
-
-
-#if defined STANDALONE
-int
-main(void)
-{
-	static char foo[] = "8=FIXT.1.1" SOH "9=0004" SOH
-		"35=S" SOH "117=112" SOH
-		"132=1.03" SOH "133=1.04" SOH "10=0";
-	char test[256];
-	fixc_msg_t msg = make_fixc_from_fix(foo, sizeof(foo) - 1);
-
-	fprintf(stdout, "%zu fields\n", msg->nflds);
-	for (size_t i = 0; i < msg->nflds; i++) {
-		fprintf(stdout, "+ field %zu: %hu=%s\n",
-			i, msg->flds[i].tag, msg->pr + msg->flds[i].off);
-	}
-
-	fixc_render_fix(test, sizeof(test), msg);
-	fputs(test, stdout);
-	fputc('\n', stdout);
-
-#if defined HAVE_ANON_STRUCTS_INIT
-	fixc_add_fld(msg, (struct fixc_fld_s){
-				 .tag = 54/*Side*/,
-					 .typ = FIXC_TYP_UCHAR,
-					 .u8 = '1'
-					 });
-#else  /* probably broken gcc */
-	{
-		struct fixc_fld_s tmp;
-		tmp.tag = 54/*Side*/;
-		tmp.typ = FIXC_TYP_UCHAR;
-		tmp.u8 = '1';
-		fixc_add_fld(msg, tmp);
-	}
-#endif	/* HAVE_ANON_STRUCTS_INIT */
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket") - 1);
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket") - 1);
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-	fixc_add_tag(msg, 55/*Sym*/, "EURbasket", sizeof("EURbasket"));
-#if defined HAVE_ANON_STRUCTS_INIT
-	fixc_add_fld(msg, (struct fixc_fld_s){
-				 .tag = 54/*Side*/,
-					 .typ = FIXC_TYP_UCHAR,
-					 .u8 = '2'
-					 });
-#else  /* probably broken gcc */
-	{
-		struct fixc_fld_s tmp;
-		tmp.tag = 54/*Side*/;
-		tmp.typ = FIXC_TYP_UCHAR;
-		tmp.u8 = '2';
-		fixc_add_fld(msg, tmp);
-	}
-#endif	/* HAVE_ANON_STRUCTS_INIT */
-	fixc_render_fix(test, sizeof(test), msg);
-	fputs(test, stdout);
-	fputc('\n', stdout);
-
-	free_fixc(msg);
-	return 0;
-}
-#endif	/* STANDALONE */
 
 /* fix.c ends here */
