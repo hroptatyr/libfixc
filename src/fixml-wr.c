@@ -1,4 +1,4 @@
-/*** fixml.c -- guts for fixml elements and attributes
+/*** fixml-wr.c -- guts for fixml element and attribute rendering
  *
  * Copyright (C) 2010-2012 Sebastian Freundt
  *
