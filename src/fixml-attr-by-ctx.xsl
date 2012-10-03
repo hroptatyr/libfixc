@@ -20,9 +20,8 @@
   <xsl:template name="msg-or-comp">
     <xsl:param name="node"/>
 
-    <xsl:variable name="outfn">
-      <xsl:value-of select="/fixc:spec/@version"/>
-      <xsl:text>_</xsl:text>
+    <xsl:variable name="versn" select="translate(/fixc:spec/@version, '._', '')"/>
+    <xsl:variable name="infix">
       <xsl:choose>
         <xsl:when test="name(.) = 'component'">
           <xsl:text>comp</xsl:text>
@@ -34,6 +33,18 @@
           <xsl:text>unk</xsl:text>
         </xsl:otherwise>
       </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="prefx"
+      select="translate(concat($versn, '_', $infix),
+              'QWERTYUIOPASDFGHJKLZXCVBNM',
+              'qwertyuiopasdfghjklzxcvbnm')"/>
+    <xsl:variable name="PREFX"
+      select="translate($prefx,
+              'qwertyuiopasdfghjklzxcvbnm',
+              'QWERTYUIOPASDFGHJKLZXCVBNM')"/>
+
+    <xsl:variable name="outfn">
+      <xsl:value-of select="$prefx"/>
       <xsl:text>_</xsl:text>
       <xsl:value-of select="$node/@name"/>
       <xsl:text>.gperf</xsl:text>
