@@ -29,6 +29,7 @@ libfixc_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
 libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
 libfixc_la_SOURCES += fixml-msg-type.gperf fix-msg-type.h
 libfixc_la_SOURCES += fixml-nsuri.gperf fix-nsuri.h
+libfixc_la_SOURCES += fixml-comp.xsl fixml-msg.xsl
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
@@ -44,6 +45,14 @@ BUILT_SOURCES += fixml-msg-type.c
 BUILT_SOURCES += fixml-msg-type-rev.c
 BUILT_SOURCES += fixml-nsuri.c
 BUILT_SOURCES += fixml-nsuri-rev.c
+BUILT_SOURCES += fix40-msg.h fix40-comp.h
+BUILT_SOURCES += fix41-msg.h fix41-comp.h
+BUILT_SOURCES += fix42-msg.h fix42-comp.h
+BUILT_SOURCES += fix43-msg.h fix43-comp.h
+BUILT_SOURCES += fix44-msg.h fix44-comp.h
+BUILT_SOURCES += fix50-msg.h fix50-comp.h
+BUILT_SOURCES += fix50sp1-msg.h fix50sp1-comp.h
+BUILT_SOURCES += fix50sp2-msg.h fix50sp2-comp.h
 
 header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
@@ -84,6 +93,37 @@ fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 			-e 's/FIXC_ATTR_.*/\U&/' \
 			-e 's/FIXC_MSGTYP_.*/\U&/' \
 			-e 's/FIXC_COMP_.*/\U&/' > $@
+
+fix50sp2.xml: $(top_srcdir)/spec/FIX.5.0SP2.xml
+	$(LN_S) $< $@
+
+fix50sp1.xml: $(top_srcdir)/spec/FIX.5.0SP1.xml
+	$(LN_S) $< $@
+
+fix50.xml: $(top_srcdir)/spec/FIX.5.0.xml
+	$(LN_S) $< $@
+
+fix44.xml: $(top_srcdir)/spec/FIX.4.4.xml
+	$(LN_S) $< $@
+
+fix43.xml: $(top_srcdir)/spec/FIX.4.3.xml
+	$(LN_S) $< $@
+
+fix42.xml: $(top_srcdir)/spec/FIX.4.2.xml
+	$(LN_S) $< $@
+
+fix41.xml: $(top_srcdir)/spec/FIX.4.1.xml
+	$(LN_S) $< $@
+
+fix40.xml: $(top_srcdir)/spec/FIX.4.0.xml
+	$(LN_S) $< $@
+
+%-msg.h: fixml-msg.xsl %.xml
+	xsltproc -o $@ $+
+
+%-comp.h: fixml-comp.xsl %.xml
+	xsltproc -o $@ $+
+
 
 # 
 # Help the developers get nice post-processed source files
