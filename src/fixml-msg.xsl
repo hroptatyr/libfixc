@@ -23,16 +23,15 @@
               'qwertyuiopasdfghjklzxcvbnm',
               'QWERTYUIOPASDFGHJKLZXCVBNM')"/>
 
-    <ec:document href="{$prefx}.h" method="text">
-      <xsl:text>/* do not edit, gen'd by fixml-msg.xsl */
+    <xsl:text>/* do not edit, gen'd by fixml-msg.xsl */
 #if !defined INCLUDED_</xsl:text>
-      <xsl:value-of select="$prefx"/>
-      <xsl:text>_h_
+    <xsl:value-of select="$prefx"/>
+    <xsl:text>_h_
 #define INCLUDED_</xsl:text>
-      <xsl:value-of select="$prefx"/>
-      <xsl:text>_h_&#0010;</xsl:text>
+    <xsl:value-of select="$prefx"/>
+    <xsl:text>_h_&#0010;</xsl:text>
 
-      <xsl:text>
+    <xsl:text>
 #undef _
 #define _(x)    ((x)[0] * 256 + (x)[1])
 
@@ -40,43 +39,42 @@ typedef enum {
 	/* first two are our own invention */
 </xsl:text>
 
+    <xsl:text>&#0009;</xsl:text>
+    <xsl:call-template name="msg">
+      <xsl:with-param name="prefix" select="$PREFX"/>
+      <xsl:with-param name="name">
+        <xsl:text>UNK</xsl:text>
+      </xsl:with-param>
+    </xsl:call-template>
+    <xsl:text>,&#0010;&#0009;</xsl:text>
+    <xsl:call-template name="msg">
+      <xsl:with-param name="prefix" select="$PREFX"/>
+      <xsl:with-param name="name">
+        <xsl:text>BATCH</xsl:text>
+      </xsl:with-param>
+      <xsl:with-param name="valnum" select="'0xffff'"/>
+    </xsl:call-template>
+    <xsl:text>,&#0010;</xsl:text>
+
+    <xsl:for-each select="fixc:message">
       <xsl:text>&#0009;</xsl:text>
       <xsl:call-template name="msg">
         <xsl:with-param name="prefix" select="$PREFX"/>
-        <xsl:with-param name="name">
-          <xsl:text>UNK</xsl:text>
-        </xsl:with-param>
-      </xsl:call-template>
-      <xsl:text>,&#0010;&#0009;</xsl:text>
-      <xsl:call-template name="msg">
-        <xsl:with-param name="prefix" select="$PREFX"/>
-        <xsl:with-param name="name">
-          <xsl:text>BATCH</xsl:text>
-        </xsl:with-param>
-        <xsl:with-param name="valnum" select="'0xffff'"/>
+        <xsl:with-param name="name" select="@name"/>
+        <xsl:with-param name="valstr" select="@fix"/>
       </xsl:call-template>
       <xsl:text>,&#0010;</xsl:text>
+    </xsl:for-each>
 
-      <xsl:for-each select="fixc:message">
-        <xsl:text>&#0009;</xsl:text>
-        <xsl:call-template name="msg">
-          <xsl:with-param name="prefix" select="$PREFX"/>
-          <xsl:with-param name="name" select="@name"/>
-          <xsl:with-param name="valstr" select="@fix"/>
-        </xsl:call-template>
-        <xsl:text>,&#0010;</xsl:text>
-      </xsl:for-each>
-
-      <xsl:text>} </xsl:text>
-      <xsl:value-of select="$prefx"/>
-      <xsl:text>_t;
+    <xsl:text>} </xsl:text>
+    <xsl:value-of select="$prefx"/>
+    <xsl:text>_t;
 
 #undef _
 
 #endif  /* INCLUDED_</xsl:text>
-      <xsl:value-of select="$prefx"/>
-      <xsl:text>_h_ */&#0010;</xsl:text>
-    </ec:document>
+    <xsl:value-of select="$prefx"/>
+    <xsl:text>_h_ */&#0010;</xsl:text>
   </xsl:template>
 
   <xsl:template name="msg">
