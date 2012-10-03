@@ -21,7 +21,7 @@
     <xsl:variable name="PREFX"
       select="translate($prefx,
               'qwertyuiopasdfghjklzxcvbnm',
-              'QWERTYUIOPASDFGHJKLZXCVBNM')"/>              
+              'QWERTYUIOPASDFGHJKLZXCVBNM')"/>
 
     <ec:document href="{$prefx}.h" method="text">
       <xsl:text>/* do not edit, gen'd by fixml-comp.xsl */
