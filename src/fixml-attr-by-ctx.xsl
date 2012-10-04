@@ -84,7 +84,10 @@
     <xsl:text>-msg.h"
 #include "</xsl:text>
     <xsl:value-of select="$versn"/>
-    <xsl:text>-comp.h"&#0010;&#0010;</xsl:text>
+    <xsl:text>-comp.h"
+#include "fixml-attr-by-ctx.h"
+
+</xsl:text>
 
     <xsl:apply-templates select="fixc:message|fixc:component" mode="include"/>
 
@@ -92,13 +95,14 @@
     <xsl:text>
 fixc_attr_t fixc_get_aid(
 	union __attribute__((transparent_union)) {
-		uint16_t ctx;
+		unsigned int i;
+		uint16_t ui16;
 		fixc_comp_t comp;
 		fixc_msg_type_t msg;
-	}, const char *attr, size_t alen)
+	} ctx, const char *attr, size_t alen)
 {
 /* obtain the aid that belongs to ATTR (of size ALEN) in context CTX. */
-	switch (ctx) {
+	switch (ctx.ui16) {
 </xsl:text>
     <!-- now come the cases -->
     <xsl:apply-templates select="fixc:message|fixc:component" mode="case"/>
