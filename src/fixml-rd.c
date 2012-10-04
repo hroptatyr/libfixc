@@ -60,6 +60,8 @@
 
 #include "fixml-nsuri.c"
 
+#include "fixml-attr-by-ctx.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */

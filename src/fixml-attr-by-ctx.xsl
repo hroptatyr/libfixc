@@ -12,6 +12,8 @@
 
   <xsl:key name="fldi" match="/fixc:spec/fixc:field" use="@aid"/>
 
+  <xsl:param name="MT"/>
+
   <xsl:variable name="_versn" select="translate(/fixc:spec/@version, '._', '')"/>
   <xsl:variable name="versn" select="fixc:lcase($_versn)"/>
   <xsl:variable name="VERSN" select="fixc:ucase($_versn)"/>
@@ -50,10 +52,30 @@
     <fn:result select="concat($versn, '_', $infix)"/>
   </fn:function>
 
-  <!-- this stylesheet will generate gperf files -->
   <xsl:template match="fixc:spec">
+    <xsl:choose>
+      <!-- dependencies, if any -->
+      <xsl:when test="$MT">
+        <xsl:apply-templates select="/fixc:spec" mode="deps"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="/fixc:spec" mode="beef"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="fixc:spec" mode="deps">
     <xsl:apply-templates select="fixc:message|fixc:component" mode="gperf"/>
 
+    <ec:document href="{$MT}" method="text">
+      <xsl:text>fixml-attr-by-ctx.c:</xsl:text>
+      <xsl:apply-templates select="fixc:message|fixc:component" mode="deps"/>
+      <xsl:text>&#0010;</xsl:text>
+    </ec:document>
+  </xsl:template>
+
+  <!-- this stylesheet will generate gperf files -->
+  <xsl:template match="fixc:spec" mode="beef">
     <!-- build up the main .c file that switches over the context -->
     <xsl:text>/* do not edit, gen'd by fixml-attr-by-ctx.xsl */
 
@@ -68,7 +90,12 @@
 
     <!-- now the switch -->
     <xsl:text>
-static fixc_attr_t fixc_get_aid(uint16_t ctx, const char *attr, size_t alen)
+fixc_attr_t fixc_get_aid(
+	union __attribute__((transparent_union)) {
+		uint16_t ctx;
+		fixc_comp_t comp;
+		fixc_msg_type_t msg;
+	}, const char *attr, size_t alen)
 {
 /* obtain the aid that belongs to ATTR (of size ALEN) in context CTX. */
 	switch (ctx) {
@@ -93,7 +120,7 @@ static fixc_attr_t fixc_get_aid(uint16_t ctx, const char *attr, size_t alen)
       <xsl:text>.gperf</xsl:text>
     </xsl:variable>
 
-    <ec:document href="{$outfn}" method="text">
+    <ec:document href="./{$outfn}" method="text">
       <xsl:text>/* do not edit, gen'd by fixml-attr-by-ctx.xsl */
 %{
 
@@ -158,6 +185,14 @@ v,__ATTR_V
     <xsl:text>_</xsl:text>
     <xsl:value-of select="@name"/>
     <xsl:text>:&#0010;</xsl:text>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="deps">
+    <xsl:text> </xsl:text>
+    <xsl:value-of select="fixc:prefix(.)"/>
+    <xsl:text>_</xsl:text>
+    <xsl:value-of select="@name"/>
+    <xsl:text>.c</xsl:text>
   </xsl:template>
 
   <xsl:template match="fixc:field" mode="enum">
