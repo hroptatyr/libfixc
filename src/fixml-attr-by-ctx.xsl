@@ -13,13 +13,10 @@
 
   <!-- this stylesheet will generate gperf files -->
   <xsl:template match="fixc:spec">
-    <xsl:apply-templates select="fixc:message"/>
-    <xsl:apply-templates select="fixc:component"/>
+    <xsl:apply-templates select="fixc:message|fixc:component" mode="gperf"/>
   </xsl:template>
 
-  <xsl:template name="msg-or-comp">
-    <xsl:param name="node"/>
-
+  <xsl:template match="fixc:component|fixc:message" mode="gperf">
     <xsl:variable name="versn" select="translate(/fixc:spec/@version, '._', '')"/>
     <xsl:variable name="infix">
       <xsl:choose>
@@ -46,7 +43,7 @@
     <xsl:variable name="outfn">
       <xsl:value-of select="$prefx"/>
       <xsl:text>_</xsl:text>
-      <xsl:value-of select="$node/@name"/>
+      <xsl:value-of select="@name"/>
       <xsl:text>.gperf</xsl:text>
     </xsl:variable>
 
@@ -59,7 +56,7 @@ enum __attr_e {
         __ATTR_V = FIXC_ATTR_V,
 </xsl:text>
       <!-- loop over them fields -->
-      <xsl:for-each select="$node/fixc:field">
+      <xsl:for-each select="fixc:field">
         <xsl:text>&#0009;</xsl:text>
         <xsl:apply-templates select="key('fldi', @aid)" mode="enum"/>
         <xsl:text> = </xsl:text>
@@ -89,24 +86,14 @@ v,__ATTR_V
 </xsl:text>
 
       <!-- loop over them fields again -->
-      <xsl:for-each select="$node/fixc:field">
+      <xsl:for-each select="fixc:field">
         <xsl:apply-templates select="key('fldi', @aid)" mode="map"/>
         <xsl:text>&#0010;</xsl:text>
       </xsl:for-each>
     </ec:document>
   </xsl:template>
 
-  <xsl:template match="fixc:message">
-    <xsl:call-template name="msg-or-comp">
-      <xsl:with-param name="node" select="."/>
-    </xsl:call-template>
-  </xsl:template>
 
-  <xsl:template match="fixc:component">
-    <xsl:call-template name="msg-or-comp">
-      <xsl:with-param name="node" select="."/>
-    </xsl:call-template>
-  </xsl:template>
 
   <xsl:template match="fixc:field" mode="enum">
     <xsl:text>__ATTR_</xsl:text>
