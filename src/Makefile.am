@@ -59,6 +59,7 @@ BUILT_SOURCES += fix50sp2-msg.h fix50sp2-comp.h
 BUILT_SOURCES += fix50sp2-comp.gperf fix50sp2-comp.c
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
+BUILT_SOURCES += fixml-comp-by-ctx.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-nsuri.h
@@ -109,9 +110,15 @@ fixml-attr-by-ctx.c: fixml-attr-by-ctx.xsl fix50sp2.xml fixml-attr-by-ctx.gperfs
 fixml-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl fix50sp2.xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+ > $@
 
-dist-hook: fixml-attr-by-ctx.gperfs
-	for i in `cat $<`; do cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; done
-	cp -a $< "$(distdir)/"
+fixml-comp-by-ctx.c: fixml-comp-by-ctx.xsl fix50sp2.xml fixml-comp-by-ctx.gperfs
+	xsltproc -o $@ $< $(word 2,$+)
+
+fixml-comp-by-ctx.gperfs: fixml-comp-by-ctx.xsl fix50sp2.xml
+	xsltproc --stringparam MT $(DEPDIR)/fixml-comp-by-ctx.Po $+ > $@
+
+dist-hook: fixml-attr-by-ctx.gperfs fixml-comp-by-ctx.gperfs
+	for i in `cat $+`; do cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; done
+	cp -a $+ "$(distdir)/"
 
 fix50sp2.xml: $(top_srcdir)/spec/FIX.5.0SP2.xml
 	$(LN_S) $< $@
