@@ -61,6 +61,7 @@ BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
 
 header_HEADERS += fix.h
+header_HEADERS += fix-nsuri.h
 header_HEADERS += fixml-canon-comp.h
 header_HEADERS += fixml-canon-msgt.h
 
