@@ -41,7 +41,7 @@
 #include <stdint.h>
 
 #include "fix-nsuri.h"
-#include "fix-msg-type.h"
+#include "fix-canon-msgt.h"
 
 typedef struct fixc_fld_s *fixc_fld_t;
 typedef struct fixc_msg_s *fixc_msg_t;
@@ -100,7 +100,7 @@ struct fixc_fld_s {
 		int8_t i8;
 		fixc_ver_t ver;
 
-		fixc_msg_type_t mtyp;
+		fixc_msgt_t mtyp;
 	};
 };
 
