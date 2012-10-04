@@ -3,8 +3,7 @@
   xmlns:fixc="http://www.ga-group.nl/libfixc_0_1"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:ec="http://exslt.org/common"
-  xmlns:fn="http://exslt.org/functions"
-  extension-element-prefixes="ec fn"
+  extension-element-prefixes="ec"
   version="1.0">
 
   <xsl:strip-space elements="*"/>
@@ -14,43 +13,7 @@
 
   <xsl:param name="MT"/>
 
-  <xsl:variable name="_versn" select="translate(/fixc:spec/@version, '._', '')"/>
-  <xsl:variable name="versn" select="fixc:lcase($_versn)"/>
-  <xsl:variable name="VERSN" select="fixc:ucase($_versn)"/>
-
-  <fn:function name="fixc:ucase">
-    <xsl:param name="str"/>
-    <fn:result
-      select="translate($str,
-              'qwertyuiopasdfghjklzxcvbnm',
-              'QWERTYUIOPASDFGHJKLZXCVBNM')"/>
-  </fn:function>
-
-  <fn:function name="fixc:lcase">
-    <xsl:param name="str"/>
-    <fn:result
-      select="translate($str,
-              'QWERTYUIOPASDFGHJKLZXCVBNM',
-              'qwertyuiopasdfghjklzxcvbnm')"/>
-  </fn:function>
-
-  <fn:function name="fixc:prefix">
-    <xsl:param name="node-set"/>
-    <xsl:variable name="infix">
-      <xsl:choose>
-        <xsl:when test="name($node-set) = 'component'">
-          <xsl:text>comp</xsl:text>
-        </xsl:when>
-        <xsl:when test="name($node-set) = 'message'">
-          <xsl:text>msg</xsl:text>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:text>unk</xsl:text>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:variable>
-    <fn:result select="concat($versn, '_', $infix)"/>
-  </fn:function>
+  <xsl:include href="libfixc_0_1_funs.xsl"/>
 
   <xsl:template match="fixc:spec">
     <xsl:choose>
@@ -117,12 +80,13 @@
 #if defined __INTEL_COMPILER
 # pragma warning (disable:869)
 #endif  /* __INTEL_COMPILER */
+#include "fixml-canon-attr.c"
 </xsl:text>
 
     <xsl:apply-templates select="fixc:message|fixc:component" mode="include"/>
 
     <!-- now the switch -->
-    <xsl:text>
+    <xsl:text>/* warn about 869 again */
 #if defined __INTEL_COMPILER
 # pragma warning (default:869)
 #endif  /* __INTEL_COMPILER */
@@ -141,8 +105,10 @@ fixc_attr_t fixc_get_aid(
     <!-- now come the cases -->
     <xsl:apply-templates select="fixc:message|fixc:component" mode="case"/>
    <xsl:text>
-	default:
-		return FIXC_ATTR_UNK;
+	default: {
+		const struct UNK_s *p = __aiddify_UNK(attr, alen);
+		return p != NULL ? p->aid : FIXC_ATTR_UNK;
+	}
 	}
 }
 
