@@ -179,7 +179,13 @@ v,FIXC_ATTR_V
     <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
     <xsl:text>_</xsl:text>
     <xsl:value-of select="@name"/>
-    <xsl:text>:&#0010;</xsl:text>
+    <xsl:text>: {
+		const struct </xsl:text>
+    <xsl:value-of select="@name"/><xsl:text>_s *p = __aiddify_</xsl:text>
+    <xsl:value-of select="@name"/><xsl:text>(attr, alen);
+		return p != NULL ? p->aid : FIXC_ATTR_UNK;
+	}
+</xsl:text>
   </xsl:template>
 
   <xsl:template match="fixc:component|fixc:message" mode="deps">
