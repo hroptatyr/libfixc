@@ -14,10 +14,32 @@
   <!-- this stylesheet will generate gperf files -->
   <xsl:template match="fixc:spec">
     <xsl:apply-templates select="fixc:message|fixc:component" mode="gperf"/>
+
+    <!-- build up the main .c file that switches over the context -->
+    <xsl:text>/* do not edit, gen'd by fixml-attr-by-ctx.xsl */&#0010;</xsl:text>
+
+    <xsl:apply-templates select="fixc:message|fixc:component" mode="include"/>
+
+    <!-- now the switch -->
+    <xsl:text>
+static fixc_attr_t fixc_get_aid(uint16_t ctx, const char *attr, size_t alen)
+{
+/* obtain the aid that belongs to ATTR (of size ALEN) in context CTX. */
+	switch (ctx) {
+</xsl:text>
+    <!-- now come the cases -->
+    <xsl:apply-templates select="fixc:message|fixc:component" mode="case"/>
+   <xsl:text>
+	default:
+		return FIXC_ATTR_UNK;
+	}
+}
+
+/* gen'd file ends here */
+</xsl:text>
   </xsl:template>
 
   <xsl:template match="fixc:component|fixc:message" mode="gperf">
-    <xsl:variable name="versn" select="translate(/fixc:spec/@version, '._', '')"/>
     <xsl:variable name="infix">
       <xsl:choose>
         <xsl:when test="name(.) = 'component'">
@@ -93,7 +115,70 @@ v,__ATTR_V
     </ec:document>
   </xsl:template>
 
+  <xsl:template match="fixc:component|fixc:message" mode="include">
+    <xsl:variable name="infix">
+      <xsl:choose>
+        <xsl:when test="name(.) = 'component'">
+          <xsl:text>comp</xsl:text>
+        </xsl:when>
+        <xsl:when test="name(.) = 'message'">
+          <xsl:text>msg</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>unk</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="prefx"
+      select="translate(concat($versn, '_', $infix),
+              'QWERTYUIOPASDFGHJKLZXCVBNM',
+              'qwertyuiopasdfghjklzxcvbnm')"/>
+    <xsl:variable name="PREFX"
+      select="translate($prefx,
+              'qwertyuiopasdfghjklzxcvbnm',
+              'QWERTYUIOPASDFGHJKLZXCVBNM')"/>
 
+    <xsl:variable name="infn">
+      <xsl:value-of select="$prefx"/>
+      <xsl:text>_</xsl:text>
+      <xsl:value-of select="@name"/>
+      <xsl:text>.c</xsl:text>
+    </xsl:variable>
+
+    <xsl:text>#include "</xsl:text>
+    <xsl:value-of select="$infn"/>
+    <xsl:text>"&#0010;</xsl:text>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="case">
+    <xsl:variable name="infix">
+      <xsl:choose>
+        <xsl:when test="name(.) = 'component'">
+          <xsl:text>comp</xsl:text>
+        </xsl:when>
+        <xsl:when test="name(.) = 'message'">
+          <xsl:text>msg</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>unk</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="prefx"
+      select="translate(concat($versn, '_', $infix),
+              'QWERTYUIOPASDFGHJKLZXCVBNM',
+              'qwertyuiopasdfghjklzxcvbnm')"/>
+    <xsl:variable name="PREFX"
+      select="translate($prefx,
+              'qwertyuiopasdfghjklzxcvbnm',
+              'QWERTYUIOPASDFGHJKLZXCVBNM')"/>
+
+    <xsl:text>&#0009;case </xsl:text>
+    <xsl:value-of select="$PREFX"/>
+    <xsl:text>_</xsl:text>
+    <xsl:value-of select="@name"/>
+    <xsl:text>:&#0010;</xsl:text>
+  </xsl:template>
 
   <xsl:template match="fixc:field" mode="enum">
     <xsl:text>__ATTR_</xsl:text>
