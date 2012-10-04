@@ -105,7 +105,7 @@ fixml-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl fix50sp2.xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+ > $@
 
 dist-hook: fixml-attr-by-ctx.gperfs
-	for i in `cat $<`; do cp -a "$${i}" "$(distdir)/"; done
+	for i in `cat $<`; do cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; done
 	cp -a $< "$(distdir)/"
 
 fix50sp2.xml: $(top_srcdir)/spec/FIX.5.0SP2.xml
