@@ -114,12 +114,19 @@
     <xsl:text>-comp.h"
 #include "fixml-attr-by-ctx.h"
 
+#if defined __INTEL_COMPILER
+# pragma warning (disable:869)
+#endif  /* __INTEL_COMPILER */
 </xsl:text>
 
     <xsl:apply-templates select="fixc:message|fixc:component" mode="include"/>
 
     <!-- now the switch -->
     <xsl:text>
+#if defined __INTEL_COMPILER
+# pragma warning (default:869)
+#endif  /* __INTEL_COMPILER */
+
 fixc_attr_t fixc_get_aid(
 	union __attribute__((transparent_union)) {
 		unsigned int i;
