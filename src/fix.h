@@ -41,7 +41,7 @@
 #include <stdint.h>
 
 #include "fix-nsuri.h"
-#include "fix-canon-msgt.h"
+#include "fixml-canon-msgt.h"
 
 typedef struct fixc_fld_s *fixc_fld_t;
 typedef struct fixc_msg_s *fixc_msg_t;
