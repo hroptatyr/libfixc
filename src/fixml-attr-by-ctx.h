@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "fixml-attr.h"
-#include "fixml-comp.h"
+#include "fixml-canon-comp.h"
 #include "fix-msg-type.h"
 
 extern fixc_attr_t fixc_get_aid(
