@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include "fixml-attr.h"
 #include "fixml-canon-comp.h"
-#include "fixml-canon-msg.h"
+#include "fixml-canon-msgt.h"
 
 typedef union __attribute__((transparent_union)) {
 	unsigned int i;
