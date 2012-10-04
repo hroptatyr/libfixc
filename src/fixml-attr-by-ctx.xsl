@@ -91,13 +91,7 @@
 # pragma warning (default:869)
 #endif  /* __INTEL_COMPILER */
 
-fixc_attr_t fixc_get_aid(
-	union __attribute__((transparent_union)) {
-		unsigned int i;
-		uint16_t ui16;
-		fixc_comp_t comp;
-		fixc_msgt_type_t msg;
-	} ctx, const char *attr, size_t alen)
+fixc_attr_t fixc_get_aid(fixc_ctxt_t ctx, const char *attr, size_t alen)
 {
 /* obtain the aid that belongs to ATTR (of size ALEN) in context CTX. */
 	switch (ctx.ui16) {
