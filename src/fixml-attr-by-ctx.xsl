@@ -117,12 +117,13 @@
 #if defined __INTEL_COMPILER
 # pragma warning (disable:869)
 #endif  /* __INTEL_COMPILER */
+#include "fixml-canon-attr.c"
 </xsl:text>
 
     <xsl:apply-templates select="fixc:message|fixc:component" mode="include"/>
 
     <!-- now the switch -->
-    <xsl:text>
+    <xsl:text>/* warn about 869 again */
 #if defined __INTEL_COMPILER
 # pragma warning (default:869)
 #endif  /* __INTEL_COMPILER */
@@ -141,8 +142,10 @@ fixc_attr_t fixc_get_aid(
     <!-- now come the cases -->
     <xsl:apply-templates select="fixc:message|fixc:component" mode="case"/>
    <xsl:text>
-	default:
-		return FIXC_ATTR_UNK;
+	default: {
+		const struct UNK_s *p = __aiddify_UNK(attr, alen);
+		return p != NULL ? p->aid : FIXC_ATTR_UNK;
+	}
 	}
 }
 
