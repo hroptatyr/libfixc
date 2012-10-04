@@ -30,6 +30,7 @@ libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
 libfixc_la_SOURCES += fixml-msg-type.gperf fix-msg-type.h
 libfixc_la_SOURCES += fixml-nsuri.gperf fix-nsuri.h
 libfixc_la_SOURCES += fixml-comp.xsl fixml-msg.xsl
+libfixc_la_SOURCES += fixml-attr-by-ctx.xsl fixml-attr-by-ctx.c fixml-attr-by-ctx.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
@@ -53,6 +54,7 @@ BUILT_SOURCES += fix44-msg.h fix44-comp.h
 BUILT_SOURCES += fix50-msg.h fix50-comp.h
 BUILT_SOURCES += fix50sp1-msg.h fix50sp1-comp.h
 BUILT_SOURCES += fix50sp2-msg.h fix50sp2-comp.h
+BUILT_SOURCES += fixml-attr-by-ctx.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-msg-type.h
@@ -93,6 +95,14 @@ fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 			-e 's/FIXC_ATTR_.*/\U&/' \
 			-e 's/FIXC_MSGTYP_.*/\U&/' \
 			-e 's/FIXC_COMP_.*/\U&/' > $@
+
+include $(DEPDIR)/fixml-attr-by-ctx.Po
+fixml-attr-by-ctx.c: fixml-attr-by-ctx.xsl fix50sp2.xml fixml-attr-by-ctx.gperfs
+	xsltproc -o $@ $< $(word 2,$+)
+
+fixml-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl fix50sp2.xml
+	xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+
+	touch $@
 
 fix50sp2.xml: $(top_srcdir)/spec/FIX.5.0SP2.xml
 	$(LN_S) $< $@
