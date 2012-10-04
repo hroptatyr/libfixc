@@ -77,7 +77,7 @@ fix2fixml_LDADD = libfixc.la
 
 ## our rule for gperf
 %.c: %.gperf
-	$(AM_V_GEN) $(GPERF) $< --output-file $@
+	$(AM_V_GEN) $(GPERF) -D $< --output-file $@
 
 fixml-attr-rev.c: $(top_builddir)/spec/fixml_attr.50SP2 switch-group-attr.awk
 	sort -k2 $< | \
