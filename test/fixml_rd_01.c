@@ -37,7 +37,7 @@ main(void)
 		res = 1;
 	}
 
-	if (msg->f35.mtyp != FIXC_MSGTYP_SECURITY_DEFINITION) {
+	if (msg->f35.mtyp != 0x6400/*SecurityDefinition aka "d"*/) {
 		fputs("f35 is not SECURITY_DEFINITION\n", stderr);
 		res = 1;
 	}
