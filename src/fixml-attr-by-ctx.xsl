@@ -96,7 +96,7 @@ fixc_attr_t fixc_get_aid(
 		unsigned int i;
 		uint16_t ui16;
 		fixc_comp_t comp;
-		fixc_msg_type_t msg;
+		fixc_msgt_type_t msg;
 	} ctx, const char *attr, size_t alen)
 {
 /* obtain the aid that belongs to ATTR (of size ALEN) in context CTX. */
