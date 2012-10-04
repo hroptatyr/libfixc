@@ -161,7 +161,6 @@ v,__ATTR_V
       <!-- loop over them fields again -->
       <xsl:for-each select="fixc:field">
         <xsl:apply-templates select="key('fldi', @aid)" mode="map"/>
-        <xsl:text>&#0010;</xsl:text>
       </xsl:for-each>
     </ec:document>
   </xsl:template>
@@ -201,9 +200,12 @@ v,__ATTR_V
   </xsl:template>
 
   <xsl:template match="fixc:field" mode="map">
-    <xsl:value-of select="@fixml"/>
-    <xsl:text>,</xsl:text>
-    <xsl:apply-templates select="." mode="enum"/>
+    <xsl:if test="string-length(@fixml) &gt; 0">
+      <xsl:value-of select="@fixml"/>
+      <xsl:text>,</xsl:text>
+      <xsl:apply-templates select="." mode="enum"/>
+      <xsl:text>&#0010;</xsl:text>
+    </xsl:if>
   </xsl:template>
 
 </xsl:stylesheet>
