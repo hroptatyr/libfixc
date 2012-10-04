@@ -52,8 +52,8 @@
 #include "fixml-attr.h"
 #include "fixml-attr.c"
 
-#include "fixml-comp.h"
-#include "fixml-comp.c"
+#include "fix50sp2-comp.h"
+#include "fix50sp2-comp.c"
 
 #include "fix-msg-type.h"
 #include "fixml-msg-type.c"
@@ -173,7 +173,7 @@ __nsid_from_href(const char *href, size_t hlen)
 static fixc_comp_t
 __cid_from_elem(const char *elem, size_t elen)
 {
-	const struct fixml_comp_s *p = __fixml_ciddify(elem, elen);
+	const struct fix50sp2_comp_s *p = fix50sp2_ciddify(elem, elen);
 	return p != NULL ? p->cid : FIXC_COMP_UNK;
 }
 
