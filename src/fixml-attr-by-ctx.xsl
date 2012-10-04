@@ -68,10 +68,37 @@
     <xsl:apply-templates select="fixc:message|fixc:component" mode="gperf"/>
 
     <ec:document href="{$MT}" method="text">
-      <xsl:text>fixml-attr-by-ctx.c:</xsl:text>
-      <xsl:apply-templates select="fixc:message|fixc:component" mode="deps"/>
+      <xsl:text>fixml-attr-by-ctx.c: </xsl:text>
+      <xsl:for-each select="fixc:message|fixc:component">
+        <xsl:text> </xsl:text>
+        <xsl:apply-templates select="." mode="deps"/>
+        <xsl:text>.c</xsl:text>
+      </xsl:for-each>
+      <xsl:text>&#0010;</xsl:text>
+
+      <xsl:text>&#0010;</xsl:text>
+      <xsl:for-each select="fixc:message|fixc:component">
+        <xsl:text>&#0010;</xsl:text>
+        <xsl:variable name="stem">
+          <xsl:apply-templates select="." mode="deps"/>
+        </xsl:variable>
+        <xsl:value-of select="$stem"/>
+        <xsl:text>.c: </xsl:text>
+        <xsl:value-of select="$stem"/>
+        <xsl:text>.gperf&#0010;</xsl:text>
+      </xsl:for-each>
       <xsl:text>&#0010;</xsl:text>
     </ec:document>
+
+    <xsl:for-each select="fixc:message|fixc:component">
+      <xsl:variable name="stem">
+        <xsl:apply-templates select="." mode="deps"/>
+      </xsl:variable>
+      <xsl:value-of select="$stem"/>
+      <xsl:text>.c&#0009;</xsl:text>
+      <xsl:value-of select="$stem"/>
+      <xsl:text>.gperf&#0010;</xsl:text>
+    </xsl:for-each>
   </xsl:template>
 
   <!-- this stylesheet will generate gperf files -->
@@ -189,11 +216,9 @@ v,FIXC_ATTR_V
   </xsl:template>
 
   <xsl:template match="fixc:component|fixc:message" mode="deps">
-    <xsl:text> </xsl:text>
     <xsl:value-of select="fixc:prefix(.)"/>
     <xsl:text>_</xsl:text>
     <xsl:value-of select="@name"/>
-    <xsl:text>.c</xsl:text>
   </xsl:template>
 
   <xsl:template match="fixc:field" mode="enum">

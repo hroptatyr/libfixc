@@ -30,7 +30,8 @@ libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
 libfixc_la_SOURCES += fixml-msg-type.gperf fix-msg-type.h
 libfixc_la_SOURCES += fixml-nsuri.gperf fix-nsuri.h
 libfixc_la_SOURCES += fixml-comp.xsl fixml-msg.xsl
-libfixc_la_SOURCES += fixml-attr-by-ctx.xsl fixml-attr-by-ctx.c fixml-attr-by-ctx.h
+libfixc_la_SOURCES += fixml-attr-by-ctx.xsl
+libfixc_la_SOURCES += fixml-attr-by-ctx.c fixml-attr-by-ctx.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
@@ -101,8 +102,11 @@ fixml-attr-by-ctx.c: fixml-attr-by-ctx.xsl fix50sp2.xml fixml-attr-by-ctx.gperfs
 	xsltproc -o $@ $< $(word 2,$+)
 
 fixml-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl fix50sp2.xml
-	xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+
-	touch $@
+	xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+ > $@
+
+dist-hook: fixml-attr-by-ctx.gperfs
+	for i in `cat $<`; do cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; done
+	cp -a $< "$(distdir)/"
 
 fix50sp2.xml: $(top_srcdir)/spec/FIX.5.0SP2.xml
 	$(LN_S) $< $@
