@@ -48,7 +48,6 @@
 #include "fixml-comp.h"
 #include "fixml-comp-rev.c"
 
-#include "fix-msg-type.h"
 #include "fixml-msg-type-rev.c"
 
 #include "fixml-comp-sub.h"
@@ -246,8 +245,8 @@ __render_comp(
 static size_t
 __render_msgtyp(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 {
-	fixc_msg_type_t mty = msg->f35.mtyp;
-	const char *mstr = __mty_fixmlify(mty);
+	fixc_msgt_t mty = msg->f35.mtyp;
+	const char *mstr = __mty_fixmlify((fixc_msg_type_t)mty);
 	size_t mlen = strlen(mstr);
 
 	if (!mlen) {
