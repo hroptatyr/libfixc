@@ -65,6 +65,7 @@ header_HEADERS += fix.h
 header_HEADERS += fix-nsuri.h
 header_HEADERS += fixml-canon-comp.h
 header_HEADERS += fixml-canon-msgt.h
+header_HEADERS += fixml-canon-ctxt.h
 
 ## just for debugging and fun
 noinst_PROGRAMS += fixml2fix
