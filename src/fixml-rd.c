@@ -464,6 +464,7 @@ el_sta(void *clo, const char *elem, const char **attr)
 	/* where the real element name starts, sans ns prefix */
 	const char *relem = tag_massage(elem);
 	ptx_ns_t ns = __pref_to_ns(ctx, elem, relem - elem);
+	int retried = 0;
 
 	if (UNLIKELY(ns == NULL)) {
 		FIXC_DEBUG("unknown prefix in tag %s\n", elem);
@@ -488,10 +489,13 @@ retry:
 		ctx->msg->f8.tag = FIXC_BEGIN_STRING;
 		ctx->msg->f8.typ = FIXC_TYP_VER;
 		ctx->msg->f8.ver = (fixc_ver_t)ns->nsid;
-		goto retry;
+		if (!retried++) {
+			goto retry;
+		}
 
 	default:
-		FIXC_DEBUG("unknown namespace %s (%s)\n", elem, ns->href);
+		FIXC_DEBUG("unknown namespace %s ([%u] %s)\n",
+			   elem, ns->nsid, ns->href);
 		break;
 	}
 	return;
