@@ -98,7 +98,7 @@ fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 
 include $(DEPDIR)/fixml-attr-by-ctx.Po
 fixml-attr-by-ctx.c: fixml-attr-by-ctx.xsl fix50sp2.xml fixml-attr-by-ctx.gperfs
-	xsltproc -o $@ $+
+	xsltproc -o $@ $< $(word 2,$+)
 
 fixml-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl fix50sp2.xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+
