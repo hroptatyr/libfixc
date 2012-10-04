@@ -177,11 +177,11 @@ __cid_from_elem(const char *elem, size_t elen)
 	return p != NULL ? p->cid : FIXC_COMP_UNK;
 }
 
-static fixc_msg_type_t
+static fixc_msgt_t
 __mty_from_elem(const char *elem, size_t elen)
 {
 	const struct fixml_msg_type_s *p = __fixml_mtypify(elem, elen);
-	return p != NULL ? p->mty : FIXC_MSGTYP_UNK;
+	return p != NULL ? (fixc_msgt_t)p->mty : FIXC_MSGT_UNK;
 }
 
 
@@ -405,7 +405,7 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 
 	case FIXC_COMP_UNK: {
 		/* could be a message */
-		const fixc_msg_type_t mty = __mty_from_elem(elem, elen);
+		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
 
 		if (!mty) {
 			FIXC_DEBUG("neither cid nor mty: %s\n", elem);
@@ -441,7 +441,7 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 
 	case FIXC_COMP_UNK: {
 		/* could be a message */
-		const fixc_msg_type_t mty = __mty_from_elem(elem, elen);
+		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
 
 		if (!mty) {
 			FIXC_DEBUG("neither cid nor mty\n");
