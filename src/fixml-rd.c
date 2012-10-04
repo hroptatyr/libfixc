@@ -60,6 +60,8 @@
 
 #include "fixml-nsuri.c"
 
+#include "fixml-attr-by-ctx.h"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
@@ -166,13 +168,6 @@ __nsid_from_href(const char *href, size_t hlen)
 {
 	const struct fixc_nsuri_s *n = __fixml_nsiddify(href, hlen);
 	return n != NULL ? n->nsid : FIXC_VER_UNK;
-}
-
-static fixc_attr_t
-__aid_from_attr(const char *attr, size_t alen)
-{
-	const struct fixml_attr_s *p = __fixml_aiddify(attr, alen);
-	return p != NULL ? p->aid : FIXC_ATTR_UNK;
 }
 
 static fixc_comp_t
@@ -348,11 +343,13 @@ proc_UNK_attr(__ctx_t ctx, const char *attr, const char *value)
 	}
 
 	/* aiddify */
-	switch (__aid_from_attr(attr, alen)) {
+	switch (fixc_get_aid(ctx->state ? ctx->state->otag : 0, attr, alen)) {
 	case FIXC_ATTR_XMLNS:
 		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
 		break;
+	case FIXC_ATTR_UNK:
 	default:
+		FIXC_DEBUG("found unknown attr: %s (=%s)\n", attr, value);
 		break;
 	}
 	return;
@@ -362,6 +359,7 @@ static void
 proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 {
 	const char *rattr = tag_massage(attr);
+	unsigned int ctxid;
 	fixc_attr_t aid;
 	size_t alen;
 
@@ -371,12 +369,17 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 		alen = strlen(rattr);
 	}
 	/* aiddify */
-	switch ((aid = __aid_from_attr(attr, alen))) {
+	if (ctx->state == NULL || (ctxid = ctx->state->otag) == 0) {
+		goto attr_unk;
+	}
+	switch ((aid = fixc_get_aid(ctxid, attr, alen))) {
 	case FIXC_ATTR_XMLNS:
 		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
 		break;
 	case FIXC_ATTR_UNK:
-		FIXC_DEBUG("found unknown attr: %s (=%s)\n", attr, value);
+	attr_unk:
+		FIXC_DEBUG("found unknown FIXML attr: %s (=%s) in context %u\n",
+			   attr, value, ctxid);
 		break;
 	default:
 		/* just use fix.c's add_tag thingie for this */
