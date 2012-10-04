@@ -135,9 +135,16 @@ fixc_attr_t fixc_get_aid(
 %switch=1
 %struct-type
 %define slot-name attr
+%define hash-function-name __aid_hash_</xsl:text>
+      <xsl:value-of select="@name"/>
+      <xsl:text>
+%define lookup-function-name __aiddify_</xsl:text>
+      <xsl:value-of select="@name"/>
+      <xsl:text>
 %null-strings
+%includes
 
-struct {
+struct </xsl:text><xsl:value-of select="@name"/><xsl:text>_s {
 	const char *attr;
 	fixc_attr_t aid;
 };
