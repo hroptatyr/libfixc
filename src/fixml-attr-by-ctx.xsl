@@ -128,21 +128,6 @@ fixc_attr_t fixc_get_aid(
       <xsl:text>/* do not edit, gen'd by fixml-attr-by-ctx.xsl */
 %{
 
-enum __attr_e {
-        __ATTR_XMLNS = FIXC_ATTR_XMLNS,
-        __ATTR_V = FIXC_ATTR_V,
-</xsl:text>
-      <!-- loop over them fields -->
-      <xsl:for-each select="fixc:field">
-        <xsl:text>&#0009;</xsl:text>
-        <xsl:apply-templates select="key('fldi', @aid)" mode="enum"/>
-        <xsl:text> = </xsl:text>
-        <xsl:value-of select="@aid"/>
-        <xsl:text>,&#0010;</xsl:text>
-      </xsl:for-each>
-      <xsl:text>
-};
-
 %}
 %7bit
 %readonly-tables
@@ -154,12 +139,12 @@ enum __attr_e {
 
 struct {
 	const char *attr;
-	enum __attr_e aid;
+	fixc_attr_t aid;
 };
 
 %%
-xmlns,__ATTR_XMLNS
-v,__ATTR_V
+xmlns,FIXC_ATTR_XMLNS
+v,FIXC_ATTR_V
 </xsl:text>
 
       <!-- loop over them fields again -->
@@ -206,8 +191,8 @@ v,__ATTR_V
   <xsl:template match="fixc:field" mode="map">
     <xsl:if test="string-length(@fixml) &gt; 0">
       <xsl:value-of select="@fixml"/>
-      <xsl:text>,</xsl:text>
-      <xsl:apply-templates select="." mode="enum"/>
+      <xsl:text>,(fixc_attr_t)</xsl:text>
+      <xsl:value-of select="@aid"/>
       <xsl:text>&#0010;</xsl:text>
     </xsl:if>
   </xsl:template>
