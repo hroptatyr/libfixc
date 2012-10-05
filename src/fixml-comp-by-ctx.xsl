@@ -130,7 +130,7 @@ fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
 %enum
 %switch=1
 %struct-type
-%define slot-name attr
+%define slot-name comp
 %define hash-function-name __cid_hash_</xsl:text>
       <xsl:value-of select="@name"/>
       <xsl:text>
