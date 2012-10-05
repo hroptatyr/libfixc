@@ -78,10 +78,10 @@ fixc_parse_tag(const char *str, size_t UNUSED(len))
 	return res;
 }
 
-static fixc_msg_type_t
+static fixc_msgt_t
 fixc_parse_mtyp(const char str[static 1], size_t len)
 {
-	unsigned int res = FIXC_MSGTYP_UNK;
+	unsigned int res = FIXC_MSGT_UNK;
 
 	switch (len) {
 	case 0:
@@ -93,7 +93,7 @@ fixc_parse_mtyp(const char str[static 1], size_t len)
 		res |= (unsigned int)(str[1] & 0xff) << 0U;
 		break;
 	}
-	return (fixc_msg_type_t)(res);
+	return (fixc_msgt_t)(res);
 }
 
 static void

@@ -1,4 +1,5 @@
 /* hand-crafted reverse msgtyp lookup (fixc_msg_type_t -> fixml msg) */
+#include "fix-msg-type.h"
 
 static const char *__mty_fixmlify(fixc_msg_type_t mty)
 {

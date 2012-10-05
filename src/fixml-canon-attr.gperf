@@ -1,0 +1,24 @@
+%{
+
+#include "fixml-attr.h"
+
+%}
+%7bit
+%readonly-tables
+%enum
+%switch=1
+%struct-type
+%define slot-name attr
+%define hash-function-name __aid_hash_UNK
+%define lookup-function-name __aiddify_UNK
+%null-strings
+%includes
+
+struct UNK_s {
+	const char *attr;
+	fixc_attr_t aid;
+};
+
+%%
+xmlns,	FIXC_ATTR_XMLNS
+v,	FIXC_ATTR_V

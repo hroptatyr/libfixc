@@ -52,13 +52,14 @@
 #include "fixml-attr.h"
 #include "fixml-attr.c"
 
-#include "fixml-comp.h"
-#include "fixml-comp.c"
-
-#include "fix-msg-type.h"
-#include "fixml-msg-type.c"
+#include "fix50sp2-comp.h"
+#include "fix50sp2-msg.h"
+#include "fix50sp2-msg.c"
 
 #include "fixml-nsuri.c"
+
+#include "fixml-comp-by-ctx.h"
+#include "fixml-attr-by-ctx.h"
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
@@ -168,25 +169,11 @@ __nsid_from_href(const char *href, size_t hlen)
 	return n != NULL ? n->nsid : FIXC_VER_UNK;
 }
 
-static fixc_attr_t
-__aid_from_attr(const char *attr, size_t alen)
-{
-	const struct fixml_attr_s *p = __fixml_aiddify(attr, alen);
-	return p != NULL ? p->aid : FIXC_ATTR_UNK;
-}
-
-static fixc_comp_t
-__cid_from_elem(const char *elem, size_t elen)
-{
-	const struct fixml_comp_s *p = __fixml_ciddify(elem, elen);
-	return p != NULL ? p->cid : FIXC_COMP_UNK;
-}
-
-static fixc_msg_type_t
+static fixc_msgt_t
 __mty_from_elem(const char *elem, size_t elen)
 {
-	const struct fixml_msg_type_s *p = __fixml_mtypify(elem, elen);
-	return p != NULL ? p->mty : FIXC_MSGTYP_UNK;
+	const struct fix50sp2_msgt_s *p = fix50sp2_mtypify(elem, elen);
+	return p != NULL ? (fixc_msgt_t)p->mty : FIXC_MSGT_UNK;
 }
 
 
@@ -253,6 +240,7 @@ ptx_init(__ctx_t ctx)
 {
 	/* initialise the ctxcb pool */
 	init_ctxcb(ctx);
+	push_state(ctx, FIXC_COMP_FIXML, NULL);
 	return;
 }
 
@@ -348,11 +336,13 @@ proc_UNK_attr(__ctx_t ctx, const char *attr, const char *value)
 	}
 
 	/* aiddify */
-	switch (__aid_from_attr(attr, alen)) {
+	switch (fixc_get_aid(ctx->state ? ctx->state->otag : 0, attr, alen)) {
 	case FIXC_ATTR_XMLNS:
 		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
 		break;
+	case FIXC_ATTR_UNK:
 	default:
+		FIXC_DEBUG("found unknown attr: %s (=%s)\n", attr, value);
 		break;
 	}
 	return;
@@ -362,6 +352,7 @@ static void
 proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 {
 	const char *rattr = tag_massage(attr);
+	unsigned int ctxid;
 	fixc_attr_t aid;
 	size_t alen;
 
@@ -371,12 +362,17 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 		alen = strlen(rattr);
 	}
 	/* aiddify */
-	switch ((aid = __aid_from_attr(attr, alen))) {
+	if (ctx->state == NULL || (ctxid = ctx->state->otag) == 0) {
+		goto attr_unk;
+	}
+	switch ((aid = fixc_get_aid(ctxid, attr, alen))) {
 	case FIXC_ATTR_XMLNS:
 		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
 		break;
 	case FIXC_ATTR_UNK:
-		FIXC_DEBUG("found unknown attr: %s (=%s)\n", attr, value);
+	attr_unk:
+		FIXC_DEBUG("found unknown FIXML attr: %s (=%s) in context %u\n",
+			   attr, value, ctxid);
 		break;
 	default:
 		/* just use fix.c's add_tag thingie for this */
@@ -392,26 +388,33 @@ static void
 sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 {
 	const size_t elen = strlen(elem);
-	const fixc_comp_t cid = __cid_from_elem(elem, elen);
+	unsigned int ctxid = 0;
+	fixc_comp_t cid;
 
 	/* all the stuff that needs a new sax handler */
-	switch (cid) {
+	if (LIKELY(ctx->state != NULL)) {
+		ctxid = ctx->state->otag;
+	}
+	switch ((cid = fixc_get_cid(ctxid, elem, elen))) {
 	case FIXC_COMP_FIXML:
 		ptx_init(ctx);
 		break;
 
 	case FIXC_COMP_UNK: {
 		/* could be a message */
-		const fixc_msg_type_t mty = __mty_from_elem(elem, elen);
+		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
 
 		if (!mty) {
-			FIXC_DEBUG("neither cid nor mty: %s\n", elem);
+			FIXC_DEBUG("neither cid nor mty: %s (in ctxt %u)\n",
+				   elem, ctxid);
 			break;
 		}
 
 		ctx->msg->f35.tag = FIXC_MSG_TYPE;
 		ctx->msg->f35.typ = FIXC_TYP_MSGTYP;
 		ctx->msg->f35.mtyp = mty;
+
+		push_state(ctx, mty, NULL);
 		break;
 	}
 	default:
@@ -428,26 +431,31 @@ static void
 sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 {
 	const size_t elen = strlen(elem);
-	const fixc_comp_t cid = __cid_from_elem(elem, elen);
+	unsigned int ctxid = 0;
 
 	/* stuff that needed to be done, fix up state etc. */
-	switch (cid) {
+	if (LIKELY(ctx->state != NULL)) {
+		ctxid = ctx->state->otag;
+	}
+	switch (fixc_get_cid(ctxid, elem, elen)) {
 		/* top-levels */
 	case FIXC_COMP_FIXML:
+		(void)pop_state(ctx);
 		break;
 
 	case FIXC_COMP_UNK: {
 		/* could be a message */
-		const fixc_msg_type_t mty = __mty_from_elem(elem, elen);
+		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
 
 		if (!mty) {
-			FIXC_DEBUG("neither cid nor mty\n");
 			break;
 		}
 
 		if (UNLIKELY(mty != ctx->msg->f35.mtyp)) {
 			abort();
 		}
+
+		(void)pop_state(ctx);
 		break;
 	}
 	default:
@@ -464,6 +472,7 @@ el_sta(void *clo, const char *elem, const char **attr)
 	/* where the real element name starts, sans ns prefix */
 	const char *relem = tag_massage(elem);
 	ptx_ns_t ns = __pref_to_ns(ctx, elem, relem - elem);
+	int retried = 0;
 
 	if (UNLIKELY(ns == NULL)) {
 		FIXC_DEBUG("unknown prefix in tag %s\n", elem);
@@ -488,10 +497,13 @@ retry:
 		ctx->msg->f8.tag = FIXC_BEGIN_STRING;
 		ctx->msg->f8.typ = FIXC_TYP_VER;
 		ctx->msg->f8.ver = (fixc_ver_t)ns->nsid;
-		goto retry;
+		if (!retried++) {
+			goto retry;
+		}
 
 	default:
-		FIXC_DEBUG("unknown namespace %s (%s)\n", elem, ns->href);
+		FIXC_DEBUG("unknown namespace %s ([%u] %s)\n",
+			   elem, ns->nsid, ns->href);
 		break;
 	}
 	return;
