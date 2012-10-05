@@ -30,9 +30,12 @@ libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
 libfixc_la_SOURCES += fixml-msg-type.gperf fix-msg-type.h
 libfixc_la_SOURCES += fixml-nsuri.gperf fix-nsuri.h
 libfixc_la_SOURCES += fixml-comp.xsl fixml-msg.xsl
-libfixc_la_SOURCES += fixml-attr-by-ctx.xsl libfixc_0_1_funs.xsl
+libfixc_la_SOURCES += libfixc_0_1_funs.xsl
+libfixc_la_SOURCES += fixml-attr-by-ctx.xsl
 libfixc_la_SOURCES += fixml-canon-attr.gperf
 libfixc_la_SOURCES += fixml-attr-by-ctx.c fixml-attr-by-ctx.h
+libfixc_la_SOURCES += fixml-comp-by-ctx.xsl
+libfixc_la_SOURCES += fixml-comp-by-ctx.c fixml-comp-by-ctx.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
@@ -56,14 +59,15 @@ BUILT_SOURCES += fix44-msg.h fix44-comp.h
 BUILT_SOURCES += fix50-msg.h fix50-comp.h
 BUILT_SOURCES += fix50sp1-msg.h fix50sp1-comp.h
 BUILT_SOURCES += fix50sp2-msg.h fix50sp2-comp.h
-BUILT_SOURCES += fix50sp2-comp.gperf fix50sp2-comp.c
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
+BUILT_SOURCES += fixml-comp-by-ctx.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-nsuri.h
 header_HEADERS += fixml-canon-comp.h
 header_HEADERS += fixml-canon-msgt.h
+header_HEADERS += fixml-canon-ctxt.h
 
 ## just for debugging and fun
 noinst_PROGRAMS += fixml2fix
@@ -103,15 +107,23 @@ fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 			-e 's/FIXC_COMP_.*/\U&/' > $@
 
 include $(DEPDIR)/fixml-attr-by-ctx.Po
+include $(DEPDIR)/fixml-comp-by-ctx.Po
+
 fixml-attr-by-ctx.c: fixml-attr-by-ctx.xsl fix50sp2.xml fixml-attr-by-ctx.gperfs
 	xsltproc -o $@ $< $(word 2,$+)
 
 fixml-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl fix50sp2.xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+ > $@
 
-dist-hook: fixml-attr-by-ctx.gperfs
-	for i in `cat $<`; do cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; done
-	cp -a $< "$(distdir)/"
+fixml-comp-by-ctx.c: fixml-comp-by-ctx.xsl fix50sp2.xml fixml-comp-by-ctx.gperfs
+	xsltproc -o $@ $< $(word 2,$+)
+
+fixml-comp-by-ctx.gperfs: fixml-comp-by-ctx.xsl fix50sp2.xml
+	xsltproc --stringparam MT $(DEPDIR)/fixml-comp-by-ctx.Po $+ > $@
+
+dist-hook: fixml-attr-by-ctx.gperfs fixml-comp-by-ctx.gperfs
+	for i in `cat $+`; do cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; done
+	cp -a $+ "$(distdir)/"
 
 fix50sp2.xml: $(top_srcdir)/spec/FIX.5.0SP2.xml
 	$(LN_S) $< $@
@@ -143,8 +155,6 @@ fix40.xml: $(top_srcdir)/spec/FIX.4.0.xml
 %-comp.h: fixml-comp.xsl %.xml
 	xsltproc -o $@ $+
 
-%-comp.gperf: fixml-comp.xsl %.xml
-	xsltproc -o $@ --stringparam MT $(DEPDIR)/ $+
 
 # 
 # Help the developers get nice post-processed source files

@@ -9,31 +9,20 @@
 
   <xsl:key name="fldi" match="/fixc:spec/fixc:field" use="@aid"/>
 
-  <xsl:param name="MT"/>
-
   <xsl:include href="libfixc_0_1_funs.xsl"/>
 
-  <xsl:template match="fixc:spec">
-    <xsl:choose>
-      <!-- dependencies, if any -->
-      <xsl:when test="$MT">
-        <xsl:apply-templates select="/fixc:spec" mode="deps"/>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:apply-templates select="/fixc:spec" mode="hdr"/>
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
   <!-- this stylesheet will generate .h files -->
-  <xsl:template match="fixc:spec" mode="hdr">
+  <xsl:template match="fixc:spec">
+    <xsl:variable name="prefx" select="fixc:prefix(.)"/>
+    <xsl:variable name="PREFX" select="fixc:prefix(.)"/>
+
     <xsl:text>/* do not edit, gen'd by fixml-comp.xsl */
 #if !defined INCLUDED_</xsl:text>
-    <xsl:value-of select="$versn"/>
-    <xsl:text>_comp_h_
+    <xsl:value-of select="$prefx"/>
+    <xsl:text>_h_
 #define INCLUDED_</xsl:text>
-    <xsl:value-of select="$versn"/>
-    <xsl:text>_comp_h_&#0010;</xsl:text>
+    <xsl:value-of select="$prefx"/>
+    <xsl:text>_h_&#0010;</xsl:text>
 
     <xsl:text>
 typedef enum {
@@ -54,63 +43,18 @@ typedef enum {
     </xsl:for-each>
 
     <xsl:text>} </xsl:text>
-    <xsl:value-of select="$versn"/>
-    <xsl:text>_comp_t;
+    <xsl:value-of select="$prefx"/>
+    <xsl:text>_t;
 
 #endif  /* INCLUDED_</xsl:text>
-    <xsl:value-of select="$versn"/>
-    <xsl:text>_comp_h_ */&#0010;</xsl:text>
-  </xsl:template>
-
-  <!-- this stylesheet will generate .h files -->
-  <xsl:template match="fixc:spec" mode="deps">
-      <xsl:text>/* do not edit, gen'd by fixml-comp.xsl */
-%{
-
-#include "fixml-canon-comp.h"
-
-%}
-%7bit
-%readonly-tables
-%enum
-%switch=1
-%struct-type
-%define slot-name comp
-%define hash-function-name </xsl:text>
-      <xsl:value-of select="$versn"/><xsl:text>_cid_hash</xsl:text>
-      <xsl:text>
-%define lookup-function-name </xsl:text>
-      <xsl:value-of select="$versn"/><xsl:text>_ciddify</xsl:text>
-      <xsl:text>
-%null-strings
-%includes
-
-struct </xsl:text><xsl:value-of select="$versn"/><xsl:text>_comp_s {
-	const char *comp;
-	fixc_comp_t cid;
-};
-
-%%
-FIXML,FIXC_COMP_FIXML
-</xsl:text>
-
-    <!-- loop over them components -->
-    <xsl:apply-templates select="fixc:component" mode="gperf"/>
+    <xsl:value-of select="$prefx"/>
+    <xsl:text>_h_ */&#0010;</xsl:text>
   </xsl:template>
 
   <xsl:template match="fixc:component">
     <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
     <xsl:text>_</xsl:text>
     <xsl:value-of select="@name"/>
-  </xsl:template>
-
-  <xsl:template match="fixc:component" mode="gperf">
-    <xsl:if test="@fixml">
-      <xsl:value-of select="@fixml"/>
-      <xsl:text>,(fixc_comp_t)</xsl:text>
-      <xsl:apply-templates select="."/>
-      <xsl:text>&#0010;</xsl:text>
-    </xsl:if>
   </xsl:template>
 
 </xsl:stylesheet>

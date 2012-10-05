@@ -53,13 +53,13 @@
 #include "fixml-attr.c"
 
 #include "fix50sp2-comp.h"
-#include "fix50sp2-comp.c"
 
 #include "fix-msg-type.h"
 #include "fixml-msg-type.c"
 
 #include "fixml-nsuri.c"
 
+#include "fixml-comp-by-ctx.h"
 #include "fixml-attr-by-ctx.h"
 
 #if defined DEBUG_FLAG
@@ -168,13 +168,6 @@ __nsid_from_href(const char *href, size_t hlen)
 {
 	const struct fixc_nsuri_s *n = __fixml_nsiddify(href, hlen);
 	return n != NULL ? n->nsid : FIXC_VER_UNK;
-}
-
-static fixc_comp_t
-__cid_from_elem(const char *elem, size_t elen)
-{
-	const struct fix50sp2_comp_s *p = fix50sp2_ciddify(elem, elen);
-	return p != NULL ? p->cid : FIXC_COMP_UNK;
 }
 
 static fixc_msgt_t
@@ -395,14 +388,19 @@ static void
 sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 {
 	const size_t elen = strlen(elem);
-	const fixc_comp_t cid = __cid_from_elem(elem, elen);
+	unsigned int ctxid;
+	fixc_comp_t cid;
 
 	/* all the stuff that needs a new sax handler */
-	switch (cid) {
+	if (ctx->state == NULL || (ctxid = ctx->state->otag) == 0) {
+		goto comp_unk;
+	}
+	switch ((cid = fixc_get_cid(ctxid, elem, elen))) {
 	case FIXC_COMP_FIXML:
 		ptx_init(ctx);
 		break;
 
+	comp_unk:
 	case FIXC_COMP_UNK: {
 		/* could be a message */
 		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
@@ -431,14 +429,18 @@ static void
 sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 {
 	const size_t elen = strlen(elem);
-	const fixc_comp_t cid = __cid_from_elem(elem, elen);
+	unsigned int ctxid;
 
 	/* stuff that needed to be done, fix up state etc. */
-	switch (cid) {
+	if (ctx->state == NULL || (ctxid = ctx->state->otag) == 0) {
+		goto comp_unk;
+	}
+	switch (fixc_get_cid(ctxid, elem, elen)) {
 		/* top-levels */
 	case FIXC_COMP_FIXML:
 		break;
 
+	comp_unk:
 	case FIXC_COMP_UNK: {
 		/* could be a message */
 		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
