@@ -411,13 +411,25 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 		if (!mty) {
 			FIXC_DEBUG("neither cid nor mty: %s (in ctxt %u)\n",
 				   elem, ctxid);
-			break;
+		} else if (ctxid == FIXC_MSGT_BATCH) {
+			/* don't store the message type again,
+			 * but store the field of course */
+			struct fixc_fld_s fld = {
+				.tag = FIXC_MSG_TYPE,
+				.typ = FIXC_TYP_MSGTYP,
+#if defined HAVE_ANON_STRUCTS_INIT
+				.mtyp = mty,
+#endif	/* HAVE_ANON_STRUCTS_INIT */
+			};
+#if !defined HAVE_ANON_STRUCTS_INIT
+			fld.mtyp = mty;
+#endif	/* !HAVE_ANON_STRUCTS_INIT */
+			fixc_add_fld(ctx->msg, fld);
+		} else {
+			ctx->msg->f35.tag = FIXC_MSG_TYPE;
+			ctx->msg->f35.typ = FIXC_TYP_MSGTYP;
+			ctx->msg->f35.mtyp = mty;
 		}
-
-		ctx->msg->f35.tag = FIXC_MSG_TYPE;
-		ctx->msg->f35.typ = FIXC_TYP_MSGTYP;
-		ctx->msg->f35.mtyp = mty;
-
 		push_state(ctx, mty, NULL);
 		break;
 	}
@@ -455,13 +467,14 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
 
 		if (!mty) {
-			break;
-		}
-
-		if (UNLIKELY(mty != ctx->msg->f35.mtyp)) {
+			;
+		} else if (ctxid == FIXC_MSGT_BATCH) {
+			;
+		} else if (UNLIKELY(mty != ctx->msg->f35.mtyp)) {
+			FIXC_DEBUG("mty was %u  f35.mtyp is %u\n",
+				   mty, ctx->msg->f35.mtyp);
 			abort();
 		}
-
 		break;
 	}
 	default:
