@@ -40,11 +40,11 @@
 #include "fixml-canon-comp.h"
 #include "fixml-canon-msgt.h"
 
-typedef union __attribute__((transparent_union)) {
+typedef union {
 	unsigned int i;
 	uint16_t ui16;
 	fixc_comp_t comp;
 	fixc_msgt_t msgt;
-} fixc_ctxt_t;
+}  __attribute__((transparent_union)) fixc_ctxt_t;
 
 #endif	/* INCLUDED_fixml_canon_ctxt_h_ */
