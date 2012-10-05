@@ -2,8 +2,6 @@
 <xsl:stylesheet
   xmlns:fixc="http://www.ga-group.nl/libfixc_0_1"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-  xmlns:ec="http://exslt.org/common"
-  extension-element-prefixes="ec"
   version="1.0">
 
   <xsl:strip-space elements="*"/>
@@ -11,92 +9,122 @@
 
   <xsl:key name="fldi" match="/fixc:spec/fixc:field" use="@aid"/>
 
-  <!-- this stylesheet will generate .h files -->
-  <xsl:template match="fixc:spec">
-    <xsl:variable name="versn" select="translate(@version, '._', '')"/>
-    <xsl:variable name="prefx"
-      select="translate(concat($versn, '_msg'),
-              'QWERTYUIOPASDFGHJKLZXCVBNM',
-              'qwertyuiopasdfghjklzxcvbnm')"/>
-    <xsl:variable name="PREFX"
-      select="translate($prefx,
-              'qwertyuiopasdfghjklzxcvbnm',
-              'QWERTYUIOPASDFGHJKLZXCVBNM')"/>
+  <xsl:param name="MT"/>
 
+  <xsl:include href="libfixc_0_1_funs.xsl"/>
+
+  <xsl:template match="fixc:spec">
+    <xsl:choose>
+      <!-- dependencies, if any -->
+      <xsl:when test="$MT">
+        <xsl:apply-templates select="/fixc:spec" mode="deps"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates select="/fixc:spec" mode="hdr"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- this stylesheet will generate .h files -->
+  <xsl:template match="fixc:spec" mode="hdr">
     <xsl:text>/* do not edit, gen'd by fixml-msg.xsl */
 #if !defined INCLUDED_</xsl:text>
-    <xsl:value-of select="$prefx"/>
-    <xsl:text>_h_
+    <xsl:value-of select="$versn"/>
+    <xsl:text>_msg_h_
 #define INCLUDED_</xsl:text>
-    <xsl:value-of select="$prefx"/>
-    <xsl:text>_h_&#0010;</xsl:text>
+    <xsl:value-of select="$versn"/>
+    <xsl:text>_msg_h_&#0010;</xsl:text>
 
     <xsl:text>
 #undef _
 #define _(x)    ((x)[0] * 256 + (x)[1])
 
 typedef enum {
-	/* first two are our own invention */
+	/* first 3 are our own invention */
 </xsl:text>
 
     <xsl:text>&#0009;</xsl:text>
-    <xsl:call-template name="msg">
-      <xsl:with-param name="prefix" select="$PREFX"/>
-      <xsl:with-param name="name">
-        <xsl:text>UNK</xsl:text>
-      </xsl:with-param>
-    </xsl:call-template>
-    <xsl:text>,&#0010;&#0009;</xsl:text>
-    <xsl:call-template name="msg">
-      <xsl:with-param name="prefix" select="$PREFX"/>
-      <xsl:with-param name="name">
-        <xsl:text>BATCH</xsl:text>
-      </xsl:with-param>
-      <xsl:with-param name="valnum" select="'0xffff'"/>
-    </xsl:call-template>
-    <xsl:text>,&#0010;</xsl:text>
+    <xsl:value-of select="$VERSN"/>
+    <xsl:text>_MSGT_UNK,&#0010;</xsl:text>
+    <xsl:text>&#0009;</xsl:text>
+    <xsl:value-of select="$VERSN"/>
+    <xsl:text>_MSGT_BATCH = 0xffff,&#0010;</xsl:text>
 
     <xsl:for-each select="fixc:message">
       <xsl:text>&#0009;</xsl:text>
-      <xsl:call-template name="msg">
-        <xsl:with-param name="prefix" select="$PREFX"/>
-        <xsl:with-param name="name" select="@name"/>
-        <xsl:with-param name="valstr" select="@fix"/>
-      </xsl:call-template>
+      <xsl:apply-templates select="." mode="enum"/>
       <xsl:text>,&#0010;</xsl:text>
     </xsl:for-each>
 
     <xsl:text>} </xsl:text>
-    <xsl:value-of select="$prefx"/>
-    <xsl:text>_t;
+    <xsl:value-of select="$versn"/>
+    <xsl:text>_msgt_t;
 
 #undef _
 
 #endif  /* INCLUDED_</xsl:text>
-    <xsl:value-of select="$prefx"/>
-    <xsl:text>_h_ */&#0010;</xsl:text>
+    <xsl:value-of select="$versn"/>
+    <xsl:text>_msg_h_ */&#0010;</xsl:text>
   </xsl:template>
 
-  <xsl:template name="msg">
-    <xsl:param name="prefix"/>
-    <xsl:param name="name"/>
-    <xsl:param name="valstr"/>
-    <xsl:param name="valnum"/>
+  <!-- this stylesheet will generate .gperf files -->
+  <xsl:template match="fixc:spec" mode="deps">
+      <xsl:text>/* do not edit, gen'd by fixml-msg.xsl */
+%{
 
-    <xsl:value-of select="$prefix"/>
+#include "fixml-canon-msgt.h"
+
+%}
+%7bit
+%readonly-tables
+%enum
+%switch=1
+%struct-type
+%define slot-name msgt
+%define hash-function-name </xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>_mty_hash</xsl:text>
+      <xsl:text>
+%define lookup-function-name </xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>_mtypify</xsl:text>
+      <xsl:text>
+%null-strings
+%includes
+
+struct </xsl:text><xsl:value-of select="$versn"/><xsl:text>_msgt_s {
+	const char *msgt;
+	fixc_msgt_t mty;
+};
+
+%%
+Batch,(fixc_msgt_t)</xsl:text>
+      <xsl:value-of select="$VERSN"/>
+      <xsl:text>_MSGT_BATCH
+</xsl:text>
+
+    <!-- loop over them messages -->
+    <xsl:apply-templates select="fixc:message" mode="gperf"/>
+  </xsl:template>
+
+  <xsl:template match="fixc:message">
+    <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
     <xsl:text>_</xsl:text>
-    <xsl:value-of select="$name"/>
-    <xsl:choose>
-      <xsl:when test="$valnum">
-        <xsl:text> = </xsl:text>
-        <xsl:value-of select="$valnum"/>
-      </xsl:when>
-      <xsl:when test="$valstr">
-        <xsl:text> = _("</xsl:text>
-        <xsl:value-of select="$valstr"/>
-        <xsl:text>")</xsl:text>
-      </xsl:when>
-    </xsl:choose>
+    <xsl:value-of select="@name"/>
+  </xsl:template>
+
+  <xsl:template match="fixc:message" mode="enum">
+    <xsl:apply-templates select="."/>
+    <xsl:text> = _("</xsl:text>
+    <xsl:value-of select="@fix"/>
+    <xsl:text>")</xsl:text>
+  </xsl:template>
+
+  <xsl:template match="fixc:message" mode="gperf">
+    <xsl:if test="@fixml">
+      <xsl:value-of select="@fixml"/>
+      <xsl:text>,(fixc_msgt_t)</xsl:text>
+      <xsl:apply-templates select="."/>
+      <xsl:text>&#0010;</xsl:text>
+    </xsl:if>
   </xsl:template>
 
 </xsl:stylesheet>

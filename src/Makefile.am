@@ -27,7 +27,6 @@ libfixc_la_SOURCES += switch-group-comp.awk
 libfixc_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
 libfixc_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
 libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
-libfixc_la_SOURCES += fixml-msg-type.gperf fix-msg-type.h
 libfixc_la_SOURCES += fixml-nsuri.gperf fix-nsuri.h
 libfixc_la_SOURCES += fixml-comp.xsl fixml-msg.xsl
 libfixc_la_SOURCES += libfixc_0_1_funs.xsl
@@ -59,6 +58,8 @@ BUILT_SOURCES += fix44-msg.h fix44-comp.h
 BUILT_SOURCES += fix50-msg.h fix50-comp.h
 BUILT_SOURCES += fix50sp1-msg.h fix50sp1-comp.h
 BUILT_SOURCES += fix50sp2-msg.h fix50sp2-comp.h
+BUILT_SOURCES += fix50sp2-msg.gperf fix50sp2-msg.c
+BUILT_SOURCES += fix50sp2-comp.gperf fix50sp2-comp.c
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
 BUILT_SOURCES += fixml-comp-by-ctx.c
@@ -154,6 +155,12 @@ fix40.xml: $(top_srcdir)/spec/FIX.4.0.xml
 
 %-comp.h: fixml-comp.xsl %.xml
 	xsltproc -o $@ $+
+
+%-comp.gperf: fixml-comp.xsl %.xml
+	xsltproc -o $@ --stringparam MT $(DEPDIR)/$*.Po $+
+
+%-msg.gperf: fixml-msg.xsl %.xml
+	xsltproc -o $@ --stringparam MT $(DEPDIR)/$*.Po $+
 
 
 # 
