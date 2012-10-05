@@ -124,7 +124,14 @@ fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
       <xsl:value-of select="@name"/>
       <xsl:text>:&#0010;</xsl:text>
     </xsl:for-each>
-    <xsl:text>default:
+    <xsl:text>&#0009;default:
+		return FIXC_COMP_UNK;
+
+	case 0:
+		/* and one more special case for the root */
+		if (*elem == 'F' &amp;&amp; !strcmp(elem + 1, "IXML")) {
+			return FIXC_COMP_FIXML;
+		}
 		return FIXC_COMP_UNK;
 	}
 }
