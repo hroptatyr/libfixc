@@ -59,7 +59,6 @@ BUILT_SOURCES += fix44-msg.h fix44-comp.h
 BUILT_SOURCES += fix50-msg.h fix50-comp.h
 BUILT_SOURCES += fix50sp1-msg.h fix50sp1-comp.h
 BUILT_SOURCES += fix50sp2-msg.h fix50sp2-comp.h
-BUILT_SOURCES += fix50sp2-comp.gperf fix50sp2-comp.c
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
 BUILT_SOURCES += fixml-comp-by-ctx.c
@@ -156,8 +155,6 @@ fix40.xml: $(top_srcdir)/spec/FIX.4.0.xml
 %-comp.h: fixml-comp.xsl %.xml
 	xsltproc -o $@ $+
 
-%-comp.gperf: fixml-comp.xsl %.xml
-	xsltproc -o $@ --stringparam MT $(DEPDIR)/ $+
 
 # 
 # Help the developers get nice post-processed source files
