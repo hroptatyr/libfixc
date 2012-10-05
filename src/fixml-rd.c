@@ -338,8 +338,10 @@ proc_UNK_attr(__ctx_t ctx, const char *attr, const char *value)
 	/* aiddify */
 	switch (fixc_get_aid(ctx->state ? ctx->state->otag : 0, attr, alen)) {
 	case FIXC_ATTR_XMLNS:
+	case FIXC_ATTR_V:
 		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
 		break;
+
 	case FIXC_ATTR_UNK:
 	default:
 		FIXC_DEBUG("found unknown attr: %s (=%s)\n", attr, value);
@@ -367,8 +369,10 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 	}
 	switch ((aid = fixc_get_aid(ctxid, attr, alen))) {
 	case FIXC_ATTR_XMLNS:
+	case FIXC_ATTR_V:
 		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
 		break;
+
 	case FIXC_ATTR_UNK:
 	attr_unk:
 		FIXC_DEBUG("found unknown FIXML attr: %s (=%s) in context %u\n",
@@ -407,13 +411,25 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 		if (!mty) {
 			FIXC_DEBUG("neither cid nor mty: %s (in ctxt %u)\n",
 				   elem, ctxid);
-			break;
+		} else if (ctxid == FIXC_MSGT_BATCH) {
+			/* don't store the message type again,
+			 * but store the field of course */
+			struct fixc_fld_s fld = {
+				.tag = FIXC_MSG_TYPE,
+				.typ = FIXC_TYP_MSGTYP,
+#if defined HAVE_ANON_STRUCTS_INIT
+				.mtyp = mty,
+#endif	/* HAVE_ANON_STRUCTS_INIT */
+			};
+#if !defined HAVE_ANON_STRUCTS_INIT
+			fld.mtyp = mty;
+#endif	/* !HAVE_ANON_STRUCTS_INIT */
+			fixc_add_fld(ctx->msg, fld);
+		} else {
+			ctx->msg->f35.tag = FIXC_MSG_TYPE;
+			ctx->msg->f35.typ = FIXC_TYP_MSGTYP;
+			ctx->msg->f35.mtyp = mty;
 		}
-
-		ctx->msg->f35.tag = FIXC_MSG_TYPE;
-		ctx->msg->f35.typ = FIXC_TYP_MSGTYP;
-		ctx->msg->f35.mtyp = mty;
-
 		push_state(ctx, mty, NULL);
 		break;
 	}
@@ -432,6 +448,10 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 {
 	const size_t elen = strlen(elem);
 	unsigned int ctxid = 0;
+	void *UNUSED(obj);
+
+	/* store the old object for stuff that needs it */
+	obj = pop_state(ctx);
 
 	/* stuff that needed to be done, fix up state etc. */
 	if (LIKELY(ctx->state != NULL)) {
@@ -440,7 +460,6 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 	switch (fixc_get_cid(ctxid, elem, elen)) {
 		/* top-levels */
 	case FIXC_COMP_FIXML:
-		(void)pop_state(ctx);
 		break;
 
 	case FIXC_COMP_UNK: {
@@ -448,18 +467,17 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
 
 		if (!mty) {
-			break;
-		}
-
-		if (UNLIKELY(mty != ctx->msg->f35.mtyp)) {
+			;
+		} else if (ctxid == FIXC_MSGT_BATCH) {
+			;
+		} else if (UNLIKELY(mty != ctx->msg->f35.mtyp)) {
+			FIXC_DEBUG("mty was %u  f35.mtyp is %u\n",
+				   mty, ctx->msg->f35.mtyp);
 			abort();
 		}
-
-		(void)pop_state(ctx);
 		break;
 	}
 	default:
-		(void)pop_state(ctx);
 		break;
 	}
 	return;
@@ -489,14 +507,23 @@ retry:
 		break;
 
 	case FIXC_VER_UNK:
-		for (const char **ap = attr; ap && *ap; ap += 2) {
+		for (const char **ap = attr; *ap; ap += 2) {
 			proc_UNK_attr(ctx, ap[0], ap[1]);
 		}
+
+		/* assume there was a version tag of some sort */
 		ns = ctx->ns;
+
+		if (attr != NULL && *elem == 'F' && !strcmp(elem + 1, "IXML")) {
+			/* just assume 5.0SP2 now, probably CME anyway */
+			ns->nsid = FIXC_VER_50_SP2;
+		}
+
 		/* assign the version to the msg too */
 		ctx->msg->f8.tag = FIXC_BEGIN_STRING;
 		ctx->msg->f8.typ = FIXC_TYP_VER;
 		ctx->msg->f8.ver = (fixc_ver_t)ns->nsid;
+
 		if (!retried++) {
 			goto retry;
 		}

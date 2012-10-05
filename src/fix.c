@@ -47,8 +47,10 @@
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
+# define FIXC_DEBUG_MEM(args...)
 #else  /* !DEBUG_FLAG */
 # define FIXC_DEBUG(args...)
+# define FIXC_DEBUG_MEM(args...)
 #endif	/* DEBUG_FLAG */
 
 /* value we like our vspc to be rounded to */
@@ -341,8 +343,8 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		return;
 	}
 	/* grrr, otherwise there's lots of work to do :/ */
-	FIXC_DEBUG("resz %zu %zu -> ~%zu ~%zu\n",
-		   fspc, vspc, fspc + add_flds, vspc + add_vspc);
+	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu\n",
+		       fspc, vspc, fspc + add_flds, vspc + add_vspc);
 
 	/* find out how big the whole dynamic room was */
 	old_sz = vspc + fspc * sizeof(*msg->flds);
@@ -384,6 +386,7 @@ fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 	case FIXC_TAG_UNK:
 		return -1;
 	default:
+	bang:
 		/* check if there's enough room for another 4 msgs */
 		check_size(msg, /*aribtrary hard-coded value*/4, 0);
 
@@ -403,6 +406,10 @@ fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 		msg->f10 = fld;
 		break;
 	case FIXC_MSG_TYPE:
+		if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
+			goto bang;
+		}
+		/* otherwise it's the main message type */
 		msg->f35 = fld;
 		break;
 	}
