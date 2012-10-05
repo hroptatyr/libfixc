@@ -411,6 +411,7 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 		if (!mty) {
 			FIXC_DEBUG("neither cid nor mty: %s (in ctxt %u)\n",
 				   elem, ctxid);
+			break;
 		} else if (ctxid == FIXC_MSGT_BATCH) {
 			/* don't store the message type again,
 			 * but store the field of course */
@@ -430,8 +431,9 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 			ctx->msg->f35.typ = FIXC_TYP_MSGTYP;
 			ctx->msg->f35.mtyp = mty;
 		}
-		push_state(ctx, mty, NULL);
-		break;
+
+		/* prepare for @fallthrough@ */
+		cid = (fixc_comp_t)mty;
 	}
 	default:
 		push_state(ctx, cid, NULL);
