@@ -432,6 +432,10 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 {
 	const size_t elen = strlen(elem);
 	unsigned int ctxid = 0;
+	void *UNUSED(obj);
+
+	/* store the old object for stuff that needs it */
+	obj = pop_state(ctx);
 
 	/* stuff that needed to be done, fix up state etc. */
 	if (LIKELY(ctx->state != NULL)) {
@@ -440,7 +444,6 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 	switch (fixc_get_cid(ctxid, elem, elen)) {
 		/* top-levels */
 	case FIXC_COMP_FIXML:
-		(void)pop_state(ctx);
 		break;
 
 	case FIXC_COMP_UNK: {
@@ -455,11 +458,9 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 			abort();
 		}
 
-		(void)pop_state(ctx);
 		break;
 	}
 	default:
-		(void)pop_state(ctx);
 		break;
 	}
 	return;
