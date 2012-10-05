@@ -47,8 +47,10 @@
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
+# define FIXC_DEBUG_MEM(args...)
 #else  /* !DEBUG_FLAG */
 # define FIXC_DEBUG(args...)
+# define FIXC_DEBUG_MEM(args...)
 #endif	/* DEBUG_FLAG */
 
 /* value we like our vspc to be rounded to */
@@ -341,8 +343,8 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		return;
 	}
 	/* grrr, otherwise there's lots of work to do :/ */
-	FIXC_DEBUG("resz %zu %zu -> ~%zu ~%zu\n",
-		   fspc, vspc, fspc + add_flds, vspc + add_vspc);
+	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu\n",
+		       fspc, vspc, fspc + add_flds, vspc + add_vspc);
 
 	/* find out how big the whole dynamic room was */
 	old_sz = vspc + fspc * sizeof(*msg->flds);
