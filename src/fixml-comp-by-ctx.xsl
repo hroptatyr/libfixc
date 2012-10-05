@@ -15,6 +15,10 @@
 
   <xsl:include href="libfixc_0_1_funs.xsl"/>
 
+  <xsl:variable name="subc_ns"
+    select="/fixc:spec/fixc:message[fixc:component]|
+            /fixc:spec/fixc:component[fixc:component]"/>
+
   <xsl:template match="fixc:spec">
     <xsl:choose>
       <!-- dependencies, if any -->
@@ -28,11 +32,11 @@
   </xsl:template>
 
   <xsl:template match="fixc:spec" mode="deps">
-    <xsl:apply-templates select="fixc:message|fixc:component" mode="gperf"/>
+    <xsl:apply-templates select="$subc_ns" mode="gperf"/>
 
     <ec:document href="{$MT}" method="text">
       <xsl:text>fixml-comp-by-ctx.c: </xsl:text>
-      <xsl:for-each select="fixc:message|fixc:component">
+      <xsl:for-each select="$subc_ns">
         <xsl:text> </xsl:text>
         <xsl:apply-templates select="." mode="deps"/>
         <xsl:text>.c</xsl:text>
@@ -40,7 +44,7 @@
       <xsl:text>&#0010;</xsl:text>
 
       <xsl:text>&#0010;</xsl:text>
-      <xsl:for-each select="fixc:message|fixc:component">
+      <xsl:for-each select="$subc_ns">
         <xsl:text>&#0010;</xsl:text>
         <xsl:variable name="stem">
           <xsl:apply-templates select="." mode="deps"/>
@@ -53,7 +57,7 @@
       <xsl:text>&#0010;</xsl:text>
     </ec:document>
 
-    <xsl:for-each select="fixc:message|fixc:component">
+    <xsl:for-each select="$subc_ns">
       <xsl:variable name="stem">
         <xsl:apply-templates select="." mode="deps"/>
       </xsl:variable>
@@ -82,7 +86,7 @@
 #endif  /* __INTEL_COMPILER */
 </xsl:text>
 
-    <xsl:apply-templates select="fixc:message|fixc:component" mode="include"/>
+    <xsl:apply-templates select="$subc_ns" mode="include"/>
 
     <!-- now the switch -->
     <xsl:text>/* warn about 869 again */
