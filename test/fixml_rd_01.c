@@ -21,9 +21,9 @@ main(void)
 	fixc_msg_t msg = make_fixc_from_fixml(foo, sizeof(foo) - 1);
 	int res = 0;
 
-	/* make sure it's 7 fields we generate */
-	if (msg->nflds != 7) {
-		fputs("nflds != 7\n", stderr);
+	/* make sure it's 8 fields we generate */
+	if (msg->nflds != 8) {
+		fputs("nflds != 8\n", stderr);
 		res = 1;
 	}
 
