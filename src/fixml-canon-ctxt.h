@@ -42,7 +42,7 @@
 
 typedef union {
 	unsigned int i;
-	uint16_t ui16;
+	uint32_t ui16:16;
 	fixc_comp_t comp;
 	fixc_msgt_t msgt;
 }  __attribute__((transparent_union)) fixc_ctxt_t;
