@@ -83,6 +83,7 @@
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:869)
+# pragma warning (disable:111)
 #endif  /* __INTEL_COMPILER */
 </xsl:text>
 
@@ -92,6 +93,7 @@
     <xsl:text>/* warn about 869 again */
 #if defined __INTEL_COMPILER
 # pragma warning (default:869)
+# pragma warning (default:111)
 #endif  /* __INTEL_COMPILER */
 
 fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
