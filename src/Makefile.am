@@ -27,7 +27,6 @@ libfixc_la_SOURCES += switch-group-comp.awk
 libfixc_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
 libfixc_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
 libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
-libfixc_la_SOURCES += fixml-msg-type.gperf fix-msg-type.h
 libfixc_la_SOURCES += fixml-nsuri.gperf fix-nsuri.h
 libfixc_la_SOURCES += fixml-comp.xsl fixml-msg.xsl
 libfixc_la_SOURCES += libfixc_0_1_funs.xsl
