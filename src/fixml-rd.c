@@ -240,6 +240,7 @@ ptx_init(__ctx_t ctx)
 {
 	/* initialise the ctxcb pool */
 	init_ctxcb(ctx);
+	push_state(ctx, FIXC_COMP_FIXML, NULL);
 	return;
 }
 
@@ -387,31 +388,33 @@ static void
 sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 {
 	const size_t elen = strlen(elem);
-	unsigned int ctxid;
+	unsigned int ctxid = 0;
 	fixc_comp_t cid;
 
 	/* all the stuff that needs a new sax handler */
-	if (ctx->state == NULL || (ctxid = ctx->state->otag) == 0) {
-		goto comp_unk;
+	if (LIKELY(ctx->state != NULL)) {
+		ctxid = ctx->state->otag;
 	}
 	switch ((cid = fixc_get_cid(ctxid, elem, elen))) {
 	case FIXC_COMP_FIXML:
 		ptx_init(ctx);
 		break;
 
-	comp_unk:
 	case FIXC_COMP_UNK: {
 		/* could be a message */
 		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
 
 		if (!mty) {
-			FIXC_DEBUG("neither cid nor mty: %s\n", elem);
+			FIXC_DEBUG("neither cid nor mty: %s (in ctxt %u)\n",
+				   elem, ctxid);
 			break;
 		}
 
 		ctx->msg->f35.tag = FIXC_MSG_TYPE;
 		ctx->msg->f35.typ = FIXC_TYP_MSGTYP;
 		ctx->msg->f35.mtyp = mty;
+
+		push_state(ctx, mty, NULL);
 		break;
 	}
 	default:
@@ -428,30 +431,31 @@ static void
 sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 {
 	const size_t elen = strlen(elem);
-	unsigned int ctxid;
+	unsigned int ctxid = 0;
 
 	/* stuff that needed to be done, fix up state etc. */
-	if (ctx->state == NULL || (ctxid = ctx->state->otag) == 0) {
-		goto comp_unk;
+	if (LIKELY(ctx->state != NULL)) {
+		ctxid = ctx->state->otag;
 	}
 	switch (fixc_get_cid(ctxid, elem, elen)) {
 		/* top-levels */
 	case FIXC_COMP_FIXML:
+		(void)pop_state(ctx);
 		break;
 
-	comp_unk:
 	case FIXC_COMP_UNK: {
 		/* could be a message */
 		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
 
 		if (!mty) {
-			FIXC_DEBUG("neither cid nor mty\n");
 			break;
 		}
 
 		if (UNLIKELY(mty != ctx->msg->f35.mtyp)) {
 			abort();
 		}
+
+		(void)pop_state(ctx);
 		break;
 	}
 	default:
