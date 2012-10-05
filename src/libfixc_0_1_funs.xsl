@@ -43,4 +43,21 @@
     <fn:result select="concat($versn, '_', $infix)"/>
   </fn:function>
 
+  <fn:function name="fixc:char-at">
+    <xsl:param name="str"/>
+    <xsl:param name="idx"/>
+    <xsl:choose>
+      <xsl:when test="$idx &lt;= string-length($str)">
+        <fn:result>
+          <xsl:text>'</xsl:text>
+          <xsl:value-of select="substring($str, $idx, 1)"/>
+          <xsl:text>'</xsl:text>
+        </fn:result>
+      </xsl:when>
+      <xsl:otherwise>
+        <fn:result select="0"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </fn:function>
+
 </xsl:stylesheet>

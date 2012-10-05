@@ -37,7 +37,7 @@
 
     <xsl:text>
 #undef _
-#define _(x)    ((x)[0] * 256 + (x)[1])
+#define _(x, y)    ((x) * 256U + (y) * 1U)
 
 typedef enum {
 	/* first 3 are our own invention */
@@ -113,9 +113,13 @@ Batch,(fixc_msgt_t)</xsl:text>
 
   <xsl:template match="fixc:message" mode="enum">
     <xsl:apply-templates select="."/>
-    <xsl:text> = _("</xsl:text>
+    <xsl:text> = _(</xsl:text>
+    <xsl:value-of select="fixc:char-at(@fix, 1)"/>
+    <xsl:text>, </xsl:text>
+    <xsl:value-of select="fixc:char-at(@fix, 2)"/>
+    <xsl:text>)/* "</xsl:text>
     <xsl:value-of select="@fix"/>
-    <xsl:text>")</xsl:text>
+    <xsl:text>" */</xsl:text>
   </xsl:template>
 
   <xsl:template match="fixc:message" mode="gperf">
