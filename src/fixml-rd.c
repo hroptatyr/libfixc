@@ -338,8 +338,10 @@ proc_UNK_attr(__ctx_t ctx, const char *attr, const char *value)
 	/* aiddify */
 	switch (fixc_get_aid(ctx->state ? ctx->state->otag : 0, attr, alen)) {
 	case FIXC_ATTR_XMLNS:
+	case FIXC_ATTR_V:
 		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
 		break;
+
 	case FIXC_ATTR_UNK:
 	default:
 		FIXC_DEBUG("found unknown attr: %s (=%s)\n", attr, value);
@@ -367,8 +369,10 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 	}
 	switch ((aid = fixc_get_aid(ctxid, attr, alen))) {
 	case FIXC_ATTR_XMLNS:
+	case FIXC_ATTR_V:
 		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
 		break;
+
 	case FIXC_ATTR_UNK:
 	attr_unk:
 		FIXC_DEBUG("found unknown FIXML attr: %s (=%s) in context %u\n",
