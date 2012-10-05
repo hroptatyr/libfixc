@@ -494,14 +494,23 @@ retry:
 		break;
 
 	case FIXC_VER_UNK:
-		for (const char **ap = attr; ap && *ap; ap += 2) {
+		for (const char **ap = attr; *ap; ap += 2) {
 			proc_UNK_attr(ctx, ap[0], ap[1]);
 		}
+
+		/* assume there was a version tag of some sort */
 		ns = ctx->ns;
+
+		if (attr != NULL && *elem == 'F' && !strcmp(elem + 1, "IXML")) {
+			/* just assume 5.0SP2 now, probably CME anyway */
+			ns->nsid = FIXC_VER_50_SP2;
+		}
+
 		/* assign the version to the msg too */
 		ctx->msg->f8.tag = FIXC_BEGIN_STRING;
 		ctx->msg->f8.typ = FIXC_TYP_VER;
 		ctx->msg->f8.ver = (fixc_ver_t)ns->nsid;
+
 		if (!retried++) {
 			goto retry;
 		}
