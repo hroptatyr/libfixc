@@ -40,6 +40,7 @@
 typedef enum {
 	/* these ones are our own */
 	FIXC_MSGT_UNK,
+	FIXC_MSGT_BATCH = 0xffff,
 } fixc_msgt_t;
 
 #endif	/* INCLUDED_fixml_canon_msgt_h_ */
