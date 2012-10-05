@@ -100,11 +100,30 @@ fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
 	switch (ctx.ui16) {
 </xsl:text>
     <!-- now come the cases -->
-    <xsl:apply-templates select="fixc:message|fixc:component" mode="case"/>
-   <xsl:text>
-	default: {
-		return FIXC_COMP_UNK;
+    <xsl:for-each select="$subc_ns">
+      <xsl:text>&#0009;case </xsl:text>
+      <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
+      <xsl:text>_</xsl:text>
+      <xsl:value-of select="@name"/>
+      <xsl:text>: {
+		const struct subc_</xsl:text>
+      <xsl:value-of select="@name"/><xsl:text>_s *p = __ciddify_</xsl:text>
+      <xsl:value-of select="@name"/><xsl:text>(elem, elen);
+		return p != NULL ? p->cid : FIXC_COMP_UNK;
 	}
+</xsl:text>
+    </xsl:for-each>
+    <!-- all them contexts without a sub-component -->
+    <xsl:for-each select="fixc:message[count(fixc:component) = 0]|
+                          fixc:component[count(fixc:component) = 0]">
+      <xsl:text>&#0009;case </xsl:text>
+      <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
+      <xsl:text>_</xsl:text>
+      <xsl:value-of select="@name"/>
+      <xsl:text>:&#0010;</xsl:text>
+    </xsl:for-each>
+    <xsl:text>default:
+		return FIXC_COMP_UNK;
 	}
 }
 
@@ -166,20 +185,6 @@ struct subc_</xsl:text><xsl:value-of select="@name"/><xsl:text>_s {
     <xsl:text>#include "</xsl:text>
     <xsl:value-of select="$infn"/>
     <xsl:text>"&#0010;</xsl:text>
-  </xsl:template>
-
-  <xsl:template match="fixc:component|fixc:message" mode="case">
-    <xsl:text>&#0009;case </xsl:text>
-    <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
-    <xsl:text>_</xsl:text>
-    <xsl:value-of select="@name"/>
-    <xsl:text>: {
-		const struct subc_</xsl:text>
-    <xsl:value-of select="@name"/><xsl:text>_s *p = __ciddify_</xsl:text>
-    <xsl:value-of select="@name"/><xsl:text>(elem, elen);
-		return p != NULL ? p->cid : FIXC_COMP_UNK;
-	}
-</xsl:text>
   </xsl:template>
 
   <xsl:template match="fixc:component|fixc:message" mode="deps">
