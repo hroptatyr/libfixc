@@ -21,6 +21,12 @@ struct fixc_nsuri_s {
 
 %%
 http://www.fixprotocol.org/FIXML-4-4,	FIXC_VER_44
+4.4,	FIXC_VER_44
 http://www.fixprotocol.org/FIXML-5-0,	FIXC_VER_50
+5.0,	FIXC_VER_50
 http://www.fixprotocol.org/FIXML-5-0-SP1,	FIXC_VER_50_SP1
+5.0 SP1,	FIXC_VER_50_SP1
+5.0SP1,	FIXC_VER_50_SP1
 http://www.fixprotocol.org/FIXML-5-0-SP2,	FIXC_VER_50_SP2
+5.0 SP2,	FIXC_VER_50_SP2
+5.0SP2,	FIXC_VER_50_SP2
