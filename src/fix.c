@@ -236,10 +236,10 @@ fixc_render_fld(
 		break;
 	}
 	case FIXC_TYP_UCHAR:
-		buf[res++] = fld.u8;
+		res += snprintf(buf + res, bsz - res, "%03" PRIu8, fld.u8);
 		break;
 	case FIXC_TYP_CHAR:
-		buf[res++] = fld.i8;
+		buf[res++] = fld.c;
 		break;
 	case FIXC_TYP_INT:
 		res += snprintf(buf + res, bsz - res, "%" PRIi32, fld.i32);

@@ -142,8 +142,10 @@ __render_attr(
 		p = sncpy(p, ep, b + fld.off, len);
 		break;
 	case FIXC_TYP_UCHAR:
+		p += snprintf(p, ep - p - 1, "%03" PRIu8, fld.u8);
+		break;
 	case FIXC_TYP_CHAR:
-		p = sputc(p, ep, fld.i8);
+		p = sputc(p, ep, fld.c);
 		break;
 	case FIXC_TYP_INT:
 		p += snprintf(p, ep - p - 1, "%" PRIi32, fld.i32);
