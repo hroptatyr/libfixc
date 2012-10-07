@@ -31,6 +31,10 @@ rd_tests =
 
 struct_tests += struct_layout_01
 
+## some fixml example files
+EXTRA_DIST += fixml_ex_01.xml
+EXTRA_DIST += fixml_ex_02.xml
+
 EXTRA_DIST += fixml_to_fixc_prep.c
 fixml_tests += fixml_to_fixc_hash_01
 fixml_tests += fixml_to_fixc_hash_02

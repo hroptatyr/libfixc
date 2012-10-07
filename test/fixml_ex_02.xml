@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-5-0-SP2">
+  <SecDef Ccy="USD">
+    <Instrmt Sym="GBP.USD" ID="12087797" Src="M" SecTyp="CASH"
+      Exch="IDEALPRO" Desc="British pound" MinPxIncr="0.000050"/>
+  </SecDef>
+</FIXML>
