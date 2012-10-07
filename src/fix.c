@@ -310,9 +310,10 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 /* thanks gcc */
 		msg->f10.u8 = fixc_chksum(buf, totz);
 #endif	/* !HAVE_ANON_STRUCTS_INIT */
-		fixc_render_fld(buf + totz, bsz - totz, msg->pr, msg->f10);
+		totz += fixc_render_fld(
+			buf + totz, bsz - totz, msg->pr, msg->f10);
 		/* no final SOH here */
-		totz += 4;
+		totz--;
 	}
 
 	buf[totz] = '\0';
