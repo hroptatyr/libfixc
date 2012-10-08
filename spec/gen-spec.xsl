@@ -134,6 +134,16 @@
       <xsl:element name="description" namespace="http://www.ga-group.nl/libfixc_0_1">
         <xsl:copy-of select="Desc/text()"/>
       </xsl:element>
+      <xsl:if test="BaseCatagoryXMLName">
+        <xsl:element name="alias" namespace="http://www.ga-group.nl/libfixc_0_1">
+          <xsl:attribute name="cat">
+            <xsl:value-of select="BaseCatagory"/>
+          </xsl:attribute>
+          <xsl:attribute name="fixml">
+            <xsl:value-of select="BaseCatagoryXMLName"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:if>
     </xsl:element>
   </xsl:template>
 

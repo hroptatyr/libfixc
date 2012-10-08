@@ -199,6 +199,12 @@ v,FIXC_ATTR_V
       <xsl:text>,(fixc_attr_t)</xsl:text>
       <xsl:value-of select="@aid"/>
       <xsl:text>&#0010;</xsl:text>
+      <xsl:for-each select="fixc:alias">
+        <xsl:value-of select="@fixml"/>
+        <xsl:text>,(fixc_attr_t)</xsl:text>
+        <xsl:value-of select="../@aid"/>
+        <xsl:text>&#0010;</xsl:text>
+      </xsl:for-each>
     </xsl:if>
   </xsl:template>
 
