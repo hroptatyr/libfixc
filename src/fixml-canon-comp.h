@@ -44,4 +44,8 @@ typedef enum {
 	FIXC_COMP_FIXML,
 } fixc_comp_t;
 
+/**
+ * Return fixml string for component CID. */
+extern const char *fixc_comp_fixmlify(fixc_comp_t);
+
 #endif	/* INCLUDED_fixml_canon_comp_h_ */
