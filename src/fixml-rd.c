@@ -49,9 +49,6 @@
 #include "fix.h"
 #include "nifty.h"
 
-#include "fixml-attr.h"
-#include "fixml-attr.c"
-
 #include "fix50sp2-comp.h"
 #include "fix50sp2-msg.h"
 #include "fix50sp2-msg.c"
