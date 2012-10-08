@@ -42,7 +42,6 @@ BUILT_SOURCES += fixml-comp-sub.c
 BUILT_SOURCES += fixml-comp-fld.c
 BUILT_SOURCES += fixml-fld-ctx.c
 BUILT_SOURCES += fixml-msg-type.c fix-msg-type.h
-BUILT_SOURCES += fixml-msg-type-rev.c
 BUILT_SOURCES += fixml-nsuri.c
 BUILT_SOURCES += fixml-nsuri-rev.c
 BUILT_SOURCES += fix40-msg.h fix40-comp.h
@@ -61,6 +60,7 @@ BUILT_SOURCES += fixml-canon-attr.c
 BUILT_SOURCES += fixml-comp-by-ctx.c
 BUILT_SOURCES += fixml-attr-rev.c
 BUILT_SOURCES += fixml-comp-rev.c
+BUILT_SOURCES += fixml-msg-rev.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-nsuri.h
@@ -114,6 +114,9 @@ fixml-attr-rev.c: fixml-attr-rev.xsl fix50sp2.xml
 	xsltproc -o $@ $+
 
 fixml-comp-rev.c: fixml-comp-rev.xsl fix50sp2.xml
+	xsltproc -o $@ $+
+
+fixml-msg-rev.c: fixml-msg-rev.xsl fix50sp2.xml
 	xsltproc -o $@ $+
 
 
