@@ -31,6 +31,9 @@ libfixc_la_SOURCES += fixml-canon-attr.gperf fixml-canon-attr.h
 libfixc_la_SOURCES += fixml-attr-by-ctx.c fixml-attr-by-ctx.h
 libfixc_la_SOURCES += fixml-comp-by-ctx.xsl
 libfixc_la_SOURCES += fixml-comp-by-ctx.c fixml-comp-by-ctx.h
+libfixc_la_SOURCES += fixml-attr-rev.xsl
+libfixc_la_SOURCES += fixml-comp-rev.xsl
+libfixc_la_SOURCES += fixml-msg-rev.xsl
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
@@ -63,6 +66,9 @@ header_HEADERS += fix-nsuri.h
 header_HEADERS += fixml-canon-comp.h
 header_HEADERS += fixml-canon-msgt.h
 header_HEADERS += fixml-canon-ctxt.h
+
+## still needed for the test/ suite
+EXTRA_DIST += fix-msg-type.h
 
 ## just for debugging and fun
 noinst_PROGRAMS += fixml2fix
