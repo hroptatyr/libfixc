@@ -60,6 +60,9 @@
 /* resolves fixc_msgt_t to message element string */
 #include "fixml-msg-rev.c"
 
+/* resolves fixc_ver_t objects to various strings, hand-crafted */
+#include "fixml-nsuri-rev.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
@@ -261,6 +264,56 @@ __render_msgtyp(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	return __render_ctx(buf, bsz, msg, (uint16_t)mty, mstr, mlen);
 }
 
+static size_t
+__render_xmlns(char *restrict const buf, size_t bsz, fixc_msg_t msg)
+{
+	static const char xmlns[] = "xmlns";
+	char *p = buf;
+	const char *ep = buf + bsz;
+	fixc_ver_t ver = msg->f8.ver;
+	const char *nsuri;
+
+	if (msg->f8.typ != FIXC_TYP_VER || ver == FIXC_VER_UNK) {
+		ver = FIXC_VER_50_SP2;
+	}
+	/* obtain the uri */
+	nsuri = __ver_fixmlify(ver);
+
+	/* stoop to printing the whole shebang */
+	p = sputc(p, ep, ' ');
+	p = sncpy(p, ep, xmlns, sizeof(xmlns) - 1);
+	p = sputc(p, ep, '=');
+	p = sputc(p, ep, '"');
+	p = sncpy(p, ep, nsuri, strlen(nsuri));
+	p = sputc(p, ep, '"');
+	return p - buf;
+}
+
+static size_t
+__render_v(char *restrict const buf, size_t bsz, fixc_msg_t msg)
+{
+	static const char v[] = "v";
+	char *p = buf;
+	const char *ep = buf + bsz;
+	fixc_ver_t ver = msg->f8.ver;
+	const char *vstr;
+
+	if (msg->f8.typ != FIXC_TYP_VER || ver < FIXC_VER_44) {
+		ver = FIXC_VER_50_SP2;
+	}
+	/* obtain the uri */
+	vstr = __ver_fixml_v_ify(ver);
+
+	/* stoop to printing the whole shebang */
+	p = sputc(p, ep, ' ');
+	p = sncpy(p, ep, v, sizeof(v) - 1);
+	p = sputc(p, ep, '=');
+	p = sputc(p, ep, '"');
+	p = sncpy(p, ep, vstr, strlen(vstr));
+	p = sputc(p, ep, '"');
+	return p - buf;
+}
+
 
 /* public functions */
 size_t
@@ -268,10 +321,7 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 {
 	static const char xml_pre[] = "\
 <?xml version=\"1.0\"?>";
-	static const char fixml_pre[] = "\
-<FIXML xmlns=\"http://www.fixprotocol.org/FIXML-5-0-SP2\">";
-	static const char fixml_post[] = "\
-</FIXML>";
+	static const char fixml[] = "FIXML";
 	const char *ep = buf + bsz;
 	char *restrict p = buf;
 
@@ -280,14 +330,28 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	/* newline this one, all other tags will have no indentation */
 	*p++ = '\n';
 	/* ... and open our tag */
-	p = sncpy(p, ep, fixml_pre, sizeof(fixml_pre) - 1);
+	p = sputc(p, ep, '<');
+	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
+
+	/* fill in xmlns uri */
+	p += __render_xmlns(p, ep - p, msg);
+
+	/* fill in v attr */
+	p += __render_v(p, ep - p, msg);
+
+	/* eo FIXML tag start */
+	p = sputc(p, ep, '>');
 
 	/* there ought to be just one message in there innit? */
 	p += __render_msgtyp(p, ep - p, msg);
 
 	/* final verdict */
-	p = sncpy(p, ep, fixml_post, sizeof(fixml_post));
-	return p - buf - 1/*final \nul*/;
+	p = sputc(p, ep, '<');
+	p = sputc(p, ep, '/');
+	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
+	p = sputc(p, ep, '>');
+	*p = '\0';
+	return p - buf;
 }
 
 /* fixml-wr.c ends here */
