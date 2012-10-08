@@ -37,6 +37,8 @@
 #if !defined INCLUDED_fixml_canon_attr_h_
 #define INCLUDED_fixml_canon_attr_h_
 
+#include "fixml-canon-ctxt.h"
+
 typedef enum {
 	/* these ones are our own */
 	FIXC_ATTR_UNK,
@@ -48,6 +50,6 @@ typedef enum {
 
 /**
  * Return fixml string for attribute AID. */
-extern const char *fixc_attr_fixmlify(fixc_attr_t);
+extern const char *fixc_attr_fixmlify(fixc_ctxt_t, fixc_attr_t);
 
 #endif	/* INCLUDED_fixml_canon_attr_h_ */
