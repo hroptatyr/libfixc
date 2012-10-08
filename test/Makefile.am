@@ -29,11 +29,16 @@ TESTS += $(rd_tests)
 check_PROGRAMS += $(rd_tests)
 rd_tests =
 
+TESTS += $(bin_tests)
+bin_tests =
+
 struct_tests += struct_layout_01
 
 ## some fixml example files
 EXTRA_DIST += fixml_ex_01.xml
 EXTRA_DIST += fixml_ex_02.xml
+EXTRA_DIST += fix_ex_01.fix
+EXTRA_DIST += fix_ex_02.fix
 
 EXTRA_DIST += fixml_to_fixc_prep.c
 EXTRA_DIST += fixml-attr.h
@@ -60,5 +65,11 @@ fixml_tests += fixml_to_fixc_hash_11
 
 rd_tests += fixml_rd_01
 fixml_rd_01_LDADD = $(top_builddir)/src/libfixc.la
+
+TESTS_ENVIRONMENT = top_builddir=$(top_builddir)
+bin_tests += fixml2fix_01.sh
+bin_tests += fixml2fix_02.sh
+bin_tests += fix2fixml_01.sh
+bin_tests += fix2fixml_02.sh
 
 ## Makefile.am ends here
