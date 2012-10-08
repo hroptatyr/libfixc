@@ -53,6 +53,8 @@ typedef enum {
     <xsl:for-each select="fixc:field">
       <xsl:text>&#0009;</xsl:text>
       <xsl:apply-templates select="." mode="enum"/>
+      <xsl:text> = </xsl:text>
+      <xsl:value-of select="@aid"/>
       <xsl:text>,&#0010;</xsl:text>
     </xsl:for-each>
 
