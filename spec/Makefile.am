@@ -29,12 +29,14 @@ BUILT_SOURCES += FIXT.1.1.xml
 		%/Base/MsgContents.xml \
 		%/Base/Components.xml \
 		%/Base/Fields.xml \
-		%/Base/Enums.xml
+		%/Base/Enums.xml \
+		%/Base/Categories.xml
 	xsltproc -o $@ \
 		--param contents "document('`readlink -f "$(word 3,$+)"`')" \
 		--param components "document('`readlink -f "$(word 4,$+)"`')" \
 		--param fields "document('`readlink -f "$(word 5,$+)"`')" \
 		--param enums "document('`readlink -f "$(word 6,$+)"`')" \
+		--param categories "document('`readlink -f "$(word 7,$+)"`')" \
 		$< $(word 2,$+)
 
 ## Makefile.am ends here
