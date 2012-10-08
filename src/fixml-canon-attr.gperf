@@ -1,6 +1,6 @@
 %{
 
-#include "fixml-attr.h"
+#include "fixml-canon-attr.h"
 
 %}
 %7bit

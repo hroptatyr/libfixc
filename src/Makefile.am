@@ -20,10 +20,6 @@ libfixc_la_SOURCES = fix.c fix.h
 libfixc_la_SOURCES += fixml-wr.c
 libfixc_la_SOURCES += fixml-rd.c
 libfixc_la_SOURCES += nifty.h
-libfixc_la_SOURCES += fixml-attr.gperf fixml-attr.h
-libfixc_la_SOURCES += switch-group-attr.awk
-libfixc_la_SOURCES += fixml-comp.gperf fixml-comp.h
-libfixc_la_SOURCES += switch-group-comp.awk
 libfixc_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
 libfixc_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
 libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
@@ -31,7 +27,7 @@ libfixc_la_SOURCES += fixml-nsuri.gperf fix-nsuri.h
 libfixc_la_SOURCES += fixml-comp.xsl fixml-msg.xsl
 libfixc_la_SOURCES += libfixc_0_1_funs.xsl
 libfixc_la_SOURCES += fixml-attr-by-ctx.xsl
-libfixc_la_SOURCES += fixml-canon-attr.gperf
+libfixc_la_SOURCES += fixml-canon-attr.gperf fixml-canon-attr.h
 libfixc_la_SOURCES += fixml-attr-by-ctx.c fixml-attr-by-ctx.h
 libfixc_la_SOURCES += fixml-comp-by-ctx.xsl
 libfixc_la_SOURCES += fixml-comp-by-ctx.c fixml-comp-by-ctx.h
@@ -39,15 +35,9 @@ libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
 libfixc_la_LDFLAGS += $(expat_LIBS)
-BUILT_SOURCES += fixml-attr.c
-BUILT_SOURCES += fixml-attr-rev.c
-BUILT_SOURCES += fixml-comp.c
-BUILT_SOURCES += fixml-comp-rev.c
 BUILT_SOURCES += fixml-comp-sub.c
 BUILT_SOURCES += fixml-comp-fld.c
 BUILT_SOURCES += fixml-fld-ctx.c
-BUILT_SOURCES += fixml-msg-type.c fix-msg-type.h
-BUILT_SOURCES += fixml-msg-type-rev.c
 BUILT_SOURCES += fixml-nsuri.c
 BUILT_SOURCES += fixml-nsuri-rev.c
 BUILT_SOURCES += fix40-msg.h fix40-comp.h
@@ -60,9 +50,13 @@ BUILT_SOURCES += fix50sp1-msg.h fix50sp1-comp.h
 BUILT_SOURCES += fix50sp2-msg.h fix50sp2-comp.h
 BUILT_SOURCES += fix50sp2-msg.gperf fix50sp2-msg.c
 BUILT_SOURCES += fix50sp2-comp.gperf fix50sp2-comp.c
+BUILT_SOURCES += fix50sp2-attr.h
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
 BUILT_SOURCES += fixml-comp-by-ctx.c
+BUILT_SOURCES += fixml-attr-rev.c
+BUILT_SOURCES += fixml-comp-rev.c
+BUILT_SOURCES += fixml-msg-rev.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-nsuri.h
@@ -86,27 +80,6 @@ fix2fixml_LDADD = libfixc.la
 %.c: %.gperf
 	$(AM_V_GEN) $(GPERF) -D $< --output-file $@
 
-fixml-attr-rev.c: $(top_builddir)/spec/fixml_attr.50SP2 switch-group-attr.awk
-	sort -k2 $< | \
-	awk -f $(word 2,$+) > $@
-
-fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
-		$(top_srcdir)/spec/uncamel.sed \
-		switch-group-comp.awk
-	cut -f2 $< | sort -u > fixml-comp-rev.tgt
-	cat fixml-comp-rev.tgt | sed -f $(word 2,$+) -e 's/^/FIXC_COMP_/' | \
-		tr 'a-z' 'A-Z' > fixml-comp-rev.src
-	paste fixml-comp-rev.src fixml-comp-rev.tgt | \
-		awk -f $(word 3,$+) > $@
-	$(RM) fixml-comp-rev.src fixml-comp-rev.tgt
-
-%.c: $(top_srcdir)/spec/FIX.5.0SP2.xml %.xsl $(top_srcdir)/spec/uncamel.sed
-	xsltproc $(word 2,$+) $< | \
-		sed -f $(word 3,$+) \
-			-e 's/FIXC_ATTR_.*/\U&/' \
-			-e 's/FIXC_MSGTYP_.*/\U&/' \
-			-e 's/FIXC_COMP_.*/\U&/' > $@
-
 include $(DEPDIR)/fixml-attr-by-ctx.Po
 include $(DEPDIR)/fixml-comp-by-ctx.Po
 
@@ -125,6 +98,25 @@ fixml-comp-by-ctx.gperfs: fixml-comp-by-ctx.xsl fix50sp2.xml
 dist-hook: fixml-attr-by-ctx.gperfs fixml-comp-by-ctx.gperfs
 	for i in `cat $+`; do cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; done
 	cp -a $+ "$(distdir)/"
+
+fixml-attr-rev.c: fixml-attr-rev.xsl fix50sp2.xml
+	xsltproc -o $@ $+
+
+fixml-comp-rev.c: fixml-comp-rev.xsl fix50sp2.xml
+	xsltproc -o $@ $+
+
+fixml-msg-rev.c: fixml-msg-rev.xsl fix50sp2.xml
+	xsltproc -o $@ $+
+
+fixml-comp-fld.c: fixml-comp-fld.xsl fix50sp2.xml
+	xsltproc -o $@ $+
+
+fixml-comp-sub.c: fixml-comp-sub.xsl fix50sp2.xml
+	xsltproc -o $@ $+
+
+fixml-fld-ctx.c: fixml-fld-ctx.xsl fix50sp2.xml
+	xsltproc -o $@ $+
+
 
 fix50sp2.xml: $(top_srcdir)/spec/FIX.5.0SP2.xml
 	$(LN_S) $< $@
@@ -149,6 +141,9 @@ fix41.xml: $(top_srcdir)/spec/FIX.4.1.xml
 
 fix40.xml: $(top_srcdir)/spec/FIX.4.0.xml
 	$(LN_S) $< $@
+
+%-attr.h: fixml-attr.xsl %.xml
+	xsltproc -o $@ $+
 
 %-msg.h: fixml-msg.xsl %.xml
 	xsltproc -o $@ $+

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "fixml-attr.h"
+#include "fixml-canon-attr.h"
 #include "fixml-canon-ctxt.h"
 
 extern fixc_attr_t fixc_get_aid(fixc_ctxt_t, const char *attr, size_t alen);

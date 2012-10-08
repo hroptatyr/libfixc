@@ -42,20 +42,23 @@
 #include "fix.h"
 #include "nifty.h"
 
-#include "fixml-attr.h"
-#include "fixml-attr-rev.c"
-
-#include "fixml-comp.h"
-#include "fixml-comp-rev.c"
-
-#include "fixml-msg-type-rev.c"
-
 #include "fixml-comp-sub.h"
 #include "fixml-comp-sub.c"
 #include "fixml-comp-fld.h"
 #include "fixml-comp-fld.c"
 #include "fixml-fld-ctx.h"
 #include "fixml-fld-ctx.c"
+
+#include "fixml-canon-comp.h"
+#include "fixml-canon-msgt.h"
+#include "fixml-canon-attr.h"
+
+/* resolves fixc_attr_t to attr string */
+#include "fixml-attr-rev.c"
+/* resolves fixc_comp_t to component element string */
+#include "fixml-comp-rev.c"
+/* resolves fixc_msgt_t to message element string */
+#include "fixml-msg-rev.c"
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
@@ -96,7 +99,7 @@ __attr_in_ctx_p(fixc_attr_t a, uint16_t ctx)
 {
 /* return non-0 if tag A is a member of component CTX or msg-type CTX. */
 #if 1
-	fixc_comp_fld_t fld = fixc_get_comp_fld(ctx);
+	fixc_comp_fld_t fld = fixc_get_comp_fld((unsigned int)ctx);
 
 	for (size_t i = 0; i < fld->nflds; i++) {
 		if (a == fld->flds[i]) {
@@ -105,7 +108,7 @@ __attr_in_ctx_p(fixc_attr_t a, uint16_t ctx)
 	}
 	return 0;
 #else  /* !0 */
-	fixc_fld_ctx_t fcm = fixc_get_fld_ctx((uint16_t)a);
+	fixc_fld_ctx_t fcm = fixc_get_fld_ctx((unsigned int)a);
 
 	for (size_t i = 0; i < fcm->nmsgs + fcm->ncomps; i++) {
 		if (ctx == fcm->ctxs[i]) {
@@ -121,7 +124,7 @@ __render_attr(
 	char *restrict const buf, size_t bsz,
 	const char *b, struct fixc_fld_s fld)
 {
-	const char *attr = __aid_fixmlify((fixc_attr_t)fld.tag);
+	const char *attr = fixc_attr_fixmlify((fixc_attr_t)fld.tag);
 	size_t alen = strlen(attr);
 	char *p = buf;
 	const char *ep = buf + bsz;
@@ -194,7 +197,7 @@ __render_ctx(
 	}
 
 	/* closing tag */
-	sub = fixc_get_comp_sub(ctx);
+	sub = fixc_get_comp_sub((unsigned int)ctx);
 	/* otherwise finish the tag */
 	p = sputc(p, ep, '>');
 
@@ -234,7 +237,7 @@ __render_comp(
 	char *restrict const buf, size_t bsz,
 	fixc_msg_t msg, fixc_comp_t cid)
 {
-	const char *comp = __cid_fixmlify(cid);
+	const char *comp = fixc_comp_fixmlify(cid);
 	size_t clen = strlen(comp);
 
 	if (!clen) {
@@ -248,7 +251,7 @@ static size_t
 __render_msgtyp(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 {
 	fixc_msgt_t mty = msg->f35.mtyp;
-	const char *mstr = __mty_fixmlify((fixc_msg_type_t)mty);
+	const char *mstr = fixc_msgt_fixmlify((fixc_msgt_t)mty);
 	size_t mlen = strlen(mstr);
 
 	if (!mlen) {

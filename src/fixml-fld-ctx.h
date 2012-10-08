@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "fixml-canon-ctxt.h"
+
 typedef const struct fixc_fld_ctx_s *fixc_fld_ctx_t;
 
 struct fixc_fld_ctx_s {
@@ -15,6 +17,8 @@ struct fixc_fld_ctx_s {
 	uint16_t ctxs[];
 };
 
-extern fixc_fld_ctx_t fixc_get_fld_ctx(uint16_t fld);
+/**
+ * Given a context CTX return all fields */
+extern fixc_fld_ctx_t fixc_get_fld_ctx(fixc_ctxt_t ctx);
 
 #endif	/* INCLUDED_fixml_fld_ctx_h_ */
