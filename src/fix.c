@@ -42,6 +42,8 @@
 #include "fix.h"
 #include "nifty.h"
 
+/* to map version strings to fixc_ver_t objects */
+#include "fix-ver.c"
 /* to map fixc_ver_t objects to strings */
 #include "fixml-nsuri-rev.c"
 
@@ -107,8 +109,11 @@ fixc_parse_fld(fixc_msg_t msg, const char *str, size_t len)
 	case FIXC_BEGIN_STRING:
 		msg->f8.tag = FIXC_BEGIN_STRING;
 		msg->f8.typ = FIXC_TYP_VER;
-		/* we should properly parse this */
-		msg->f8.ver = FIXC_VER_T11;
+		{
+			const struct fixc_vstr_s *p = __fix_verify(str, len);
+			/* we should properly parse this */
+			msg->f8.ver = p != NULL ? p->ver : FIXC_VER_UNK;
+		}
 		break;
 	case FIXC_BODY_LENGTH:
 		msg->f9.tag = FIXC_BODY_LENGTH;
