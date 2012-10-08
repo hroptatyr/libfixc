@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "fixml-canon-ctxt.h"
+
 typedef const struct fixc_comp_sub_s *fixc_comp_sub_t;
 
 struct fixc_comp_sub_s {
@@ -14,6 +16,8 @@ struct fixc_comp_sub_s {
 	uint16_t subs[];
 };
 
-extern fixc_comp_sub_t fixc_get_comp_sub(uint16_t ctx);
+/**
+ * Given a context CTX return all sub-components */
+extern fixc_comp_sub_t fixc_get_comp_sub(fixc_ctxt_t);
 
 #endif	/* INCLUDED_fixml_comp_sub_h_ */

@@ -84,13 +84,6 @@ fix2fixml_LDADD = libfixc.la
 %.c: %.gperf
 	$(AM_V_GEN) $(GPERF) -D $< --output-file $@
 
-%.c: $(top_srcdir)/spec/FIX.5.0SP2.xml %.xsl $(top_srcdir)/spec/uncamel.sed
-	xsltproc $(word 2,$+) $< | \
-		sed -f $(word 3,$+) \
-			-e 's/FIXC_ATTR_.*/\U&/' \
-			-e 's/FIXC_MSGTYP_.*/\U&/' \
-			-e 's/FIXC_COMP_.*/\U&/' > $@
-
 include $(DEPDIR)/fixml-attr-by-ctx.Po
 include $(DEPDIR)/fixml-comp-by-ctx.Po
 
@@ -117,6 +110,10 @@ fixml-comp-rev.c: fixml-comp-rev.xsl fix50sp2.xml
 	xsltproc -o $@ $+
 
 fixml-msg-rev.c: fixml-msg-rev.xsl fix50sp2.xml
+	xsltproc -o $@ $+
+
+
+fixml-comp-sub.c: fixml-comp-sub.xsl fix50sp2.xml
 	xsltproc -o $@ $+
 
 
