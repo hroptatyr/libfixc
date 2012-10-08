@@ -53,7 +53,6 @@ BUILT_SOURCES += fix50-msg.h fix50-comp.h
 BUILT_SOURCES += fix50sp1-msg.h fix50sp1-comp.h
 BUILT_SOURCES += fix50sp2-msg.h fix50sp2-comp.h
 BUILT_SOURCES += fix50sp2-msg.gperf fix50sp2-msg.c
-BUILT_SOURCES += fix50sp2-comp.gperf fix50sp2-comp.c
 BUILT_SOURCES += fix50sp2-attr.h
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
