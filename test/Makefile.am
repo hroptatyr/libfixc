@@ -36,6 +36,8 @@ EXTRA_DIST += fixml_ex_01.xml
 EXTRA_DIST += fixml_ex_02.xml
 
 EXTRA_DIST += fixml_to_fixc_prep.c
+EXTRA_DIST += fixml-attr.h
+EXTRA_DIST += fixml-comp.h
 fixml_tests += fixml_to_fixc_hash_01
 fixml_tests += fixml_to_fixc_hash_02
 fixml_tests += fixml_to_fixc_hash_03
