@@ -35,6 +35,9 @@
         <xsl:when test="name($node-set) = 'message'">
           <xsl:text>msg</xsl:text>
         </xsl:when>
+        <xsl:when test="name($node-set) = 'field'">
+          <xsl:text>attr</xsl:text>
+        </xsl:when>
         <xsl:otherwise>
           <xsl:text>unk</xsl:text>
         </xsl:otherwise>
