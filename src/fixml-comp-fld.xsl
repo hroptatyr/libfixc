@@ -47,7 +47,7 @@ fixc_comp_fld_t fixc_get_comp_fld(fixc_ctxt_t ctx)
 			.ctx = </xsl:text>
     <xsl:apply-templates select="." mode="enum"/><xsl:text>,
 			.nflds = </xsl:text>
-    <xsl:value-of select="count(fixc:component)"/><xsl:text>,
+    <xsl:value-of select="count(fixc:field)"/><xsl:text>,
 			.flds = {&#0010;</xsl:text>
     <xsl:for-each select="fixc:field">
       <xsl:text>&#0009;&#0009;&#0009;&#0009;</xsl:text>
