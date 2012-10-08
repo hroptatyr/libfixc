@@ -47,7 +47,7 @@ fixc_comp_sub_t fixc_get_comp_sub(fixc_ctxt_t ctx)
     <xsl:apply-templates select="." mode="enum"/><xsl:text>,
 			.nsubs = </xsl:text>
     <xsl:value-of select="count(fixc:component)"/><xsl:text>,
-			.subs = {</xsl:text>
+			.subs = {&#0010;</xsl:text>
     <xsl:for-each select="fixc:component">
       <xsl:text>&#0009;&#0009;&#0009;&#0009;</xsl:text>
       <xsl:apply-templates select="key('compn', @name)" mode="enum"/>
