@@ -8,10 +8,13 @@
 
   <xsl:key name="fldx" match="/fixc:spec/fixc:field" use="@fixml"/>
 
+  <xsl:include href="libfixc_0_1_funs.xsl"/>
+
   <xsl:template match="fixc:spec">
     <xsl:text>/* do not edit, gen'd by fixml-attr-rev.xsl */
 
 #include "fixml-canon-attr.h"
+#include "</xsl:text><xsl:value-of select="$versn"/><xsl:text>-attr.h"
 
 const char *fixc_attr_fixmlify(fixc_attr_t aid)
 {
@@ -22,7 +25,7 @@ const char *fixc_attr_fixmlify(fixc_attr_t aid)
     <xsl:for-each select="fixc:field[count(. | key('fldx', @fixml)[1]) = 1]">
       <xsl:for-each select="key('fldx', @fixml)">
         <xsl:text>&#0009;case </xsl:text>
-        <xsl:value-of select="@aid"/>
+        <xsl:apply-templates select="." mode="enum"/>
         <xsl:text>:&#0010;</xsl:text>
       </xsl:for-each>
       <xsl:text>&#0009;&#0009;return "</xsl:text>
@@ -31,6 +34,12 @@ const char *fixc_attr_fixmlify(fixc_attr_t aid)
     </xsl:for-each>
 
     <xsl:text>
+	/* special attrs, not officially encountered */
+	case FIXC_ATTR_XMLNS:
+		return "xmlns";
+	case FIXC_ATTR_V:
+		return "v";
+
 	case FIXC_ATTR_UNK:
 	default:
 		return "";
@@ -39,6 +48,12 @@ const char *fixc_attr_fixmlify(fixc_attr_t aid)
 
 /* fixml-attr-rev.c ends here */
 </xsl:text>
+  </xsl:template>
+
+  <xsl:template match="fixc:field" mode="enum">
+    <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
+    <xsl:text>_</xsl:text>
+    <xsl:value-of select="@name"/>
   </xsl:template>
 
 </xsl:stylesheet>
