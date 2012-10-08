@@ -49,6 +49,7 @@
 #include "fixml-fld-ctx.h"
 #include "fixml-fld-ctx.c"
 
+#include "fixml-canon-ctxt.h"
 #include "fixml-canon-comp.h"
 #include "fixml-canon-msgt.h"
 #include "fixml-canon-attr.h"
@@ -98,11 +99,11 @@ sncpy(char *restrict buf, const char *eob, const char *s, size_t slen)
 
 /* fixml guts */
 static int
-__attr_in_ctx_p(fixc_attr_t a, uint16_t ctx)
+__attr_in_ctx_p(fixc_attr_t a, fixc_ctxt_t ctx)
 {
 /* return non-0 if tag A is a member of component CTX or msg-type CTX. */
 #if 1
-	fixc_comp_fld_t fld = fixc_get_comp_fld((unsigned int)ctx);
+	fixc_comp_fld_t fld = fixc_get_comp_fld(ctx);
 
 	for (size_t i = 0; i < fld->nflds; i++) {
 		if (a == fld->flds[i]) {
@@ -125,9 +126,9 @@ __attr_in_ctx_p(fixc_attr_t a, uint16_t ctx)
 static size_t
 __render_attr(
 	char *restrict const buf, size_t bsz,
-	const char *b, struct fixc_fld_s fld)
+	fixc_ctxt_t ctx, const char *b, struct fixc_fld_s fld)
 {
-	const char *attr = fixc_attr_fixmlify((fixc_attr_t)fld.tag);
+	const char *attr = fixc_attr_fixmlify(ctx, (fixc_attr_t)fld.tag);
 	size_t alen = strlen(attr);
 	char *p = buf;
 	const char *ep = buf + bsz;
@@ -176,7 +177,7 @@ __render_comp(
 static size_t
 __render_ctx(
 	char *restrict const buf, size_t bsz,
-	fixc_msg_t msg, uint16_t ctx,
+	fixc_msg_t msg, fixc_ctxt_t ctx,
 	const char *elem, size_t elen)
 {
 	char *p = buf;
@@ -195,12 +196,13 @@ __render_ctx(
 		fixc_attr_t aid = (fixc_attr_t)msg->flds[i].tag;
 		if (__attr_in_ctx_p(aid, ctx)) {
 			nattr++;
-			p += __render_attr(p, ep - p, msg->pr, msg->flds[i]);
+			p += __render_attr(
+				p, ep - p, ctx, msg->pr, msg->flds[i]);
 		}
 	}
 
 	/* closing tag */
-	sub = fixc_get_comp_sub((unsigned int)ctx);
+	sub = fixc_get_comp_sub(ctx);
 	/* otherwise finish the tag */
 	p = sputc(p, ep, '>');
 
@@ -247,7 +249,7 @@ __render_comp(
 		/* must be fubar'd */
 		return 0UL;
 	}
-	return __render_ctx(buf, bsz, msg, (uint16_t)cid, comp, clen);
+	return __render_ctx(buf, bsz, msg, cid, comp, clen);
 }
 
 static size_t
@@ -261,7 +263,7 @@ __render_msgtyp(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 		/* probably fubar'd or an unknown msgtyp */
 		return 0UL;
 	}
-	return __render_ctx(buf, bsz, msg, (uint16_t)mty, mstr, mlen);
+	return __render_ctx(buf, bsz, msg, mty, mstr, mlen);
 }
 
 static size_t
