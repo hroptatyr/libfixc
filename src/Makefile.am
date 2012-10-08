@@ -85,7 +85,7 @@ fix2fixml_LDADD = libfixc.la
 
 ## our rule for gperf
 %.c: %.gperf
-	$(AM_V_GEN) $(GPERF) -D $< --output-file $@
+	$(AM_V_GEN) $(GPERF) $< --output-file $@
 
 include $(DEPDIR)/fixml-attr-by-ctx.Po
 include $(DEPDIR)/fixml-comp-by-ctx.Po
