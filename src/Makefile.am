@@ -67,6 +67,9 @@ header_HEADERS += fixml-canon-comp.h
 header_HEADERS += fixml-canon-msgt.h
 header_HEADERS += fixml-canon-ctxt.h
 
+## still needed for the test/ suite
+EXTRA_DIST += fix-msg-type.h
+
 ## just for debugging and fun
 noinst_PROGRAMS += fixml2fix
 fixml2fix_CPPFLAGS = $(AM_CPPFLAGS)
