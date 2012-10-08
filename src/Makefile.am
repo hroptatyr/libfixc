@@ -118,6 +118,9 @@ fixml-comp-fld.c: fixml-comp-fld.xsl fix50sp2.xml
 fixml-comp-sub.c: fixml-comp-sub.xsl fix50sp2.xml
 	xsltproc -o $@ $+
 
+fixml-fld-ctx.c: fixml-fld-ctx.xsl fix50sp2.xml
+	xsltproc -o $@ $+
+
 
 fix50sp2.xml: $(top_srcdir)/spec/FIX.5.0SP2.xml
 	$(LN_S) $< $@
