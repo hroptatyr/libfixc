@@ -57,6 +57,7 @@ BUILT_SOURCES += fix50sp1-msg.h fix50sp1-comp.h
 BUILT_SOURCES += fix50sp2-msg.h fix50sp2-comp.h
 BUILT_SOURCES += fix50sp2-msg.gperf fix50sp2-msg.c
 BUILT_SOURCES += fix50sp2-comp.gperf fix50sp2-comp.c
+BUILT_SOURCES += fix50sp2-attr.h
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
 BUILT_SOURCES += fixml-comp-by-ctx.c
@@ -147,6 +148,9 @@ fix41.xml: $(top_srcdir)/spec/FIX.4.1.xml
 
 fix40.xml: $(top_srcdir)/spec/FIX.4.0.xml
 	$(LN_S) $< $@
+
+%-attr.h: fixml-attr.xsl %.xml
+	xsltproc -o $@ $+
 
 %-msg.h: fixml-msg.xsl %.xml
 	xsltproc -o $@ $+
