@@ -7218,6 +7218,24 @@ Same values as PartySubIDType (803)</description>
   <field aid="956" fixml="IntAcrl" name="LegInterestAccrualDate" type="LocalMktDate" not_req_xml="0">
     <description>The start date used for calculating accrued interest on debt instruments which are being sold between interest payment dates. Often but not always the same as the Issue Date and the Dated Date</description>
   </field>
+  <cat name="Session" fixml="session" not_req_xml="1"/>
+  <cat name="Indication" fixml="indications" not_req_xml="0"/>
+  <cat name="SingleGeneralOrderHandling" fixml="order" not_req_xml="0"/>
+  <cat name="EventCommunication" fixml="newsevents" not_req_xml="0"/>
+  <cat name="ProgramTrading" fixml="listorders" not_req_xml="0"/>
+  <cat name="Allocation" fixml="allocation" not_req_xml="0"/>
+  <cat name="QuotationNegotiation" fixml="quotation" not_req_xml="0"/>
+  <cat name="SettlementInstruction" fixml="settlement" not_req_xml="0"/>
+  <cat name="MarketData" fixml="marketdata" not_req_xml="0"/>
+  <cat name="SecurityAndTradingSessionDefinitionOrStatus" fixml="securitystatus" not_req_xml="0"/>
+  <cat name="Common" fixml="components" not_req_xml="0"/>
+  <cat name="RegistrationInstruction" fixml="registration" not_req_xml="0"/>
+  <cat name="CrossOrders" fixml="crossorders" not_req_xml="0"/>
+  <cat name="MultilegOrders" fixml="multilegorders" not_req_xml="0"/>
+  <cat name="TradeCapture" fixml="tradecapture" not_req_xml="0"/>
+  <cat name="Confirmation" fixml="confirmation" not_req_xml="0"/>
+  <cat name="PositionMaintenance" fixml="positions" not_req_xml="0"/>
+  <cat name="CollateralManagement" fixml="collateral" not_req_xml="0"/>
   <enum eid="4">
     <item value="B">Buy</item>
     <item value="S">Sell</item>

@@ -353,6 +353,32 @@ At this time there are no encryption methods defined by FPL.</description>
   <field aid="1409" fixml="SessStat" name="SessionStatus" type="int" not_req_xml="0">
     <description>Status of a FIX session</description>
   </field>
+  <cat name="Session" fixml="session" not_req_xml="1"/>
+  <cat name="Indication" fixml="indications" not_req_xml="0"/>
+  <cat name="SingleGeneralOrderHandling" fixml="order" not_req_xml="0"/>
+  <cat name="EventCommunication" fixml="newsevents" not_req_xml="0"/>
+  <cat name="ProgramTrading" fixml="listorders" not_req_xml="0"/>
+  <cat name="OrderMassHandling" fixml="ordermasshandling" not_req_xml="0"/>
+  <cat name="Allocation" fixml="allocation" not_req_xml="0"/>
+  <cat name="QuotationNegotiation" fixml="quotation" not_req_xml="0"/>
+  <cat name="SettlementInstruction" fixml="settlement" not_req_xml="0"/>
+  <cat name="MarketData" fixml="marketdata" not_req_xml="0"/>
+  <cat name="MarketStructure" fixml="marketstructure" not_req_xml="0"/>
+  <cat name="ReferenceData" fixml="referencedata" not_req_xml="0"/>
+  <cat name="Common" fixml="components" not_req_xml="0"/>
+  <cat name="RegistrationInstruction" fixml="registration" not_req_xml="0"/>
+  <cat name="CrossOrders" fixml="crossorders" not_req_xml="0"/>
+  <cat name="MultilegOrders" fixml="multilegorders" not_req_xml="0"/>
+  <cat name="TradeCapture" fixml="tradecapture" not_req_xml="0"/>
+  <cat name="Confirmation" fixml="confirmation" not_req_xml="0"/>
+  <cat name="PositionMaintenance" fixml="positions" not_req_xml="0"/>
+  <cat name="CollateralManagement" fixml="collateral" not_req_xml="0"/>
+  <cat name="Application" fixml="application" not_req_xml="0"/>
+  <cat name="BusinessReject" fixml="businessreject" not_req_xml="0"/>
+  <cat name="Network" fixml="network" not_req_xml="0"/>
+  <cat name="UserManagement" fixml="usermanagement" not_req_xml="0"/>
+  <cat name="Fields" fixml="fields" not_req_xml="0"/>
+  <cat name="ImplFields" fixml="fields" not_req_xml="0"/>
   <enum eid="43">
     <item value="N">Original transmission</item>
     <item value="Y">Possible duplicate</item>
