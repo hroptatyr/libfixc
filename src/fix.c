@@ -42,6 +42,8 @@
 #include "fix.h"
 #include "nifty.h"
 
+/* to map version strings to fixc_ver_t objects */
+#include "fix-ver.c"
 /* to map fixc_ver_t objects to strings */
 #include "fixml-nsuri-rev.c"
 
@@ -107,8 +109,11 @@ fixc_parse_fld(fixc_msg_t msg, const char *str, size_t len)
 	case FIXC_BEGIN_STRING:
 		msg->f8.tag = FIXC_BEGIN_STRING;
 		msg->f8.typ = FIXC_TYP_VER;
-		/* we should properly parse this */
-		msg->f8.ver = FIXC_VER_T11;
+		{
+			const struct fixc_vstr_s *p = __fix_verify(str, len);
+			/* we should properly parse this */
+			msg->f8.ver = p != NULL ? p->ver : FIXC_VER_UNK;
+		}
 		break;
 	case FIXC_BODY_LENGTH:
 		msg->f9.tag = FIXC_BODY_LENGTH;
@@ -236,10 +241,10 @@ fixc_render_fld(
 		break;
 	}
 	case FIXC_TYP_UCHAR:
-		buf[res++] = fld.u8;
+		res += snprintf(buf + res, bsz - res, "%03" PRIu8, fld.u8);
 		break;
 	case FIXC_TYP_CHAR:
-		buf[res++] = fld.i8;
+		buf[res++] = fld.c;
 		break;
 	case FIXC_TYP_INT:
 		res += snprintf(buf + res, bsz - res, "%" PRIi32, fld.i32);
@@ -310,9 +315,10 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 /* thanks gcc */
 		msg->f10.u8 = fixc_chksum(buf, totz);
 #endif	/* !HAVE_ANON_STRUCTS_INIT */
-		fixc_render_fld(buf + totz, bsz - totz, msg->pr, msg->f10);
+		totz += fixc_render_fld(
+			buf + totz, bsz - totz, msg->pr, msg->f10);
 		/* no final SOH here */
-		totz += 4;
+		totz--;
 	}
 
 	buf[totz] = '\0';

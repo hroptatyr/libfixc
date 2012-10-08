@@ -76,9 +76,9 @@ enum {
 	FIXC_TYP_OFF = FIXC_TYP_UNK,
 	/** tag type is a version number */
 	FIXC_TYP_VER,
-	/** tag type is a unsigned char */
+	/** tag type is a unsigned char (printed as number) */
 	FIXC_TYP_UCHAR,
-	/** tag type is a signed char */
+	/** tag type is a signed char (printed as char) */
 	FIXC_TYP_CHAR,
 	/** tag type is a (32b) integer */
 	FIXC_TYP_INT,
@@ -97,7 +97,7 @@ struct fixc_fld_s {
 		uint32_t off;
 		int32_t i32;
 		uint8_t u8;
-		int8_t i8;
+		char c;
 		fixc_ver_t ver;
 
 		fixc_msgt_t mtyp;

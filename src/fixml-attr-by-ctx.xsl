@@ -150,7 +150,9 @@ v,FIXC_ATTR_V
 
       <!-- loop over them fields again -->
       <xsl:for-each select="fixc:field">
-        <xsl:apply-templates select="key('fldi', @aid)" mode="map"/>
+        <xsl:apply-templates select="key('fldi', @aid)" mode="map">
+          <xsl:with-param name="cat" select="../@cat"/>
+        </xsl:apply-templates>
       </xsl:for-each>
     </ec:document>
   </xsl:template>
@@ -194,11 +196,16 @@ v,FIXC_ATTR_V
   </xsl:template>
 
   <xsl:template match="fixc:field" mode="map">
+    <xsl:param name="cat"/>
+    <xsl:variable name="aid" select="@aid"/>
+
     <xsl:if test="string-length(@fixml) &gt; 0">
-      <xsl:value-of select="@fixml"/>
-      <xsl:text>,(fixc_attr_t)</xsl:text>
-      <xsl:value-of select="@aid"/>
-      <xsl:text>&#0010;</xsl:text>
+      <xsl:for-each select=".|fixc:alias[@cat=$cat and @fixml!=../@fixml]">
+        <xsl:value-of select="@fixml"/>
+        <xsl:text>,(fixc_attr_t)</xsl:text>
+        <xsl:value-of select="$aid"/>
+        <xsl:text>&#0010;</xsl:text>
+      </xsl:for-each>
     </xsl:if>
   </xsl:template>
 

@@ -5945,6 +5945,7 @@ For Fixed Income trades AvgPx is always expressed as percent-of-par, regardless 
   </field>
   <field aid="11" fixml="ClOrdID" name="ClOrdID" type="String" not_req_xml="0">
     <description>Unique identifier for Order as assigned by the buy-side (institution, broker, intermediary etc.) (identified by SenderCompID (49) or OnBehalfOfCompID (5) as appropriate). Uniqueness must be guaranteed within a single trading day. Firms, particularly those which electronically submit multi-day orders, trade globally or throughout market close periods, should ensure uniqueness across days, for example by embedding a date within the ClOrdID field.</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="ID"/>
   </field>
   <field aid="12" fixml="Comm" name="Commission" type="Amt" not_req_xml="0">
     <description>Commission. Note if CommType (13) is percentage, Commission of 5% should be represented as .05.</description>
@@ -5984,6 +5985,7 @@ Uniqueness must be guaranteed within a single trading day or the life of a multi
   <field aid="23" fixml="IOIID" name="IOIID" type="String" not_req_xml="0">
     <description>Unique identifier of IOI message.
 (Prior to FIX 4.1 this field was of type int)</description>
+    <alias cat="Indication" fixml="ID"/>
   </field>
   <field aid="25" fixml="QltyInd" name="IOIQltyInd" type="char" not_req_xml="0">
     <description>Relative quality of indication</description>
@@ -6036,12 +6038,15 @@ Note: A "U" as the first character in the MsgType field (i.e. U, U2, etc) indica
   </field>
   <field aid="39" fixml="OrdStat" name="OrdStatus" type="char" not_req_xml="0">
     <description>Identifies current status of order. *** SOME VALUES HAVE BEEN REPLACED - See "Replaced Features and Supported Approach" *** (see Volume : "Glossary" for value definitions)</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="Stat"/>
   </field>
   <field aid="40" fixml="OrdTyp" name="OrdType" type="char" not_req_xml="0">
     <description>Order type. *** SOME VALUES ARE NO LONGER USED - See "Deprecated (Phased-out) Features and Supported Approach" *** (see Volume : "Glossary" for value definitions)</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="Typ"/>
   </field>
   <field aid="41" fixml="OrigClOrdID" name="OrigClOrdID" type="String" not_req_xml="0">
     <description>ClOrdID (11) of the previous order (NOT the initial order of the day) as assigned by the institution, used to identify the previous order in cancel and cancel/replace requests.</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="OrigID"/>
   </field>
   <field aid="42" fixml="OrigTm" name="OrigTime" type="UTCTimestamp" not_req_xml="0">
     <description>Time of message origination (always expressed in UTC (Universal Time Coordinated, also known as "GMT"))</description>
@@ -6122,9 +6127,11 @@ As defined in the NYSE Stock and bond Symbol Directory and in the AMEX Fitch Dir
   </field>
   <field aid="66" fixml="ListID" name="ListID" type="String" not_req_xml="0">
     <description>Unique identifier for list as assigned by institution, used to associate multiple individual orders. Uniqueness must be guaranteed within a single trading day. Firms which generate multi-day orders should consider embedding a date within the ListID field to assure uniqueness across days.</description>
+    <alias cat="ProgramTrading" fixml="ID"/>
   </field>
   <field aid="67" fixml="ListSeqNo" name="ListSeqNo" type="int" not_req_xml="0">
     <description>Sequence of individual order within list (i.e. ListSeqNo of TotNoOrders (68), 2 of 25, 3 of 25, . . . )</description>
+    <alias cat="ProgramTrading" fixml="SeqNo"/>
   </field>
   <field aid="68" fixml="TotNoOrds" name="TotNoOrders" type="int" not_req_xml="0">
     <description>Total number of list order entries across all messages. Should be the sum of all NoOrders (73) in each message that has repeating list order entries related to the same ListID (66). Used to support fragmentation.
@@ -6136,6 +6143,7 @@ As defined in the NYSE Stock and bond Symbol Directory and in the AMEX Fitch Dir
   <field aid="70" fixml="AllocID" name="AllocID" type="String" not_req_xml="0">
     <description>Unique identifier for allocation message.
 (Prior to FIX 4.1 this field was of type int)</description>
+    <alias cat="Allocation" fixml="ID"/>
   </field>
   <field aid="71" fixml="TransTyp" name="AllocTransType" type="char" not_req_xml="0">
     <description>Identifies allocation transaction type *** SOME VALUES HAVE BEEN REPLACED - See "Replaced Features and Supported Approach" ***</description>
@@ -6143,6 +6151,7 @@ As defined in the NYSE Stock and bond Symbol Directory and in the AMEX Fitch Dir
   <field aid="72" fixml="RefAllocID" name="RefAllocID" type="String" not_req_xml="0">
     <description>Reference identifier to be used with AllocTransType (71) = Replace or Cancel.
 (Prior to FIX 4.1 this field was of type int)</description>
+    <alias cat="Allocation" fixml="RefID"/>
   </field>
   <field aid="73" fixml="NoOrds" name="NoOrders" type="NumInGroup" not_req_xml="1">
     <description>Indicates number of orders to be combined for average pricing and allocation.</description>
@@ -6185,6 +6194,7 @@ Note this field was removed in FIX 4.1 and reinstated in FIX 4.4.</description>
   </field>
   <field aid="87" fixml="Stat" name="AllocStatus" type="int" not_req_xml="0">
     <description>Identifies status of allocation.</description>
+    <alias cat="Allocation" fixml="Stat"/>
   </field>
   <field aid="88" fixml="RejCode" name="AllocRejCode" type="int" not_req_xml="0">
     <description>Identifies reason for rejection.</description>
@@ -6464,6 +6474,7 @@ For Fixed Income this is always expressed as "percent of par" price type.</descr
   </field>
   <field aid="196" fixml="LinkID" name="AllocLinkID" type="String" not_req_xml="0">
     <description>Can be used to link two different Allocation messages (each with unique AllocID (70)) together, i.e. for F/X "Netting" or "Swaps". Should be unique.</description>
+    <alias cat="Allocation" fixml="LinkID"/>
   </field>
   <field aid="197" fixml="LinkTyp" name="AllocLinkType" type="int" not_req_xml="0">
     <description>Identifies the type of Allocation linkage when AllocLinkID (96) is used.</description>
@@ -6504,6 +6515,7 @@ See "Appendix 6-C"</description>
   </field>
   <field aid="209" fixml="HandlInst" name="AllocHandlInst" type="int" not_req_xml="0">
     <description>Indicates how the receiver (i.e. third party) of Allocation message should handle/process the account details.</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="HndInst"/>
   </field>
   <field aid="210" fixml="MaxShow" name="MaxShow" type="Qty" not_req_xml="0">
     <description>Maximum quantity (e.g. number of shares) within an order to be shown to other customers (i.e. sent via an IOI).
@@ -7004,6 +7016,7 @@ Bilaterally agreed values of data type "String" that start with a character can 
   </field>
   <field aid="337" fixml="CntraTrdr" name="ContraTrader" type="String" not_req_xml="0">
     <description>Identifies the trader (e.g. "badge number") of the ContraBroker.</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="Trdr"/>
   </field>
   <field aid="338" fixml="Method" name="TradSesMethod" type="int" not_req_xml="0">
     <description>Method of trading</description>
@@ -7237,6 +7250,7 @@ FT00, FT250, STOX - Free text</description>
   </field>
   <field aid="413" fixml="CrssPct" name="CrossPercent" type="Percentage" not_req_xml="0">
     <description>Percentage of program that crosses in Currency. Represented as a percentage.</description>
+    <alias cat="CrossOrders" fixml="Pct"/>
   </field>
   <field aid="414" fixml="ProgRptReqs" name="ProgRptReqs" type="int" not_req_xml="0">
     <description>Code to identify the desired frequency of progress reports.</description>
@@ -7314,9 +7328,11 @@ See ContractMultiplier (231) field for description</description>
   </field>
   <field aid="437" fixml="CntraTrdQty" name="ContraTradeQty" type="Qty" not_req_xml="0">
     <description>Quantity traded with the ContraBroker (375).</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="TrdQty"/>
   </field>
   <field aid="438" fixml="CntraTrdTm" name="ContraTradeTime" type="UTCTimestamp" not_req_xml="0">
     <description>Identifes the time of the trade with the ContraBroker (375). (always expressed in UTC (Universal Time Coordinated, also known as "GMT")</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="TrdTm"/>
   </field>
   <field aid="441" fixml="LqdtyNumSecurities" name="LiquidityNumSecurities" type="int" not_req_xml="0">
     <description>Number of Securites between LiquidityPctLow (402) and LiquidityPctHigh (403) in Currency.</description>
@@ -7490,6 +7506,7 @@ Values above 1000 are available for use by private agreement among counterpartie
   </field>
   <field aid="493" fixml="AcctTyp" name="RegistAcctType" type="String" not_req_xml="0">
     <description>For CIV - a fund manager-defined code identifying which of the fund manager's account types is required.</description>
+    <alias cat="RegistrationInstruction" fixml="AcctTyp"/>
   </field>
   <field aid="494" fixml="Designation" name="Designation" type="String" not_req_xml="0">
     <description>Free format text defining the designation to be associated with a holding on the register. Used to identify assets of a specific underlying investor using a common registration, e.g. a broker's nominee or street name.</description>
@@ -7502,6 +7519,7 @@ values above 1000 are available for use by private agreement among counterpartie
   </field>
   <field aid="496" fixml="RejRsnTxt" name="RegistRejReasonText" type="String" not_req_xml="0">
     <description>Text indicating reason(s) why a Registration Instruction has been rejected.</description>
+    <alias cat="RegistrationInstruction" fixml="Dtls"/>
   </field>
   <field aid="497" fixml="FundRenewWaiv" name="FundRenewWaiv" type="char" not_req_xml="0">
     <description>A one character code identifying whether the Fund based renewal commission is to be waived.</description>
@@ -7537,24 +7555,29 @@ values above 1000 are available for use by private agreement among counterpartie
     <description>Reason(s) why Registration Instructions has been rejected.
 The reason may be further amplified in the RegistRejReasonCode field.
 Possible values of reason code include:</description>
+    <alias cat="RegistrationInstruction" fixml="RejRsnCd"/>
   </field>
   <field aid="508" fixml="RefID" name="RegistRefID" type="String" not_req_xml="0">
     <description>Reference identifier for the RegistID (53) with Cancel and Replace RegistTransType (54) transaction types.</description>
+    <alias cat="RegistrationInstruction" fixml="RefID"/>
   </field>
   <field aid="509" fixml="Dtls" name="RegistDtls" type="String" not_req_xml="0">
     <description>Set of Registration name and address details, possibly including phone, fax etc.</description>
+    <alias cat="RegistrationInstruction" fixml="RejRsnTxt"/>
   </field>
   <field aid="510" fixml="NoDistribInsts" name="NoDistribInsts" type="NumInGroup" not_req_xml="1">
     <description>The number of Distribution Instructions on a Registration Instructions message</description>
   </field>
   <field aid="511" fixml="Email" name="RegistEmail" type="String" not_req_xml="0">
     <description>Email address relating to Registration name and address details</description>
+    <alias cat="RegistrationInstruction" fixml="Email"/>
   </field>
   <field aid="512" fixml="DistribPctage" name="DistribPercentage" type="Percentage" not_req_xml="0">
     <description>The amount of each distribution to go to this beneficiary, expressed as a percentage</description>
   </field>
   <field aid="513" fixml="RegistID" name="RegistID" type="String" not_req_xml="0">
     <description>Unique identifier of the registration details as assigned by institution or intermediary.</description>
+    <alias cat="RegistrationInstruction" fixml="ID"/>
   </field>
   <field aid="514" fixml="TransTyp" name="RegistTransType" type="char" not_req_xml="0">
     <description>Identifies Registration Instructions transaction type</description>
@@ -7597,6 +7620,7 @@ Same values as PartyIDSource (447)</description>
   </field>
   <field aid="526" fixml="ClOrdID2" name="SecondaryClOrdID" type="String" not_req_xml="0">
     <description>Assigned by the party which originates the order. Can be used to provide the ClOrdID (11) used by an exchange or executing system.</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="ID2"/>
   </field>
   <field aid="527" fixml="ExecID2" name="SecondaryExecID" type="String" not_req_xml="0">
     <description>Assigned by the party which accepts the order. Can be used to provide the ExecID (17) used by an exchange or executing system.</description>
@@ -7611,9 +7635,11 @@ Same values as PartyIDSource (447)</description>
   </field>
   <field aid="530" fixml="MassCxlReqTyp" name="MassCancelRequestType" type="char" not_req_xml="0">
     <description>Specifies scope of Order Mass Cancel Request.</description>
+    <alias cat="OrderMassHandling" fixml="ReqTyp"/>
   </field>
   <field aid="531" fixml="MassCxlRsp" name="MassCancelResponse" type="char" not_req_xml="0">
     <description>Specifies the action taken by counterparty order handling system as a result of the Order Mass Cancel Request</description>
+    <alias cat="OrderMassHandling" fixml="Rsp"/>
   </field>
   <field aid="532" fixml="MassCxlRejRsn" name="MassCancelRejectReason" type="int" not_req_xml="0">
     <description>Reason Order Mass Cancel Request was rejected</description>
@@ -7672,16 +7698,20 @@ Same values as PartySubID (523)</description>
   </field>
   <field aid="548" fixml="CrssID" name="CrossID" type="String" not_req_xml="0">
     <description>Identifier for a cross order. Must be unique during a given trading day. Recommend that firms use the order date as part of the CrossID for Good Till Cancel (GT) orders.</description>
+    <alias cat="CrossOrders" fixml="ID"/>
   </field>
   <field aid="549" fixml="CrssTyp" name="CrossType" type="int" not_req_xml="0">
     <description>Type of cross being submitted to a market</description>
+    <alias cat="CrossOrders" fixml="Typ"/>
   </field>
   <field aid="550" fixml="CrssPriortstn" name="CrossPrioritization" type="int" not_req_xml="0">
     <description>Indicates if one side or the other of a cross order should be prioritized.
 The definition of prioritization is left to the market. In some markets prioritization means which side of the cross order is applied to the market first. In other markets - prioritization may mean that the prioritized side is fully executed (sometimes referred to as the side being protected).</description>
+    <alias cat="CrossOrders" fixml="Priorty"/>
   </field>
   <field aid="551" fixml="OrigCrssID" name="OrigCrossID" type="String" not_req_xml="0">
     <description>CrossID of the previous cross order (NOT the initial cross order of the day) as assigned by the institution, used to identify the previous cross order in Cross Cancel and Cross Cancel/Replace Requests.</description>
+    <alias cat="CrossOrders" fixml="OrigID"/>
   </field>
   <field aid="552" fixml="NoSides" name="NoSides" type="NumInGroup" not_req_xml="1">
     <description>Number of Side repeating group instances.</description>
@@ -7784,12 +7814,15 @@ Primarily used by futures exchanges to indicate the CTICode (customer type indic
   </field>
   <field aid="583" fixml="ClOrdLinkID" name="ClOrdLinkID" type="String" not_req_xml="0">
     <description>Permits order originators to tie together groups of orders in which trades resulting from orders are associated for a specific purpose, for example the calculation of average execution price for a customer or to associate lists submitted to a broker as waves of a larger program trade.</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="LnkID"/>
   </field>
   <field aid="584" fixml="MassStatReqID" name="MassStatusReqID" type="String" not_req_xml="0">
     <description>Value assigned by issuer of Mass Status Request to uniquely identify the request</description>
+    <alias cat="OrderMassHandling" fixml="ReqID"/>
   </field>
   <field aid="585" fixml="MassStatReqTyp" name="MassStatusReqType" type="int" not_req_xml="0">
     <description>Mass Status Request Type</description>
+    <alias cat="OrderMassHandling" fixml="ReqTyp"/>
   </field>
   <field aid="586" fixml="OrigOrdModTm" name="OrigOrdModTime" type="UTCTimestamp" not_req_xml="0">
     <description>The most recent (or current) modification TransactTime (tag 60) reported on an Execution Report for the order. The OrigOrdModTime is provided as an optional field on Order Cancel Request and Order Cancel Replace Requests to identify that the state of the order has not changed since the request was issued. The use of this approach is not recommended.</description>
@@ -7946,6 +7979,7 @@ See Side (54) field for description and values</description>
     <description>Describes the specific type or purpose of an Allocation message (i.e. "Buyside Calculated")
 (see Volume : "Glossary" for value definitions)
 *** SOME VALUES HAVE BEEN REPLACED - See "Replaced Features and Supported Approach" ***</description>
+    <alias cat="Allocation" fixml="Typ"/>
   </field>
   <field aid="627" fixml="NoHops" name="NoHops" type="NumInGroup" not_req_xml="1">
     <description>Number of HopCompID entries in repeating group.</description>
@@ -8036,6 +8070,7 @@ See Price (44) for description.</description>
   </field>
   <field aid="655" fixml="CntraLegRefID" name="ContraLegRefID" type="String" not_req_xml="0">
     <description>Unique indicator for a specific leg for the ContraBroker (375).</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="LegRefID"/>
   </field>
   <field aid="656" fixml="SettlCurrBidFxRt" name="SettlCurrBidFxRate" type="float" not_req_xml="0">
     <description>Foreign exchange rate used to compute the bid "SettlCurrAmt" (119) from Currency (15) to SettlCurrency (120)</description>
@@ -8235,6 +8270,7 @@ See SecurityID (tag 48) for description and valid values.</description>
   </field>
   <field aid="713" fixml="OrigPosReqRefID" name="OrigPosReqRefID" type="String" not_req_xml="0">
     <description>Reference to the PosReqID (710) of a previous maintenance request that is being replaced or canceled.</description>
+    <alias cat="PositionMaintenance" fixml="OrigReqRefID"/>
   </field>
   <field aid="714" fixml="RptRefID" name="PosMaintRptRefID" type="String" not_req_xml="0">
     <description>Reference to a PosMaintRptID (721) from a previous Position Maintenance Report that is being replaced or canceled.</description>
@@ -8253,6 +8289,7 @@ See SecurityID (tag 48) for description and valid values.</description>
   </field>
   <field aid="719" fixml="CntraryInstrctnInd" name="ContraryInstructionIndicator" type="Boolean" not_req_xml="0">
     <description>Used to indicate when a contrary instruction for exercise or abandonment is being submitted</description>
+    <alias cat="SingleGeneralOrderHandling" fixml="InstrctnInd"/>
   </field>
   <field aid="720" fixml="PriorSpreadInd" name="PriorSpreadIndicator" type="Boolean" not_req_xml="0">
     <description>Indicates if requesting a rollover of prior day's spread submissions.</description>
@@ -8313,6 +8350,7 @@ See SettlPriceType (731) field for description</description>
   </field>
   <field aid="737" fixml="AllocSettlCurrAmt" name="AllocSettlCurrAmt" type="Amt" not_req_xml="0">
     <description>Total amount due expressed in settlement currency (includes the effect of the forex transaction) for a specific AllocAccount (79).</description>
+    <alias cat="Allocation" fixml="SettlCcyAmt"/>
   </field>
   <field aid="738" fixml="IntAtMat" name="InterestAtMaturity" type="Amt" not_req_xml="0">
     <description>Amount of interest (i.e. lump-sum) at maturity.</description>
@@ -8500,6 +8538,7 @@ Same values as PartySubIDType (803)</description>
   </field>
   <field aid="793" fixml="AllocID2" name="SecondaryAllocID" type="String" not_req_xml="0">
     <description>Secondary allocation identifier. Unlike the AllocID (70), this can be shared across a number of allocation instruction or allocation report messages, thereby making it possible to pass an identifier for an original allocation message on multiple messages (e.g. from one party to a second to a third, across cancel and replace messages etc.).</description>
+    <alias cat="Allocation" fixml="ID2"/>
   </field>
   <field aid="794" fixml="RptTyp" name="AllocReportType" type="int" not_req_xml="0">
     <description>Describes the specific type or purpose of an Allocation Report message</description>
@@ -8509,6 +8548,7 @@ Same values as PartySubIDType (803)</description>
   </field>
   <field aid="796" fixml="CxlRplcRsn" name="AllocCancReplaceReason" type="int" not_req_xml="0">
     <description>Reason for cancelling or replacing an Allocation Instruction or Allocation Report message</description>
+    <alias cat="Allocation" fixml="CxlRplcRsn"/>
   </field>
   <field aid="797" fixml="CopyMsgInd" name="CopyMsgIndicator" type="Boolean" not_req_xml="0">
     <description>Indicates whether or not this message is a drop copy of another message.</description>
@@ -8548,6 +8588,7 @@ Same values as PartySubIDType (803)</description>
   </field>
   <field aid="808" fixml="IntermedReqTyp" name="AllocIntermedReqType" type="int" not_req_xml="0">
     <description>Response to allocation to be communicated to a counterparty through an intermediary, i.e. clearing house. Used in conjunction with AllocType = "Request to Intermediary" and AllocReportType = "Request to Intermediary"</description>
+    <alias cat="Allocation" fixml="ImReqTyp"/>
   </field>
   <field aid="810" fixml="Px" name="UnderlyingPx" type="Price" not_req_xml="0">
     <description>Underlying price associate with a derivative instrument.</description>
@@ -8577,12 +8618,14 @@ This value is normally between -1.0 and 1.0.</description>
   </field>
   <field aid="818" fixml="TrdRptID2" name="SecondaryTradeReportID" type="String" not_req_xml="0">
     <description>Secondary trade report identifier - can be used to associate an additional identifier with a trade.</description>
+    <alias cat="TradeCapture" fixml="RptID2"/>
   </field>
   <field aid="819" fixml="AvgPxInd" name="AvgPxIndicator" type="int" not_req_xml="0">
     <description>Average Pricing Indicator</description>
   </field>
   <field aid="820" fixml="LinkID" name="TradeLinkID" type="String" not_req_xml="0">
     <description>Used to link a group of trades together. Useful for linking a group of trades together for average price calculations.</description>
+    <alias cat="TradeCapture" fixml="LinkID"/>
   </field>
   <field aid="821" fixml="OrdInptDev" name="OrderInputDevice" type="String" not_req_xml="0">
     <description>Specific device number, terminal number or station where order was entered</description>
@@ -8765,6 +8808,7 @@ Primarily intended for US futures markets. Certain trading practices are permitt
   </field>
   <field aid="881" fixml="TrdRptRefID2" name="SecondaryTradeReportRefID" type="String" not_req_xml="0">
     <description>Used to refer to a previous SecondaryTradeReportRefID when amending the transaction (cancel, replace, release, or reversal).</description>
+    <alias cat="TradeCapture" fixml="RptRefID2"/>
   </field>
   <field aid="882" fixml="DirtPx" name="UnderlyingDirtyPrice" type="Price" not_req_xml="0">
     <description>Price (percent-of-par or per unit) of the underlying security or basket. "Dirty" means it includes accrued interest</description>
@@ -10676,6 +10720,32 @@ ComplexEventEndTime must always be greater than or equal to ComplexEventStartTim
   <field aid="1504" fixml="TxnTm" name="RelSymTransactTime" type="UTCTimestamp" not_req_xml="0">
     <description>See TransactTime(60)</description>
   </field>
+  <cat name="Session" fixml="session" not_req_xml="1"/>
+  <cat name="Indication" fixml="indications" not_req_xml="0"/>
+  <cat name="SingleGeneralOrderHandling" fixml="order" not_req_xml="0"/>
+  <cat name="EventCommunication" fixml="newsevents" not_req_xml="0"/>
+  <cat name="ProgramTrading" fixml="listorders" not_req_xml="0"/>
+  <cat name="OrderMassHandling" fixml="ordermasshandling" not_req_xml="0"/>
+  <cat name="Allocation" fixml="allocation" not_req_xml="0"/>
+  <cat name="QuotationNegotiation" fixml="quotation" not_req_xml="0"/>
+  <cat name="SettlementInstruction" fixml="settlement" not_req_xml="0"/>
+  <cat name="MarketData" fixml="marketdata" not_req_xml="0"/>
+  <cat name="Common" fixml="components" not_req_xml="0"/>
+  <cat name="RegistrationInstruction" fixml="registration" not_req_xml="0"/>
+  <cat name="CrossOrders" fixml="crossorders" not_req_xml="0"/>
+  <cat name="MultilegOrders" fixml="multilegorders" not_req_xml="0"/>
+  <cat name="TradeCapture" fixml="tradecapture" not_req_xml="0"/>
+  <cat name="Confirmation" fixml="confirmation" not_req_xml="0"/>
+  <cat name="PositionMaintenance" fixml="positions" not_req_xml="0"/>
+  <cat name="CollateralManagement" fixml="collateral" not_req_xml="0"/>
+  <cat name="Application" fixml="application" not_req_xml="0"/>
+  <cat name="BusinessReject" fixml="businessreject" not_req_xml="0"/>
+  <cat name="Network" fixml="network" not_req_xml="0"/>
+  <cat name="UserManagement" fixml="usermanagement" not_req_xml="0"/>
+  <cat name="Fields" fixml="fields" not_req_xml="0"/>
+  <cat name="ImplFields" fixml="fields" not_req_xml="0"/>
+  <cat name="MarketStructureReferenceData" fixml="marketstructure" not_req_xml="0"/>
+  <cat name="SecuritiesReferenceData" fixml="securitiesreference" not_req_xml="0"/>
   <enum eid="4">
     <item value="B">Buy</item>
     <item value="S">Sell</item>

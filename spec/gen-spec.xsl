@@ -8,6 +8,7 @@
   <xsl:param name="contents"/>
   <xsl:param name="fields"/>
   <xsl:param name="components"/>
+  <xsl:param name="categories"/>
   <xsl:param name="enums"/>
 
   <xsl:key name="enums" match="Enums" use="Tag"/>
@@ -20,6 +21,7 @@
       <xsl:apply-templates/>
       <xsl:apply-templates select="$components/dataroot" mode="child"/>
       <xsl:apply-templates select="$fields/dataroot" mode="child"/>
+      <xsl:apply-templates select="$categories/dataroot" mode="child"/>
       <xsl:apply-templates select="$enums/dataroot" mode="egrp"/>
     </xsl:element>
   </xsl:template>
@@ -134,6 +136,30 @@
       <xsl:element name="description" namespace="http://www.ga-group.nl/libfixc_0_1">
         <xsl:copy-of select="Desc/text()"/>
       </xsl:element>
+      <xsl:if test="BaseCatagoryXMLName">
+        <xsl:element name="alias" namespace="http://www.ga-group.nl/libfixc_0_1">
+          <xsl:attribute name="cat">
+            <xsl:value-of select="BaseCatagory"/>
+          </xsl:attribute>
+          <xsl:attribute name="fixml">
+            <xsl:value-of select="BaseCatagoryXMLName"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:if>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="Categories">
+    <xsl:element name="cat" namespace="http://www.ga-group.nl/libfixc_0_1">
+      <xsl:attribute name="name">
+        <xsl:value-of select="Category/text()"/>
+      </xsl:attribute>
+      <xsl:attribute name="fixml">
+        <xsl:value-of select="FIXMLFileName/text()"/>
+      </xsl:attribute>
+      <xsl:attribute name="not_req_xml">
+        <xsl:value-of select="NotReqXML/text()"/>
+      </xsl:attribute>
     </xsl:element>
   </xsl:template>
 

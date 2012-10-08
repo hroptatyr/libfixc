@@ -1,0 +1,30 @@
+%{
+typedef struct fixc_vstr_s *fixc_vstr_t;
+
+#include "fix-nsuri.h"
+
+%}
+%7bit
+%readonly-tables
+%enum
+%switch=1
+%struct-type
+%define slot-name vstr
+%define hash-function-name __fix_ver_hash
+%define lookup-function-name __fix_verify
+%null-strings
+
+struct fixc_vstr_s {
+	const char *vstr;
+	fixc_ver_t ver;
+};
+
+%%
+FIX.4.0,	FIXC_VER_40
+FIX.4.1,	FIXC_VER_41
+FIX.4.2,	FIXC_VER_42
+FIX.4.3,	FIXC_VER_43
+FIX.4.4,	FIXC_VER_44
+FIX.5.0,	FIXC_VER_50
+FIX.5.0.SP1,	FIXC_VER_50_SP1
+FIX.5.0.SP2,	FIXC_VER_50_SP2

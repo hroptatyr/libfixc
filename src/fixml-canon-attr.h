@@ -1,4 +1,4 @@
-/*** fixml-canon-comp.h -- fixml components
+/*** fixml-canon-attr.h -- fixml attributes
  *
  * Copyright (C) 2010-2012 Sebastian Freundt
  *
@@ -34,18 +34,22 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
-#if !defined INCLUDED_fixml_canon_comp_h_
-#define INCLUDED_fixml_canon_comp_h_
+#if !defined INCLUDED_fixml_canon_attr_h_
+#define INCLUDED_fixml_canon_attr_h_
+
+#include "fixml-canon-ctxt.h"
 
 typedef enum {
 	/* these ones are our own */
-	FIXC_COMP_UNK,
-	/* fixml's root element */
-	FIXC_COMP_FIXML,
-} fixc_comp_t;
+	FIXC_ATTR_UNK,
+	/* canonical xml name space declarator */
+	FIXC_ATTR_XMLNS = 65535,
+	/* fixml's version declarator */
+	FIXC_ATTR_V = 65534,
+} fixc_attr_t;
 
 /**
- * Return fixml string for component CID. */
-extern const char *fixc_comp_fixmlify(fixc_comp_t);
+ * Return fixml string for attribute AID. */
+extern const char *fixc_attr_fixmlify(fixc_ctxt_t, fixc_attr_t);
 
-#endif	/* INCLUDED_fixml_canon_comp_h_ */
+#endif	/* INCLUDED_fixml_canon_attr_h_ */

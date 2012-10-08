@@ -44,3 +44,21 @@ static __attribute__((unused)) const char *__ver_fixify(fixc_ver_t vid)
 	}
 }
 
+static __attribute__((unused)) const char *__ver_fixml_v_ify(fixc_ver_t vid)
+{
+	switch (vid) {
+	default:
+	case FIXC_VER_UNK:
+		return "";
+	case FIXC_VER_44:
+		return "4.4";
+	case FIXC_VER_50:
+		return "5.0";
+	case FIXC_VER_50_SP1:
+		return "5.0 SP1";
+	case FIXC_VER_50_SP2:
+		return "5.0 SP2";
+	}
+}
+
+/* fixml-nsuri-rev.c ends here */
