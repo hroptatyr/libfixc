@@ -34,6 +34,8 @@ struct_tests += struct_layout_01
 ## some fixml example files
 EXTRA_DIST += fixml_ex_01.xml
 EXTRA_DIST += fixml_ex_02.xml
+EXTRA_DIST += fix_ex_01.fix
+EXTRA_DIST += fix_ex_02.fix
 
 EXTRA_DIST += fixml_to_fixc_prep.c
 EXTRA_DIST += fixml-attr.h
