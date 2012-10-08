@@ -38,7 +38,6 @@ libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
 libfixc_la_LDFLAGS += $(expat_LIBS)
-BUILT_SOURCES += fixml-attr-rev.c
 BUILT_SOURCES += fixml-comp.c
 BUILT_SOURCES += fixml-comp-rev.c
 BUILT_SOURCES += fixml-comp-sub.c
@@ -61,6 +60,7 @@ BUILT_SOURCES += fix50sp2-comp.gperf fix50sp2-comp.c
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
 BUILT_SOURCES += fixml-comp-by-ctx.c
+BUILT_SOURCES += fixml-attr-rev.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-nsuri.h
@@ -83,10 +83,6 @@ fix2fixml_LDADD = libfixc.la
 ## our rule for gperf
 %.c: %.gperf
 	$(AM_V_GEN) $(GPERF) -D $< --output-file $@
-
-fixml-attr-rev.c: $(top_builddir)/spec/fixml_attr.50SP2 switch-group-attr.awk
-	sort -k2 $< | \
-	awk -f $(word 2,$+) > $@
 
 fixml-comp-rev.c: $(top_builddir)/spec/fixml_comp.50SP2 \
 		$(top_srcdir)/spec/uncamel.sed \
@@ -123,6 +119,10 @@ fixml-comp-by-ctx.gperfs: fixml-comp-by-ctx.xsl fix50sp2.xml
 dist-hook: fixml-attr-by-ctx.gperfs fixml-comp-by-ctx.gperfs
 	for i in `cat $+`; do cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; done
 	cp -a $+ "$(distdir)/"
+
+fixml-attr-rev.c: fixml-attr-rev.xsl fix50sp2.xml
+	xsltproc -o $@ $+
+
 
 fix50sp2.xml: $(top_srcdir)/spec/FIX.5.0SP2.xml
 	$(LN_S) $< $@
