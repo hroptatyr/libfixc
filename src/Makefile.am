@@ -112,6 +112,8 @@ fixml-comp-rev.c: fixml-comp-rev.xsl fix50sp2.xml
 fixml-msg-rev.c: fixml-msg-rev.xsl fix50sp2.xml
 	xsltproc -o $@ $+
 
+fixml-comp-fld.c: fixml-comp-fld.xsl fix50sp2.xml
+	xsltproc -o $@ $+
 
 fixml-comp-sub.c: fixml-comp-sub.xsl fix50sp2.xml
 	xsltproc -o $@ $+
