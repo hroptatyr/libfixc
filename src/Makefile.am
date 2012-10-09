@@ -44,16 +44,9 @@ BUILT_SOURCES += fixml-fld-ctx.c
 BUILT_SOURCES += fixml-nsuri.c
 BUILT_SOURCES += fix-ver.c
 BUILT_SOURCES += fixml-nsuri-rev.c
-BUILT_SOURCES += fix40-msg.h fix40-comp.h
-BUILT_SOURCES += fix41-msg.h fix41-comp.h
-BUILT_SOURCES += fix42-msg.h fix42-comp.h
-BUILT_SOURCES += fix43-msg.h fix43-comp.h
-BUILT_SOURCES += fix44-msg.h fix44-comp.h
-BUILT_SOURCES += fix50-msg.h fix50-comp.h
-BUILT_SOURCES += fix50sp1-msg.h fix50sp1-comp.h
-BUILT_SOURCES += fix50sp2-msg.h fix50sp2-comp.h
-BUILT_SOURCES += fix50sp2-msg.gperf fix50sp2-msg.c
-BUILT_SOURCES += fix50sp2-attr.h
+BUILT_SOURCES += $(fix_repo)-msg.h $(fix_repo)-comp.h
+BUILT_SOURCES += $(fix_repo)-msg.gperf $(fix_repo)-msg.c
+BUILT_SOURCES += $(fix_repo)-attr.h
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
 BUILT_SOURCES += fixml-comp-by-ctx.c
@@ -89,38 +82,38 @@ fix2fixml_LDADD = libfixc.la
 include $(DEPDIR)/fixml-attr-by-ctx.Po
 include $(DEPDIR)/fixml-comp-by-ctx.Po
 
-fixml-attr-by-ctx.c: fixml-attr-by-ctx.xsl fix50sp2.xml fixml-attr-by-ctx.gperfs
+fixml-attr-by-ctx.c: fixml-attr-by-ctx.xsl $(fix_repo).xml fixml-attr-by-ctx.gperfs
 	xsltproc -o $@ $< $(word 2,$+)
 
-fixml-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl fix50sp2.xml
+fixml-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl $(fix_repo).xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+ > $@
 
-fixml-comp-by-ctx.c: fixml-comp-by-ctx.xsl fix50sp2.xml fixml-comp-by-ctx.gperfs
+fixml-comp-by-ctx.c: fixml-comp-by-ctx.xsl $(fix_repo).xml fixml-comp-by-ctx.gperfs
 	xsltproc -o $@ $< $(word 2,$+)
 
-fixml-comp-by-ctx.gperfs: fixml-comp-by-ctx.xsl fix50sp2.xml
+fixml-comp-by-ctx.gperfs: fixml-comp-by-ctx.xsl $(fix_repo).xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-comp-by-ctx.Po $+ > $@
 
 dist-hook: fixml-attr-by-ctx.gperfs fixml-comp-by-ctx.gperfs
 	for i in `cat $+`; do cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; done
 	cp -a $+ "$(distdir)/"
 
-fixml-attr-rev.c: fixml-attr-rev.xsl fix50sp2.xml
+fixml-attr-rev.c: fixml-attr-rev.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
-fixml-comp-rev.c: fixml-comp-rev.xsl fix50sp2.xml
+fixml-comp-rev.c: fixml-comp-rev.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
-fixml-msg-rev.c: fixml-msg-rev.xsl fix50sp2.xml
+fixml-msg-rev.c: fixml-msg-rev.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
-fixml-comp-fld.c: fixml-comp-fld.xsl fix50sp2.xml
+fixml-comp-fld.c: fixml-comp-fld.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
-fixml-comp-sub.c: fixml-comp-sub.xsl fix50sp2.xml
+fixml-comp-sub.c: fixml-comp-sub.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
-fixml-fld-ctx.c: fixml-fld-ctx.xsl fix50sp2.xml
+fixml-fld-ctx.c: fixml-fld-ctx.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 
