@@ -74,6 +74,9 @@ typedef enum {
 
 #include "fixml-canon-msgt.h"
 
+#define __fixml_mtypify	</xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>_mtypify
+
 %}
 %7bit
 %readonly-tables
@@ -90,7 +93,7 @@ typedef enum {
 %null-strings
 %includes
 
-struct </xsl:text><xsl:value-of select="$versn"/><xsl:text>_msgt_s {
+struct fixml_msgt_s {
 	const char *msgt;
 	fixc_msgt_t mty;
 };
