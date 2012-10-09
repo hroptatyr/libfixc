@@ -67,6 +67,7 @@ rd_tests += fixml_rd_01
 fixml_rd_01_LDADD = $(top_builddir)/src/libfixc.la
 
 TESTS_ENVIRONMENT = top_builddir=$(top_builddir)
+EXTRA_DIST += $(bin_tests)
 bin_tests += fixml2fix_01.sh
 bin_tests += fixml2fix_02.sh
 bin_tests += fix2fixml_01.sh
