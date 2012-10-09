@@ -101,9 +101,13 @@ $(fix_repo)-comp-by-ctx.c: fixml-comp-by-ctx.xsl \
 $(fix_repo)-comp-by-ctx.gperfs: fixml-comp-by-ctx.xsl $(fix_repo).xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-comp-by-ctx.Po $+ > $@
 
-dist-hook: $(fix_repo)-attr-by-ctx.gperfs $(fix_repo)-comp-by-ctx.gperfs
-	for i in `cat $+`; do cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; done
-	cp -a $+ "$(distdir)/"
+dist-hook: $(fix_repo)-attr-by-ctx.gperfs $(fix_repo)-comp-by-ctx.gperfs \
+		$(fix_repo)-attr-by-ctx.c $(fix_repo)-comp-by-ctx.c
+	for i in `cat $(wordlist 1,2,$+)`; do \
+		test -f "$(distdir)/$${i}" || \
+			cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; \
+	done
+	cp -a $(wordlist 1,2,$+) "$(distdir)/"
 
 fixml-attr-rev.c: $(fix_repo)-attr-rev.c
 	$(LN_S) -f $< $@
