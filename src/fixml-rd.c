@@ -49,9 +49,9 @@
 #include "fix.h"
 #include "nifty.h"
 
-#include "fix50sp2-comp.h"
-#include "fix50sp2-msg.h"
-#include "fix50sp2-msg.c"
+#include "fixml-comp.h"
+#include "fixml-msg.h"
+#include "fixml-msg.c"
 
 #include "fixml-nsuri.c"
 
@@ -169,7 +169,7 @@ __nsid_from_href(const char *href, size_t hlen)
 static fixc_msgt_t
 __mty_from_elem(const char *elem, size_t elen)
 {
-	const struct fix50sp2_msgt_s *p = fix50sp2_mtypify(elem, elen);
+	const struct fixml_msgt_s *p = __fixml_mtypify(elem, elen);
 	return p != NULL ? (fixc_msgt_t)p->mty : FIXC_MSGT_UNK;
 }
 

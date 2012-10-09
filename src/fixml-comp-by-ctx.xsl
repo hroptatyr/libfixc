@@ -35,7 +35,8 @@
     <xsl:apply-templates select="$subc_ns" mode="gperf"/>
 
     <ec:document href="{$MT}" method="text">
-      <xsl:text>fixml-comp-by-ctx.c: </xsl:text>
+      <xsl:value-of select="$versn"/>
+      <xsl:text>-comp-by-ctx.c: </xsl:text>
       <xsl:for-each select="$subc_ns">
         <xsl:text> </xsl:text>
         <xsl:apply-templates select="." mode="deps"/>

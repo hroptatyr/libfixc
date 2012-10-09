@@ -31,7 +31,8 @@
     <xsl:apply-templates select="fixc:message|fixc:component" mode="gperf"/>
 
     <ec:document href="{$MT}" method="text">
-      <xsl:text>fixml-attr-by-ctx.c: </xsl:text>
+      <xsl:value-of select="$versn"/>
+      <xsl:text>-attr-by-ctx.c: </xsl:text>
       <xsl:for-each select="fixc:message|fixc:component">
         <xsl:text> </xsl:text>
         <xsl:apply-templates select="." mode="deps"/>
