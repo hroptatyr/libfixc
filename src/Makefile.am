@@ -120,6 +120,27 @@ fixml-fld-ctx.c: fixml-fld-ctx.xsl $(fix_repo).xml
 fix50sp2.xml: $(top_srcdir)/spec/FIX.5.0SP2.xml
 	$(LN_S) $< $@
 
+fix50sp2ep98.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP98.xml
+	$(LN_S) $< $@
+
+fix50sp2ep99.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP99.xml
+	$(LN_S) $< $@
+
+fix50sp2ep100.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP100.xml
+	$(LN_S) $< $@
+
+fix50sp2ep101.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP101.xml
+	$(LN_S) $< $@
+
+fix50sp2ep102.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP102.xml
+	$(LN_S) $< $@
+
+fix50sp2ep103.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP103.xml
+	$(LN_S) $< $@
+
+fix50sp2ep104.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP104.xml
+	$(LN_S) $< $@
+
 fix50sp1.xml: $(top_srcdir)/spec/FIX.5.0SP1.xml
 	$(LN_S) $< $@
 
