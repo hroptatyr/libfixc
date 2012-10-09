@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2" extver="FIX.5.0SP2">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2" extver="FIX.5.0SP2.EP99">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -293,6 +293,7 @@ Indication messages can be transmitted in various transaction types; NEW, CANCEL
     <field aid="811"/>
     <component name="StandardTrailer"/>
     <component name="RateSource"/>
+    <component name="MatchingInstructions"/>
   </message>
   <message fix="9" fixml="OrdCxlRej" name="OrderCancelReject" cat="SingleGeneralOrderHandling" sec="Trade" not_req_xml="0">
     <description>The order cancel reject message is issued by the broker upon receipt of a cancel request or cancel/replace request message which cannot be honored.</description>
@@ -491,6 +492,7 @@ The New Order message type may also be used by institutions or retail intermedia
     <field aid="1080"/>
     <field aid="1081"/>
     <component name="StandardTrailer"/>
+    <component name="MatchingInstructions"/>
   </message>
   <message fix="E" fixml="NewOrdList" name="NewOrderList" cat="ProgramTrading" sec="Trade" not_req_xml="0">
     <description>The NewOrderList Message can be used in one of two ways depending on which market conventions are being followed.</description>
@@ -638,6 +640,7 @@ Do not use this message to cancel the remaining quantity of an outstanding order
     <field aid="1032"/>
     <component name="TrdRegTimestamps"/>
     <component name="StandardTrailer"/>
+    <component name="MatchingInstructions"/>
   </message>
   <message fix="H" fixml="OrdStatReq" name="OrderStatusRequest" cat="SingleGeneralOrderHandling" sec="Trade" not_req_xml="0">
     <description>The order status request message is used by the institution to generate an order status message back from the broker.</description>
@@ -1748,6 +1751,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="494"/>
     <field aid="563"/>
     <component name="StandardTrailer"/>
+    <component name="MatchingInstructions"/>
   </message>
   <message fix="AC" fixml="MlegOrdCxlRplc" name="MultilegOrderCancelReplace" cat="MultilegOrders" sec="Trade" not_req_xml="0">
     <description>Used to modify a multileg order previously submitted using the New Order - Multileg message. See Order Cancel Replace Request for details concerning message usage.</description>
@@ -1839,6 +1843,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="494"/>
     <field aid="563"/>
     <component name="StandardTrailer"/>
+    <component name="MatchingInstructions"/>
   </message>
   <message fix="AD" fixml="TrdCaptRptReq" name="TradeCaptureReportRequest" cat="TradeCapture" sec="Post Trade" not_req_xml="0">
     <description>The Trade Capture Report Request can be used to:
@@ -5748,6 +5753,8 @@ The Quote Cancel message supports cancellation of:
     <field aid="1365"/>
     <component name="NestedParties4"/>
     <field aid="1443"/>
+    <field aid="1622"/>
+    <field aid="1623"/>
   </component>
   <component fixml="TrdRepIndicatorsGrp" name="TrdRepIndicatorsGrp" cat="TradeCapture" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -5909,6 +5916,14 @@ The Quote Cancel message supports cancellation of:
     <field aid="58"/>
     <field aid="354"/>
     <field aid="355"/>
+  </component>
+  <component fixml="MtchgInst" name="MatchingInstructions" cat="Common" type="BlockRepeating" not_req_xml="0">
+    <description/>
+    <field aid="1624"/>
+    <field aid="1625"/>
+    <field aid="1301"/>
+    <field aid="1626"/>
+    <field aid="1627"/>
   </component>
   <field aid="1" fixml="Acct" name="Account" type="String" not_req_xml="0">
     <description>Account mnemonic as agreed between buy and sell sides, e.g. broker and institution or investor/intermediary and fund manager.</description>
@@ -10720,6 +10735,24 @@ ComplexEventEndTime must always be greater than or equal to ComplexEventStartTim
   <field aid="1504" fixml="TxnTm" name="RelSymTransactTime" type="UTCTimestamp" not_req_xml="0">
     <description>See TransactTime(60)</description>
   </field>
+  <field aid="1622" fixml="Typ" name="FillYieldType" type="String" not_req_xml="0">
+    <description>Yield Type, using same values as YieldType (235)</description>
+  </field>
+  <field aid="1623" fixml="Yld" name="FillYield" type="Percentage" not_req_xml="0">
+    <description>Yield Percentage, using same values as Yield (236)</description>
+  </field>
+  <field aid="1624" fixml="" name="NoMatchInst" type="NumInGroup" not_req_xml="1">
+    <description>Number of Instructions in the &lt;MatchingInstructions&gt; repeating group.</description>
+  </field>
+  <field aid="1625" fixml="Inst" name="MatchInst" type="int" not_req_xml="0">
+    <description>Matching Instruction for the order.</description>
+  </field>
+  <field aid="1626" fixml="ID" name="MatchAttribTagID" type="TagNum" not_req_xml="0">
+    <description>Existing FIX field to be applied as a Matching Criteria to the Instruction, bilaterally agreed between parties.</description>
+  </field>
+  <field aid="1627" fixml="Valu" name="MatchAttribValue" type="String" not_req_xml="0">
+    <description>Enumeration value of the MatchAttribField to be applied as a Matching Criteria to the Instruction.</description>
+  </field>
   <cat name="Session" fixml="session" not_req_xml="1"/>
   <cat name="Indication" fixml="indications" not_req_xml="0"/>
   <cat name="SingleGeneralOrderHandling" fixml="order" not_req_xml="0"/>
@@ -14234,6 +14267,10 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="A">Agent</item>
     <item value="P">Principal</item>
     <item value="R">Riskless Principal</item>
+  </enum>
+  <enum eid="1625">
+    <item value="1">Match</item>
+    <item value="2">Do Not Match</item>
   </enum>
   <enum eid="35">
     <item value="0">Heartbeat</item>

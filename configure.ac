@@ -109,6 +109,12 @@ dnl must come after all AC_LINK_IFELSE clauses
 ## check for the ldflags
 SXE_CHECK_LDFLAGS
 
+AC_ARG_WITH([fix-repo], AS_HELP_STRING([--with-fix-repo], [dnl
+	Name of repository file to use.  Default: fix50sp2.xml
+]), [fix_repo="${withval}"], [fix_repo="fix50sp2"])
+AC_SUBST([fix_repo])
+
+
 dnl -------------------------------------------------------------------------
 dnl final output
 dnl -------------------------------------------------------------------------
