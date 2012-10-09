@@ -44,6 +44,7 @@ BUILT_SOURCES += FIXT.1.1.xml
 		--param fields "document('`readlink -f "$(word 5,$+)"`')" \
 		--param enums "document('`readlink -f "$(word 6,$+)"`')" \
 		--param categories "document('`readlink -f "$(word 7,$+)"`')" \
+		--stringparam version $(basename $@) \
 		$< $(word 2,$+)
 
 ## may only work with GNU make
@@ -60,6 +61,7 @@ FIX.5.0SP2.%.xml: gen-spec.xsl \
 		--param fields "document('`readlink -f "$(word 5,$+)"`')" \
 		--param enums "document('`readlink -f "$(word 6,$+)"`')" \
 		--param categories "document('`readlink -f "$(word 7,$+)"`')" \
+		--stringparam version $(basename $@) \
 		$< $(word 2,$+)
 
 ## Makefile.am ends here
