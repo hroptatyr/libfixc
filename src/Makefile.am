@@ -84,7 +84,7 @@ include $(DEPDIR)/fixml-attr-by-ctx.Po
 include $(DEPDIR)/fixml-comp-by-ctx.Po
 
 fixml-attr-by-ctx.c: $(fix_repo)-attr-by-ctx.c
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 $(fix_repo)-attr-by-ctx.c: fixml-attr-by-ctx.xsl \
 		$(fix_repo).xml $(fix_repo)-attr-by-ctx.gperfs
 	xsltproc -o $@ $< $(word 2,$+)
@@ -93,7 +93,7 @@ $(fix_repo)-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl $(fix_repo).xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+ > $@
 
 fixml-comp-by-ctx.c: $(fix_repo)-comp-by-ctx.c
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 $(fix_repo)-comp-by-ctx.c: fixml-comp-by-ctx.xsl \
 		$(fix_repo).xml $(fix_repo)-comp-by-ctx.gperfs
 	xsltproc -o $@ $< $(word 2,$+)
@@ -106,49 +106,49 @@ dist-hook: $(fix_repo)-attr-by-ctx.gperfs $(fix_repo)-comp-by-ctx.gperfs
 	cp -a $+ "$(distdir)/"
 
 fixml-attr-rev.c: $(fix_repo)-attr-rev.c
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 $(fix_repo)-attr-rev.c: fixml-attr-rev.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 fixml-comp-rev.c: $(fix_repo)-comp-rev.c
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 $(fix_repo)-comp-rev.c: fixml-comp-rev.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 fixml-msg-rev.c: $(fix_repo)-msg-rev.c
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 $(fix_repo)-msg-rev.c: fixml-msg-rev.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 fixml-comp-fld.c: $(fix_repo)-comp-fld.c
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 $(fix_repo)-comp-fld.c: fixml-comp-fld.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 fixml-comp-sub.c: $(fix_repo)-comp-sub.c
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 $(fix_repo)-comp-sub.c: fixml-comp-sub.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 fixml-fld-ctx.c: $(fix_repo)-fld-ctx.c
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 $(fix_repo)-fld-ctx.c: fixml-fld-ctx.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 fixml-attr.h: $(fix_repo)-attr.h
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 $(fix_repo)-attr.h: fixml-attr.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 fixml-msg.h: $(fix_repo)-msg.h
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 fixml-msg.c: $(fix_repo)-msg.c
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 $(fix_repo)-msg.h: fixml-msg.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 fixml-comp.h: $(fix_repo)-comp.h
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 $(fix_repo)-comp.h: fixml-comp.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
@@ -161,49 +161,49 @@ $(fix_repo)-msg.gperf: fixml-msg.xsl $(fix_repo).xml
 
 ## short cuts for stuff that's in the spec/ dir and named idiotically
 fix50sp2.xml: $(top_srcdir)/spec/FIX.5.0SP2.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix50sp2ep98.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP98.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix50sp2ep99.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP99.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix50sp2ep100.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP100.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix50sp2ep101.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP101.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix50sp2ep102.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP102.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix50sp2ep103.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP103.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix50sp2ep104.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP104.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix50sp1.xml: $(top_srcdir)/spec/FIX.5.0SP1.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix50.xml: $(top_srcdir)/spec/FIX.5.0.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix44.xml: $(top_srcdir)/spec/FIX.4.4.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix43.xml: $(top_srcdir)/spec/FIX.4.3.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix42.xml: $(top_srcdir)/spec/FIX.4.2.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix41.xml: $(top_srcdir)/spec/FIX.4.1.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 fix40.xml: $(top_srcdir)/spec/FIX.4.0.xml
-	$(LN_S) $< $@
+	$(LN_S) -f $< $@
 
 
 # 
