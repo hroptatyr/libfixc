@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2" extver="FIX.5.0SP2">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
