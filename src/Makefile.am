@@ -27,9 +27,9 @@ libfixc_la_SOURCES += fixml-nsuri.gperf fix-ver.gperf fix-nsuri.h
 libfixc_la_SOURCES += libfixc_0_1_funs.xsl
 libfixc_la_SOURCES += fixml-attr-by-ctx.xsl
 libfixc_la_SOURCES += fixml-canon-attr.gperf fixml-canon-attr.h
-libfixc_la_SOURCES += $(fix_repo)-attr-by-ctx.c fixml-attr-by-ctx.h
+libfixc_la_SOURCES += fixml-attr-by-ctx.c fixml-attr-by-ctx.h
 libfixc_la_SOURCES += fixml-comp-by-ctx.xsl
-libfixc_la_SOURCES += $(fix_repo)-comp-by-ctx.c fixml-comp-by-ctx.h
+libfixc_la_SOURCES += fixml-comp-by-ctx.c fixml-comp-by-ctx.h
 libfixc_la_SOURCES += fixml-attr.xsl fixml-attr-rev.xsl
 libfixc_la_SOURCES += fixml-comp.xsl fixml-comp-rev.xsl
 libfixc_la_SOURCES += fixml-msg.xsl fixml-msg-rev.xsl
@@ -83,6 +83,8 @@ fix2fixml_LDADD = libfixc.la
 include $(DEPDIR)/fixml-attr-by-ctx.Po
 include $(DEPDIR)/fixml-comp-by-ctx.Po
 
+fixml-attr-by-ctx.c: $(fix_repo)-attr-by-ctx.c
+	$(LN_S) $< $@
 $(fix_repo)-attr-by-ctx.c: fixml-attr-by-ctx.xsl \
 		$(fix_repo).xml $(fix_repo)-attr-by-ctx.gperfs
 	xsltproc -o $@ $< $(word 2,$+)
@@ -90,6 +92,8 @@ $(fix_repo)-attr-by-ctx.c: fixml-attr-by-ctx.xsl \
 $(fix_repo)-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl $(fix_repo).xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+ > $@
 
+fixml-comp-by-ctx.c: $(fix_repo)-comp-by-ctx.c
+	$(LN_S) $< $@
 $(fix_repo)-comp-by-ctx.c: fixml-comp-by-ctx.xsl \
 		$(fix_repo).xml $(fix_repo)-comp-by-ctx.gperfs
 	xsltproc -o $@ $< $(word 2,$+)
