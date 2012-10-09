@@ -10,13 +10,24 @@
   <xsl:param name="components"/>
   <xsl:param name="categories"/>
   <xsl:param name="enums"/>
+  <xsl:param name="version"/>
 
   <xsl:key name="enums" match="Enums" use="Tag"/>
 
   <xsl:template match="dataroot">
     <xsl:element name="spec" namespace="http://www.ga-group.nl/libfixc_0_1">
       <xsl:attribute name="version">
-        <xsl:value-of select="@version"/>
+        <xsl:choose>
+          <xsl:when test="@version">
+            <xsl:value-of select="@version"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$version"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:attribute>
+      <xsl:attribute name="extver">
+        <xsl:value-of select="$version"/>
       </xsl:attribute>
       <xsl:apply-templates/>
       <xsl:apply-templates select="$components/dataroot" mode="child"/>
