@@ -36,6 +36,8 @@
     <xsl:text>_msg_h_&#0010;</xsl:text>
 
     <xsl:text>
+#include "fixml-canon-msgt.h"
+
 #undef _
 #define _(x, y)    ((x) * 256U + (y) * 1U)
 
@@ -73,6 +75,7 @@ typedef enum {
 %{
 
 #include "fixml-canon-msgt.h"
+#include "fixml-msg.h"
 
 #define __fixml_mtypify	</xsl:text>
       <xsl:value-of select="$versn"/><xsl:text>_mtypify
@@ -99,9 +102,7 @@ struct fixml_msgt_s {
 };
 
 %%
-Batch,(fixc_msgt_t)</xsl:text>
-      <xsl:value-of select="$VERSN"/>
-      <xsl:text>_MSGT_BATCH
+Batch,(fixc_msgt_t)FIXC_MSGT_BATCH
 </xsl:text>
 
     <!-- loop over them messages -->

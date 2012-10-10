@@ -35,8 +35,7 @@
     <xsl:apply-templates select="$subc_ns" mode="gperf"/>
 
     <ec:document href="{$MT}" method="text">
-      <xsl:value-of select="$versn"/>
-      <xsl:text>-comp-by-ctx.c: </xsl:text>
+      <xsl:text>fixml-comp-by-ctx.c: </xsl:text>
       <xsl:for-each select="$subc_ns">
         <xsl:text> </xsl:text>
         <xsl:apply-templates select="." mode="deps"/>
@@ -74,12 +73,8 @@
     <!-- build up the main .c file that switches over the context -->
     <xsl:text>/* do not edit, gen'd by fixml-comp-by-ctx.xsl */
 
-#include "</xsl:text>
-    <xsl:value-of select="$versn"/>
-    <xsl:text>-msg.h"
-#include "</xsl:text>
-    <xsl:value-of select="$versn"/>
-    <xsl:text>-comp.h"
+#include "fixml-msg.h"
+#include "fixml-comp.h"
 #include "fixml-comp-by-ctx.h"
 
 #if defined __INTEL_COMPILER
@@ -103,26 +98,13 @@ fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
 	switch (ctx.ui16) {
 </xsl:text>
     <!-- now come the cases -->
-    <xsl:for-each select="$subc_ns">
-      <xsl:text>&#0009;case </xsl:text>
-      <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
-      <xsl:text>_</xsl:text>
-      <xsl:value-of select="@name"/>
-      <xsl:text>: {
-		const struct subc_</xsl:text>
-      <xsl:value-of select="@name"/><xsl:text>_s *p = __ciddify_</xsl:text>
-      <xsl:value-of select="@name"/><xsl:text>(elem, elen);
-		return p != NULL ? p->cid : FIXC_COMP_UNK;
-	}
-</xsl:text>
-    </xsl:for-each>
+    <xsl:apply-templates select="$subc_ns" mode="case"/>
+
     <!-- all them contexts without a sub-component -->
     <xsl:for-each select="fixc:message[count(fixc:component) = 0]|
                           fixc:component[count(fixc:component) = 0]">
       <xsl:text>&#0009;case </xsl:text>
-      <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
-      <xsl:text>_</xsl:text>
-      <xsl:value-of select="@name"/>
+      <xsl:apply-templates select="." mode="enum"/>
       <xsl:text>:&#0010;</xsl:text>
     </xsl:for-each>
     <xsl:text>&#0009;default:
@@ -141,11 +123,22 @@ fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
 </xsl:text>
   </xsl:template>
 
+  <xsl:template match="fixc:component|fixc:message" mode="case">
+    <xsl:text>&#0009;case </xsl:text>
+    <xsl:apply-templates select="." mode="enum"/>
+    <xsl:text>: {
+		const </xsl:text>
+    <xsl:apply-templates select="." mode="struct"/>
+    <xsl:text>_s *p = </xsl:text>
+    <xsl:apply-templates select="." mode="hashfn"/><xsl:text>(elem, elen);
+		return p != NULL ? p->cid : FIXC_COMP_UNK;
+	}
+</xsl:text>
+  </xsl:template>
+
   <xsl:template match="fixc:component|fixc:message" mode="gperf">
     <xsl:variable name="outfn">
-      <xsl:value-of select="$versn"/>
-      <xsl:text>_subc_</xsl:text>
-      <xsl:value-of select="@name"/>
+      <xsl:apply-templates select="." mode="deps"/>
       <xsl:text>.gperf</xsl:text>
     </xsl:variable>
 
@@ -161,15 +154,16 @@ fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
 %struct-type
 %define slot-name comp
 %define hash-function-name __cid_hash_</xsl:text>
-      <xsl:value-of select="@name"/>
+      <xsl:apply-templates select="." mode="enum"/>
       <xsl:text>
-%define lookup-function-name __ciddify_</xsl:text>
-      <xsl:value-of select="@name"/>
+%define lookup-function-name </xsl:text>
+      <xsl:apply-templates select="." mode="hashfn"/>
       <xsl:text>
 %null-strings
 %includes
 
-struct subc_</xsl:text><xsl:value-of select="@name"/><xsl:text>_s {
+</xsl:text>
+      <xsl:apply-templates select="." mode="struct"/><xsl:text>_s {
 	const char *comp;
 	fixc_comp_t cid;
 };
@@ -203,12 +197,34 @@ struct subc_</xsl:text><xsl:value-of select="@name"/><xsl:text>_s {
     <xsl:value-of select="@name"/>
   </xsl:template>
 
+  <xsl:template match="fixc:component|fixc:message" mode="enum">
+    <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
+    <xsl:text>_</xsl:text>
+    <xsl:value-of select="@name"/>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="venum">
+    <xsl:value-of select="fixc:ucase(fixc:vprefix(.))"/>
+    <xsl:text>_</xsl:text>
+    <xsl:value-of select="@name"/>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="hashfn">
+    <xsl:text>__ciddify_</xsl:text>
+    <xsl:apply-templates select="." mode="venum"/>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="struct">
+    <xsl:text>struct subc_</xsl:text>
+    <xsl:apply-templates select="." mode="venum"/>
+    <xsl:text>_s</xsl:text>
+  </xsl:template>
+
   <xsl:template match="fixc:component" mode="map">
     <xsl:if test="string-length(@fixml) &gt; 0">
       <xsl:value-of select="@fixml"/>
       <xsl:text>,(fixc_comp_t)</xsl:text>
-      <xsl:value-of select="$VERSN"/>
-      <xsl:text>_COMP_</xsl:text>
+      <xsl:text>FIXML_COMP_</xsl:text>
       <xsl:value-of select="@name"/>
       <xsl:text>&#0010;</xsl:text>
     </xsl:if>

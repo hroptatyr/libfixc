@@ -16,7 +16,7 @@
     <xsl:text>/* do not edit, gen'd by fixml-attr-rev.xsl */
 
 #include "fixml-canon-attr.h"
-#include "</xsl:text><xsl:value-of select="$versn"/><xsl:text>-attr.h"
+#include "fixml-attr.h"
 
 const char *fixc_attr_fixmlify(fixc_ctxt_t ctx, fixc_attr_t aid)
 {
