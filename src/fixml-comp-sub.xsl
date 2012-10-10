@@ -15,8 +15,8 @@
     <xsl:text>/* do not edit, gen'd by fixml-comp-sub.xsl */
 
 #include "fixml-comp-sub.h"
-#include "</xsl:text><xsl:value-of select="$versn"/><xsl:text>-msg.h"
-#include "</xsl:text><xsl:value-of select="$versn"/><xsl:text>-comp.h"
+#include "fixml-msg.h"
+#include "fixml-comp.h"
 
 fixc_comp_sub_t fixc_get_comp_sub(fixc_ctxt_t ctx)
 {
