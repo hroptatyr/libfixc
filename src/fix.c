@@ -225,6 +225,8 @@ free_fixc(fixc_msg_t msg)
 	return;
 }
 
+
+/* rendering */
 static uint8_t
 fixc_chksum(const char *str, size_t len)
 {
@@ -341,6 +343,8 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 	return totz;
 }
 
+
+/* adding stuff */
 static void
 check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 {
