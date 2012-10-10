@@ -237,7 +237,6 @@ ptx_init(__ctx_t ctx)
 {
 	/* initialise the ctxcb pool */
 	init_ctxcb(ctx);
-	push_state(ctx, FIXC_COMP_FIXML, NULL);
 	return;
 }
 
@@ -399,6 +398,7 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 	switch ((cid = fixc_get_cid(ctxid, elem, elen))) {
 	case FIXC_COMP_FIXML:
 		ptx_init(ctx);
+		push_state(ctx, FIXC_COMP_FIXML, NULL);
 		break;
 
 	case FIXC_COMP_UNK: {
@@ -447,18 +447,15 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 {
 	const size_t elen = strlen(elem);
 	unsigned int ctxid = 0;
-	void *UNUSED(obj);
 
-	/* store the old object for stuff that needs it */
-	obj = pop_state(ctx);
-
-	/* stuff that needed to be done, fix up state etc. */
-	if (LIKELY(ctx->state != NULL)) {
-		ctxid = ctx->state->otag;
+	/* get the previous context */
+	if (LIKELY(ctx->state->old_state != NULL)) {
+		ctxid = ctx->state->old_state->otag;
 	}
 	switch (fixc_get_cid(ctxid, elem, elen)) {
 		/* top-levels */
 	case FIXC_COMP_FIXML:
+		(void)pop_state(ctx);
 		break;
 
 	case FIXC_COMP_UNK: {
@@ -466,7 +463,7 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
 
 		if (!mty) {
-			;
+			break;
 		} else if (ctxid == FIXC_MSGT_BATCH) {
 			;
 		} else if (UNLIKELY(mty != ctx->msg->f35.mtyp)) {
@@ -474,9 +471,9 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 				   mty, ctx->msg->f35.mtyp);
 			abort();
 		}
-		break;
 	}
 	default:
+		(void)pop_state(ctx);
 		break;
 	}
 	return;
