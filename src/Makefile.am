@@ -52,7 +52,7 @@ BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
 BUILT_SOURCES += fixml-comp-by-ctx.c
 BUILT_SOURCES += fixml-attr-rev.c $(fix_repo)-attr-rev.c
-BUILT_SOURCES += fixml-comp-rev.c $(fix_repo)-comp-rev.c
+BUILT_SOURCES += fixml-comp-rev.c
 BUILT_SOURCES += fixml-msg-rev.c
 
 header_HEADERS += fix.h
@@ -110,9 +110,7 @@ fixml-attr-rev.c: $(fix_repo)-attr-rev.c
 $(fix_repo)-attr-rev.c: fixml-attr-rev.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
-fixml-comp-rev.c: $(fix_repo)-comp-rev.c
-	$(LN_S) -f $< $@
-$(fix_repo)-comp-rev.c: fixml-comp-rev.xsl $(fix_repo).xml
+fixml-comp-rev.c: fixml-comp-rev.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 fixml-msg-rev.c: fixml-msg-rev.xsl $(fix_repo).xml
