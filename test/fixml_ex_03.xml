@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<FIXML>
+	<SecDef RptID="7" BizDt="2012-10-09">
+		<Instrmt Sym="QG" ID="QG" Desc="E-MINI NATURAL GAS FUTURES" SecTyp="FUT" Src="H" MMY="201305" MatDt="2013-04-25" Mult="2500" Exch="NYMEX" UOM="MMBtu" UOMQty="2500" PxUOM="MMBtu" PxUOMQty="1" SettlMeth="C" ListMeth="0" ValMeth="FUT" ProdCmplx="ENRGY" Status="1" FlexProdElig="N" FlexInd="N" MinPxIncr="1" PxQteCcy="USD">
+			<AID AltID="QG 201305" AltIDSrc="H"/>
+			<AID AltID="808556" AltIDSrc="103"/>
+			<AID AltID="QGK3" AltIDSrc="101"/>
+			<AID AltID="QG 201305" AltIDSrc="100"/>
+			<Evnt EventTyp="5" Dt="2007-11-29"/>
+			<Evnt EventTyp="7" Dt="2013-04-25"/>
+			<Evnt EventTyp="105" Dt="2013-04-25"/>
+		</Instrmt>
+		<MktSegGrp MktID="CME" MktSegID="ALL">
+			<SecTrdgRules>
+				<BaseTrdgRules>
+					<TickRules StartTickPxRng="0.001" EndTickPxRng="100" TickIncr="0.001" TickRuleTyp="0"/>
+				</BaseTrdgRules>
+			</SecTrdgRules>
+		</MktSegGrp>
+		<MarginDataGrp>
+			<MarginData Typ="1" Rate="500"/>
+			<MarginData Typ="0" Rate="500"/>
+		</MarginDataGrp>
+	</SecDef>
+</FIXML>
