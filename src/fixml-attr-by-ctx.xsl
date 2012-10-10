@@ -90,9 +90,19 @@
 fixc_attr_t fixc_get_aid(fixc_ctxt_t ctx, const char *attr, size_t alen)
 {
 /* obtain the aid that belongs to ATTR (of size ALEN) in context CTX. */
+	/* go through implicit blocks */
 	switch (ctx.ui16) {
 </xsl:text>
-    <!-- now come the cases -->
+    <!-- now come the weirdo cases -->
+    <xsl:apply-templates select="fixc:message|fixc:component" mode="impblock"/>
+    <xsl:text>
+	default:
+		break;
+	}
+	/* go through the real list */
+	switch (ctx.ui16) {
+</xsl:text>
+    <!-- now come the real cases -->
     <xsl:apply-templates select="fixc:message|fixc:component" mode="case"/>
    <xsl:text>
 	default: {
@@ -173,6 +183,36 @@ v,FIXC_ATTR_V
 		return p != NULL ? p->aid : FIXC_ATTR_UNK;
 	}
 </xsl:text>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="impblock"/>
+
+  <!-- special case for optimised implicit blocks -->
+  <xsl:template
+    match="fixc:component[@type='OptimisedImplicitBlockRepeating']"
+    mode="case"/>
+
+  <xsl:template
+    match="fixc:component[@type='OptimisedImplicitBlockRepeating']"
+    mode="impblock">
+    <xsl:text>
+	/* optimised implicit block */
+	case </xsl:text>
+    <xsl:apply-templates select="." mode="enum"/>
+    <xsl:text>: {
+		const </xsl:text>
+    <xsl:apply-templates select="." mode="struct"/>
+    <xsl:text> *p = </xsl:text>
+    <xsl:apply-templates select="." mode="hashfn"/><xsl:text>(attr, alen);
+		if (p != NULL) {
+			return p->aid;
+		}
+		/* otherwise try that sub thing */
+	}
+</xsl:text>
+    <xsl:for-each select="fixc:component">
+      <xsl:apply-templates select="." mode="case"/>
+    </xsl:for-each>
   </xsl:template>
 
   <xsl:template match="fixc:component|fixc:message" mode="deps">
