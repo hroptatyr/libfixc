@@ -25,7 +25,7 @@
               'qwertyuiopasdfghjklzxcvbnm')"/>
   </fn:function>
 
-  <fn:function name="fixc:prefix">
+  <fn:function name="fixc:vprefix">
     <xsl:param name="node-set"/>
     <xsl:variable name="infix">
       <xsl:choose>
@@ -44,6 +44,27 @@
       </xsl:choose>
     </xsl:variable>
     <fn:result select="concat($versn, '_', $infix)"/>
+  </fn:function>
+
+  <fn:function name="fixc:prefix">
+    <xsl:param name="node-set"/>
+    <xsl:variable name="infix">
+      <xsl:choose>
+        <xsl:when test="name($node-set) = 'component'">
+          <xsl:text>comp</xsl:text>
+        </xsl:when>
+        <xsl:when test="name($node-set) = 'message'">
+          <xsl:text>msg</xsl:text>
+        </xsl:when>
+        <xsl:when test="name($node-set) = 'field'">
+          <xsl:text>attr</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>unk</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <fn:result select="concat('fixml_', $infix)"/>
   </fn:function>
 
   <fn:function name="fixc:char-at">
