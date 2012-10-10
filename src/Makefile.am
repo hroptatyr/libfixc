@@ -97,8 +97,8 @@ fixml-comp-by-ctx.c: fixml-comp-by-ctx.xsl \
 fixml-comp-by-ctx.gperfs: fixml-comp-by-ctx.xsl $(fix_repo).xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-comp-by-ctx.Po $+ > $@
 
-dist-hook: $(fix_repo)-attr-by-ctx.gperfs $(fix_repo)-comp-by-ctx.gperfs \
-		$(fix_repo)-attr-by-ctx.c $(fix_repo)-comp-by-ctx.c
+dist-hook: fixml-attr-by-ctx.gperfs fixml-comp-by-ctx.gperfs \
+		fixml-attr-by-ctx.c fixml-comp-by-ctx.c
 	for i in `cat $(wordlist 1,2,$+)`; do \
 		test -f "$(distdir)/$${i}" || \
 			cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; \
