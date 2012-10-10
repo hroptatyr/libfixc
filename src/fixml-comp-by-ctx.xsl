@@ -11,7 +11,7 @@
 
   <xsl:param name="MT"/>
 
-  <xsl:key name="cmpi" match="/fixc:spec/fixc:component" use="@name"/>
+  <xsl:key name="cmpn" match="/fixc:spec/fixc:component" use="@name"/>
 
   <xsl:include href="libfixc_0_1_funs.xsl"/>
 
@@ -172,10 +172,14 @@ fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
 </xsl:text>
 
       <!-- loop over them fields again -->
-      <xsl:for-each select="fixc:component">
-        <xsl:apply-templates select="key('cmpi', @name)" mode="map"/>
-      </xsl:for-each>
+      <xsl:apply-templates select="." mode="beef"/>
     </ec:document>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="beef">
+    <xsl:for-each select="fixc:component">
+      <xsl:apply-templates select="key('cmpn', @name)" mode="map"/>
+    </xsl:for-each>
   </xsl:template>
 
   <xsl:template match="fixc:component|fixc:message" mode="include">

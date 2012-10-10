@@ -144,12 +144,16 @@ v,FIXC_ATTR_V
 </xsl:text>
 
       <!-- loop over them fields again -->
-      <xsl:for-each select="fixc:field">
-        <xsl:apply-templates select="key('fldi', @aid)" mode="map">
-          <xsl:with-param name="cat" select="../@cat"/>
-        </xsl:apply-templates>
-      </xsl:for-each>
+      <xsl:apply-templates select="." mode="beef"/>
     </ec:document>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="beef">
+    <xsl:for-each select="fixc:field">
+      <xsl:apply-templates select="key('fldi', @aid)" mode="map">
+        <xsl:with-param name="cat" select="../@cat"/>
+      </xsl:apply-templates>
+    </xsl:for-each>
   </xsl:template>
 
   <xsl:template match="fixc:component|fixc:message" mode="include">
