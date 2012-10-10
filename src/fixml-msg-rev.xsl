@@ -14,7 +14,7 @@
     <xsl:text>/* do not edit, gen'd by fixml-msg-rev.xsl */
 
 #include "fixml-canon-msgt.h"
-#include "</xsl:text><xsl:value-of select="$versn"/><xsl:text>-msg.h"
+#include "fixml-msg.h"
 
 const char *fixc_msgt_fixmlify(fixc_msgt_t mty)
 {
