@@ -68,6 +68,7 @@ typedef enum {
 %{
 
 #include "fixml-canon-comp.h"
+#include "fixml-comp.h"
 
 %}
 %7bit

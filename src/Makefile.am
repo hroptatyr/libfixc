@@ -45,6 +45,7 @@ BUILT_SOURCES += fix-ver.c
 BUILT_SOURCES += fixml-nsuri-rev.c
 BUILT_SOURCES += fixml-msg.gperf
 BUILT_SOURCES += fixml-msg.c fixml-msg.h
+BUILT_SOURCES += fixml-comp.gperf
 BUILT_SOURCES += fixml-comp.h
 BUILT_SOURCES += fixml-attr.h
 BUILT_SOURCES += fixml-attr-by-ctx.c
@@ -143,7 +144,7 @@ fixml-msg.h: fixml-msg.xsl $(fix_repo).xml
 fixml-comp.h: fixml-comp.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
-$(fix_repo)-comp.gperf: fixml-comp.xsl $(fix_repo).xml
+fixml-comp.gperf: fixml-comp.xsl $(fix_repo).xml
 	xsltproc -o $@ --stringparam MT $(DEPDIR)/$*.Po $+
 
 fixml-msg.gperf: fixml-msg.xsl $(fix_repo).xml
