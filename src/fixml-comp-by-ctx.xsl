@@ -129,7 +129,7 @@ fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
     <xsl:text>: {
 		const </xsl:text>
     <xsl:apply-templates select="." mode="struct"/>
-    <xsl:text>_s *p = </xsl:text>
+    <xsl:text> *p = </xsl:text>
     <xsl:apply-templates select="." mode="hashfn"/><xsl:text>(elem, elen);
 		return p != NULL ? p->cid : FIXC_COMP_UNK;
 	}
@@ -163,7 +163,7 @@ fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
 %includes
 
 </xsl:text>
-      <xsl:apply-templates select="." mode="struct"/><xsl:text>_s {
+      <xsl:apply-templates select="." mode="struct"/><xsl:text> {
 	const char *comp;
 	fixc_comp_t cid;
 };
