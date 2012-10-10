@@ -42,6 +42,8 @@
 #include "fix.h"
 #include "nifty.h"
 
+#include "fixml-canon-attr.h"
+
 /* to map version strings to fixc_ver_t objects */
 #include "fix-ver.c"
 /* to map fixc_ver_t objects to strings */
@@ -449,6 +451,18 @@ fixc_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
 		break;
 	}
 	return 0;
+}
+
+void
+fixc_del_fld(fixc_msg_t msg, size_t n)
+{
+	if (n >= msg->nflds) {
+		return;
+	} else if (n + 1 == msg->nflds) {
+		msg->nflds--;
+	}
+	msg->flds[n].tag = FIXC_ATTR_UNK;
+	return;
 }
 
 /* fix.c ends here */

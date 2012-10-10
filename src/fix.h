@@ -151,4 +151,8 @@ extern int fixc_add_fld(fixc_msg_t, struct fixc_fld_s fld);
  * Add TAG to MSG copying VAL (of size VSZ) to representation space. */
 extern int fixc_add_tag(fixc_msg_t, uint16_t tag, const char *val, size_t vsz);
 
+/**
+ * Delete field N in MSG.*/
+extern void fixc_del_fld(fixc_msg_t, size_t n);
+
 #endif	/* INCLUDED_fix_h_ */
