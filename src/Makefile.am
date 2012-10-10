@@ -57,8 +57,9 @@ BUILT_SOURCES += fixml-msg-rev.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-nsuri.h
-header_HEADERS += fixml-canon-comp.h
-header_HEADERS += fixml-canon-msgt.h
+header_HEADERS += fixml-canon-attr.h fixml-attr.h
+header_HEADERS += fixml-canon-comp.h fixml-comp.h
+header_HEADERS += fixml-canon-msgt.h fixml-msg.h
 header_HEADERS += fixml-canon-ctxt.h
 
 ## still needed for the test/ suite
