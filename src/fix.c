@@ -42,6 +42,8 @@
 #include "fix.h"
 #include "nifty.h"
 
+#include "fixml-canon-attr.h"
+
 /* to map version strings to fixc_ver_t objects */
 #include "fix-ver.c"
 /* to map fixc_ver_t objects to strings */
@@ -140,6 +142,20 @@ fixc_parse_fld(fixc_msg_t msg, const char *str, size_t len)
 }
 
 fixc_msg_t
+make_fixc_msg(fixc_ctxt_t ctx)
+{
+	fixc_msg_t res;
+
+	/* generate the husk */
+	res = calloc(1, sizeof(*res));
+
+	res->f35.tag = FIXC_MSG_TYPE;
+	res->f35.typ = FIXC_TYP_CTXT;
+	res->f35.ctx = ctx;
+	return res;
+}
+
+fixc_msg_t
 make_fixc_from_fix(const char *msg, size_t msglen)
 {
 #define ROUNDv(x)	ROUND(x, sizeof(void*))
@@ -209,6 +225,8 @@ free_fixc(fixc_msg_t msg)
 	return;
 }
 
+
+/* rendering */
 static uint8_t
 fixc_chksum(const char *str, size_t len)
 {
@@ -325,6 +343,8 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 	return totz;
 }
 
+
+/* adding stuff */
 static void
 check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 {
@@ -449,6 +469,18 @@ fixc_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
 		break;
 	}
 	return 0;
+}
+
+void
+fixc_del_fld(fixc_msg_t msg, size_t n)
+{
+	if (n >= msg->nflds) {
+		return;
+	} else if (n + 1 == msg->nflds) {
+		msg->nflds--;
+	}
+	msg->flds[n].tag = FIXC_ATTR_UNK;
+	return;
 }
 
 /* fix.c ends here */

@@ -31,8 +31,7 @@
     <xsl:apply-templates select="fixc:message|fixc:component" mode="gperf"/>
 
     <ec:document href="{$MT}" method="text">
-      <xsl:value-of select="$versn"/>
-      <xsl:text>-attr-by-ctx.c: </xsl:text>
+      <xsl:text>fixml-attr-by-ctx.c: </xsl:text>
       <xsl:for-each select="fixc:message|fixc:component">
         <xsl:text> </xsl:text>
         <xsl:apply-templates select="." mode="deps"/>
@@ -70,12 +69,8 @@
     <!-- build up the main .c file that switches over the context -->
     <xsl:text>/* do not edit, gen'd by fixml-attr-by-ctx.xsl */
 
-#include "</xsl:text>
-    <xsl:value-of select="$versn"/>
-    <xsl:text>-msg.h"
-#include "</xsl:text>
-    <xsl:value-of select="$versn"/>
-    <xsl:text>-comp.h"
+#include "fixml-msg.h"
+#include "fixml-comp.h"
 #include "fixml-attr-by-ctx.h"
 
 #if defined __INTEL_COMPILER
@@ -113,9 +108,7 @@ fixc_attr_t fixc_get_aid(fixc_ctxt_t ctx, const char *attr, size_t alen)
 
   <xsl:template match="fixc:component|fixc:message" mode="gperf">
     <xsl:variable name="outfn">
-      <xsl:value-of select="fixc:prefix(.)"/>
-      <xsl:text>_</xsl:text>
-      <xsl:value-of select="@name"/>
+      <xsl:apply-templates select="." mode="deps"/>
       <xsl:text>.gperf</xsl:text>
     </xsl:variable>
 
@@ -131,15 +124,16 @@ fixc_attr_t fixc_get_aid(fixc_ctxt_t ctx, const char *attr, size_t alen)
 %struct-type
 %define slot-name attr
 %define hash-function-name __aid_hash_</xsl:text>
-      <xsl:value-of select="@name"/>
+      <xsl:apply-templates select="." mode="enum"/>
       <xsl:text>
-%define lookup-function-name __aiddify_</xsl:text>
-      <xsl:value-of select="@name"/>
+%define lookup-function-name </xsl:text>
+      <xsl:apply-templates select="." mode="hashfn"/>
       <xsl:text>
 %null-strings
 %includes
 
-struct </xsl:text><xsl:value-of select="@name"/><xsl:text>_s {
+</xsl:text>
+      <xsl:apply-templates select="." mode="struct"/><xsl:text> {
 	const char *attr;
 	fixc_attr_t aid;
 };
@@ -159,36 +153,51 @@ v,FIXC_ATTR_V
   </xsl:template>
 
   <xsl:template match="fixc:component|fixc:message" mode="include">
-    <xsl:variable name="infn">
-      <xsl:value-of select="fixc:prefix(.)"/>
-      <xsl:text>_</xsl:text>
-      <xsl:value-of select="@name"/>
-      <xsl:text>.c</xsl:text>
-    </xsl:variable>
-
     <xsl:text>#include "</xsl:text>
-    <xsl:value-of select="$infn"/>
-    <xsl:text>"&#0010;</xsl:text>
+    <xsl:apply-templates select="." mode="deps"/>
+    <xsl:text>.c"&#0010;</xsl:text>
   </xsl:template>
 
   <xsl:template match="fixc:component|fixc:message" mode="case">
     <xsl:text>&#0009;case </xsl:text>
-    <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
-    <xsl:text>_</xsl:text>
-    <xsl:value-of select="@name"/>
+    <xsl:apply-templates select="." mode="enum"/>
     <xsl:text>: {
-		const struct </xsl:text>
-    <xsl:value-of select="@name"/><xsl:text>_s *p = __aiddify_</xsl:text>
-    <xsl:value-of select="@name"/><xsl:text>(attr, alen);
+		const </xsl:text>
+    <xsl:apply-templates select="." mode="struct"/>
+    <xsl:text> *p = </xsl:text>
+    <xsl:apply-templates select="." mode="hashfn"/><xsl:text>(attr, alen);
 		return p != NULL ? p->aid : FIXC_ATTR_UNK;
 	}
 </xsl:text>
   </xsl:template>
 
   <xsl:template match="fixc:component|fixc:message" mode="deps">
-    <xsl:value-of select="fixc:prefix(.)"/>
+    <xsl:value-of select="fixc:vprefix(.)"/>
     <xsl:text>_</xsl:text>
     <xsl:value-of select="@name"/>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="enum">
+    <xsl:value-of select="fixc:ucase(fixc:prefix(.))"/>
+    <xsl:text>_</xsl:text>
+    <xsl:value-of select="@name"/>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="venum">
+    <xsl:value-of select="fixc:ucase(fixc:vprefix(.))"/>
+    <xsl:text>_</xsl:text>
+    <xsl:value-of select="@name"/>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="hashfn">
+    <xsl:text>__aiddify_</xsl:text>
+    <xsl:apply-templates select="." mode="venum"/>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="struct">
+    <xsl:text>struct </xsl:text>
+    <xsl:apply-templates select="." mode="venum"/>
+    <xsl:text>_s</xsl:text>
   </xsl:template>
 
   <xsl:template match="fixc:field" mode="enum">

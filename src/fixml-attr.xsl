@@ -35,6 +35,8 @@
     <xsl:text>_attr_h_&#0010;</xsl:text>
 
     <xsl:text>
+#include "fixml-canon-attr.h"
+
 typedef enum {
 	/* first 3 are our own invention */
 </xsl:text>
