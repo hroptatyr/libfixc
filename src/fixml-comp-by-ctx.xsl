@@ -97,7 +97,16 @@ fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
 /* obtain the cid that belongs to ELEM (of size ELEN) in context CTX. */
 	switch (ctx.ui16) {
 </xsl:text>
-    <!-- now come the cases -->
+    <!-- now come the weirdo cases -->
+    <xsl:apply-templates select="$subc_ns" mode="impblock"/>
+    <xsl:text>
+	default:
+		break;
+	}
+	/* go through the real list */
+	switch (ctx.ui16) {
+</xsl:text>
+    <!-- now come the real cases -->
     <xsl:apply-templates select="$subc_ns" mode="case"/>
 
     <!-- all them contexts without a sub-component -->
@@ -134,6 +143,36 @@ fixc_comp_t fixc_get_cid(fixc_ctxt_t ctx, const char *elem, size_t elen)
 		return p != NULL ? p->cid : FIXC_COMP_UNK;
 	}
 </xsl:text>
+  </xsl:template>
+
+  <xsl:template match="fixc:component|fixc:message" mode="impblock"/>
+
+  <!-- special case for optimised implicit blocks -->
+  <xsl:template
+    match="fixc:component[@type='OptimisedImplicitBlockRepeating']"
+    mode="case"/>
+
+  <xsl:template
+    match="fixc:component[@type='OptimisedImplicitBlockRepeating']"
+    mode="impblock">
+    <xsl:text>
+	/* optimised implicit block */
+	case </xsl:text>
+    <xsl:apply-templates select="." mode="enum"/>
+    <xsl:text>: {
+		const </xsl:text>
+    <xsl:apply-templates select="." mode="struct"/>
+    <xsl:text> *p = </xsl:text>
+    <xsl:apply-templates select="." mode="hashfn"/><xsl:text>(elem, elen);
+		if (p != NULL) {
+			return p->cid;
+		}
+		/* otherwise try that sub thing */
+	}
+</xsl:text>
+    <xsl:for-each select="fixc:component">
+      <xsl:apply-templates select="." mode="case"/>
+    </xsl:for-each>
   </xsl:template>
 
   <xsl:template match="fixc:component|fixc:message" mode="gperf">
