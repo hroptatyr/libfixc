@@ -44,10 +44,9 @@ BUILT_SOURCES += fixml-nsuri.c
 BUILT_SOURCES += fix-ver.c
 BUILT_SOURCES += fixml-nsuri-rev.c
 BUILT_SOURCES += $(fix_repo)-msg.gperf
-BUILT_SOURCES += fixml-msg.c $(fix_repo)-msg.c
-BUILT_SOURCES += fixml-msg.h $(fix_repo)-msg.h
-BUILT_SOURCES += fixml-comp.h $(fix_repo)-comp.h
-BUILT_SOURCES += fixml-attr.h $(fix_repo)-attr.h
+BUILT_SOURCES += fixml-msg.c fixml-msg.h
+BUILT_SOURCES += fixml-comp.h
+BUILT_SOURCES += fixml-attr.h
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
 BUILT_SOURCES += fixml-comp-by-ctx.c
@@ -135,21 +134,13 @@ fixml-fld-ctx.c: $(fix_repo)-fld-ctx.c
 $(fix_repo)-fld-ctx.c: fixml-fld-ctx.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
-fixml-attr.h: $(fix_repo)-attr.h
-	$(LN_S) -f $< $@
-$(fix_repo)-attr.h: fixml-attr.xsl $(fix_repo).xml
+fixml-attr.h: fixml-attr.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
-fixml-msg.h: $(fix_repo)-msg.h
-	$(LN_S) -f $< $@
-fixml-msg.c: $(fix_repo)-msg.c
-	$(LN_S) -f $< $@
-$(fix_repo)-msg.h: fixml-msg.xsl $(fix_repo).xml
+fixml-msg.h: fixml-msg.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
-fixml-comp.h: $(fix_repo)-comp.h
-	$(LN_S) -f $< $@
-$(fix_repo)-comp.h: fixml-comp.xsl $(fix_repo).xml
+fixml-comp.h: fixml-comp.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 $(fix_repo)-comp.gperf: fixml-comp.xsl $(fix_repo).xml
