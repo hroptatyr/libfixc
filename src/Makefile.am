@@ -39,7 +39,7 @@ libfixc_la_LDFLAGS = $(AM_LDFLAGS)
 libfixc_la_LDFLAGS += $(expat_LIBS)
 BUILT_SOURCES += fixml-comp-sub.c
 BUILT_SOURCES += fixml-comp-fld.c
-BUILT_SOURCES += fixml-fld-ctx.c $(fix_repo)-fld-ctx.c
+BUILT_SOURCES += fixml-fld-ctx.c
 BUILT_SOURCES += fixml-nsuri.c
 BUILT_SOURCES += fix-ver.c
 BUILT_SOURCES += fixml-nsuri-rev.c
@@ -126,9 +126,7 @@ fixml-comp-fld.c: fixml-comp-fld.xsl $(fix_repo).xml
 fixml-comp-sub.c: fixml-comp-sub.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
-fixml-fld-ctx.c: $(fix_repo)-fld-ctx.c
-	$(LN_S) -f $< $@
-$(fix_repo)-fld-ctx.c: fixml-fld-ctx.xsl $(fix_repo).xml
+fixml-fld-ctx.c: fixml-fld-ctx.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 fixml-attr.h: fixml-attr.xsl $(fix_repo).xml
