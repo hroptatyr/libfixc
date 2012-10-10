@@ -237,7 +237,6 @@ ptx_init(__ctx_t ctx)
 {
 	/* initialise the ctxcb pool */
 	init_ctxcb(ctx);
-	push_state(ctx, FIXC_COMP_FIXML, NULL);
 	return;
 }
 
@@ -399,6 +398,7 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 	switch ((cid = fixc_get_cid(ctxid, elem, elen))) {
 	case FIXC_COMP_FIXML:
 		ptx_init(ctx);
+		push_state(ctx, FIXC_COMP_FIXML, NULL);
 		break;
 
 	case FIXC_COMP_UNK: {
