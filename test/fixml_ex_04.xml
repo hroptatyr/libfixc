@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-5-0-SP2">
+	<SecDef RptID="7" BizDt="2012-10-09">
+		<Instrmt Sym="QG:QG" ID="QG" Desc="EMINI NATURAL GAS COMBO" SecTyp="MLEG" Src="H" SubTyp="SP" MMY="201211" MatDt="2012-10-26" Exch="NYMEX" ListMeth="0" ValMeth="FUT" ProdCmplx="ENRGY" Status="1" MinPxIncr="5" PxQteCcy="USD">
+			<AID AltID="QGX2-QGN4" AltIDSrc="101"/>
+			<AID AltID="QGX2-QGN4" AltIDSrc="H"/>
+			<AID AltID="828957" AltIDSrc="103"/>
+			<Evnt EventTyp="5" Dt="2008-11-24"/>
+			<Evnt EventTyp="7" Dt="2012-10-26"/>
+		</Instrmt>
+		<Leg ID="QG" Src="H" MMY="201211" Exch="NYMEX" Side="1" RatioQty="1" SecTyp="FUT">
+			<LegAID SecAltID="QG 201211" SecAltIDSrc="100"/>
+			<LegAID SecAltID="QGX2" SecAltIDSrc="101"/>
+			<LegAID SecAltID="QG 201211" SecAltIDSrc="H"/>
+			<LegAID SecAltID="852093" SecAltIDSrc="103"/>
+		</Leg>
+		<Leg ID="QG" Src="H" MMY="201407" Exch="NYMEX" Side="2" RatioQty="1" SecTyp="FUT"><LegAID SecAltID="819909" SecAltIDSrc="103"/>
+			<LegAID SecAltID="QGN4" SecAltIDSrc="101"/>
+			<LegAID SecAltID="QG 201407" SecAltIDSrc="100"/>
+			<LegAID SecAltID="QG 201407" SecAltIDSrc="H"/>
+		</Leg>
+		<MktSegGrp MktID="CME" MktSegID="ALL">
+			<SecTrdgRules>
+				<BaseTrdgRules>
+					<TickRules StartTickPxRng="-9999" EndTickPxRng="9999" TickIncr="0.005" TickRuleTyp="0"/>
+				</BaseTrdgRules>
+			</SecTrdgRules>
+		</MktSegGrp>
+	</SecDef>
+</FIXML>
