@@ -36,6 +36,8 @@
     <xsl:text>_msg_h_&#0010;</xsl:text>
 
     <xsl:text>
+#include "fixml-canon-msgt.h"
+
 #undef _
 #define _(x, y)    ((x) * 256U + (y) * 1U)
 

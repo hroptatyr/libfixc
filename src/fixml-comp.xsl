@@ -36,6 +36,8 @@
     <xsl:text>_comp_h_&#0010;</xsl:text>
 
     <xsl:text>
+#include "fixml-canon-comp.h"
+
 typedef enum {
 	/* first two are our own invention */
 </xsl:text>
