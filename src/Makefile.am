@@ -51,7 +51,7 @@ BUILT_SOURCES += fixml-attr.h
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
 BUILT_SOURCES += fixml-comp-by-ctx.c
-BUILT_SOURCES += fixml-attr-rev.c $(fix_repo)-attr-rev.c
+BUILT_SOURCES += fixml-attr-rev.c
 BUILT_SOURCES += fixml-comp-rev.c
 BUILT_SOURCES += fixml-msg-rev.c
 
@@ -105,9 +105,7 @@ dist-hook: fixml-attr-by-ctx.gperfs fixml-comp-by-ctx.gperfs \
 	done
 	cp -a $(wordlist 1,2,$+) "$(distdir)/"
 
-fixml-attr-rev.c: $(fix_repo)-attr-rev.c
-	$(LN_S) -f $< $@
-$(fix_repo)-attr-rev.c: fixml-attr-rev.xsl $(fix_repo).xml
+fixml-attr-rev.c: fixml-attr-rev.xsl $(fix_repo).xml
 	xsltproc -o $@ $+
 
 fixml-comp-rev.c: fixml-comp-rev.xsl $(fix_repo).xml
