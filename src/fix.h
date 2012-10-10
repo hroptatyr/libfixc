@@ -41,7 +41,9 @@
 #include <stdint.h>
 
 #include "fix-nsuri.h"
+#include "fixml-canon-ctxt.h"
 #include "fixml-canon-msgt.h"
+#include "fixml-canon-comp.h"
 
 typedef struct fixc_fld_s *fixc_fld_t;
 typedef struct fixc_msg_s *fixc_msg_t;
@@ -82,9 +84,10 @@ enum {
 	FIXC_TYP_CHAR,
 	/** tag type is a (32b) integer */
 	FIXC_TYP_INT,
-
 	/** for tag #35 (MsgType) */
 	FIXC_TYP_MSGTYP,
+	/** for field f35 but store a (more) generic context */
+	FIXC_TYP_CTXT,
 };
 
 struct fixc_fld_s {
@@ -99,8 +102,8 @@ struct fixc_fld_s {
 		uint8_t u8;
 		char c;
 		fixc_ver_t ver;
-
 		fixc_msgt_t mtyp;
+		fixc_ctxt_t ctx;
 	};
 };
 
@@ -130,6 +133,10 @@ extern fixc_msg_t make_fixc_from_fix(const char *msg, size_t msglen);
 /**
  * Generate a fixc message from a FIXML document in DOC of length DOCLEN */
 extern fixc_msg_t make_fixc_from_fixml(const char *doc, size_t doclen);
+
+/**
+ * Generate an empty fixc message. */
+extern fixc_msg_t make_fixc_msg(fixc_ctxt_t ctx);
 
 /**
  * Free a fixc message MSG and all its resources. */

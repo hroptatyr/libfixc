@@ -142,6 +142,20 @@ fixc_parse_fld(fixc_msg_t msg, const char *str, size_t len)
 }
 
 fixc_msg_t
+make_fixc_msg(fixc_ctxt_t ctx)
+{
+	fixc_msg_t res;
+
+	/* generate the husk */
+	res = calloc(1, sizeof(*res));
+
+	res->f35.tag = FIXC_MSG_TYPE;
+	res->f35.typ = FIXC_TYP_CTXT;
+	res->f35.ctx = ctx;
+	return res;
+}
+
+fixc_msg_t
 make_fixc_from_fix(const char *msg, size_t msglen)
 {
 #define ROUNDv(x)	ROUND(x, sizeof(void*))
