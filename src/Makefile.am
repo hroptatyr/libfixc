@@ -50,7 +50,7 @@ BUILT_SOURCES += fixml-comp.h $(fix_repo)-comp.h
 BUILT_SOURCES += fixml-attr.h $(fix_repo)-attr.h
 BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
-BUILT_SOURCES += $(fix_repo)-comp-by-ctx.c
+BUILT_SOURCES += fixml-comp-by-ctx.c
 BUILT_SOURCES += fixml-attr-rev.c $(fix_repo)-attr-rev.c
 BUILT_SOURCES += fixml-comp-rev.c $(fix_repo)-comp-rev.c
 BUILT_SOURCES += fixml-msg-rev.c $(fix_repo)-msg-rev.c
@@ -90,13 +90,11 @@ fixml-attr-by-ctx.c: fixml-attr-by-ctx.xsl \
 fixml-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl $(fix_repo).xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+ > $@
 
-fixml-comp-by-ctx.c: $(fix_repo)-comp-by-ctx.c
-	$(LN_S) -f $< $@
-$(fix_repo)-comp-by-ctx.c: fixml-comp-by-ctx.xsl \
-		$(fix_repo).xml $(fix_repo)-comp-by-ctx.gperfs
+fixml-comp-by-ctx.c: fixml-comp-by-ctx.xsl \
+		$(fix_repo).xml fixml-comp-by-ctx.gperfs
 	xsltproc -o $@ $< $(word 2,$+)
 
-$(fix_repo)-comp-by-ctx.gperfs: fixml-comp-by-ctx.xsl $(fix_repo).xml
+fixml-comp-by-ctx.gperfs: fixml-comp-by-ctx.xsl $(fix_repo).xml
 	xsltproc --stringparam MT $(DEPDIR)/fixml-comp-by-ctx.Po $+ > $@
 
 dist-hook: $(fix_repo)-attr-by-ctx.gperfs $(fix_repo)-comp-by-ctx.gperfs \
