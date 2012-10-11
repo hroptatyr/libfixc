@@ -33,6 +33,7 @@ libfixc_la_SOURCES += fixml-comp-by-ctx.c fixml-comp-by-ctx.h
 libfixc_la_SOURCES += fixml-attr.xsl fixml-attr-rev.xsl
 libfixc_la_SOURCES += fixml-comp.xsl fixml-comp-rev.xsl
 libfixc_la_SOURCES += fixml-msg.xsl fixml-msg-rev.xsl
+libfixc_la_SOURCES += fixml-comp-rptb.xsl fixml-comp-rptb.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
@@ -54,6 +55,7 @@ BUILT_SOURCES += fixml-comp-by-ctx.c
 BUILT_SOURCES += fixml-attr-rev.c
 BUILT_SOURCES += fixml-comp-rev.c
 BUILT_SOURCES += fixml-msg-rev.c
+BUILT_SOURCES += fixml-comp-rptb.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-nsuri.h
@@ -138,6 +140,9 @@ fixml-comp.gperf: fixml-comp.xsl $(fix_repo).xml
 
 fixml-msg.gperf: fixml-msg.xsl $(fix_repo).xml
 	xsltproc -o $@ --stringparam MT $(DEPDIR)/$*.Po $+
+
+fixml-comp-rptb.c: fixml-comp-rptb.xsl $(fix_repo).xml
+	xsltproc -o $@ $+
 
 
 ## short cuts for stuff that's in the spec/ dir and named idiotically
