@@ -23,7 +23,6 @@
 #if defined __INTEL_COMPILER
 # pragma warning (disable:869)
 #endif  /* __INTEL_COMPILER */
-#include "fixml-canon-attr.c"
 
 fixc_attr_t
 fixc_comp_rptb(fixc_ctxt_t ctx)
