@@ -88,10 +88,9 @@ struct ptx_ctxcb_s {
 
 	/* navigation info, stores the context */
 	__tid_t otag;
-	union {
-		void *obj;
-		long int objint;
-	};
+	/* parent field number */
+	__tid_t pfn;
+
 	ptx_ctxcb_t old_state;
 };
 
@@ -205,26 +204,24 @@ push_ctxcb(__ctx_t ctx, ptx_ctxcb_t ctxcb)
 	return;
 }
 
-static void*
+static void
 pop_state(__ctx_t ctx)
 {
 /* restore the previous current state */
 	ptx_ctxcb_t curr = ctx->state;
-	void *obj = curr->obj;
 
 	ctx->state = curr->old_state;
 	/* queue him in our pool */
 	push_ctxcb(ctx, curr);
-	return obj;
+	return;
 }
 
 static ptx_ctxcb_t
-push_state(__ctx_t ctx, __tid_t otag, void *obj)
+push_state(__ctx_t ctx, __tid_t otag)
 {
 	ptx_ctxcb_t res = pop_ctxcb(ctx);
 
 	/* stuff it with the object we want to keep track of */
-	res->obj = obj;
 	res->otag = otag;
 	/* fiddle with the states in our context */
 	res->old_state = ctx->state;
@@ -398,7 +395,7 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 	switch ((cid = fixc_get_cid(ctxid, elem, elen))) {
 	case FIXC_COMP_FIXML:
 		ptx_init(ctx);
-		push_state(ctx, FIXC_COMP_FIXML, NULL);
+		push_state(ctx, FIXC_COMP_FIXML);
 		break;
 
 	case FIXC_COMP_UNK: {
@@ -433,7 +430,7 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 		cid = (fixc_comp_t)mty;
 	}
 	default:
-		push_state(ctx, cid, NULL);
+		push_state(ctx, cid);
 		for (const char **ap = attr; ap && *ap; ap += 2) {
 			proc_FIXML_attr(ctx, ap[0], ap[1]);
 		}
