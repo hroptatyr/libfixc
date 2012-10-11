@@ -371,10 +371,16 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 		FIXC_DEBUG("found unknown FIXML attr: %s (=%s) in context %u\n",
 			   attr, value, ctxid);
 		break;
-	default:
+	default: {
 		/* just use fix.c's add_tag thingie for this */
-		fixc_add_tag(ctx->msg, (uint16_t)aid, value, strlen(value));
+		int fidx = fixc_add_tag(ctx->msg, aid, value, strlen(value));
+
+		if (LIKELY(fidx >= 0)) {
+			/* also set the field's parent context and whatnot */
+			ctx->msg->flds[fidx].tpc = (uint16_t)ctxid;
+		}
 		break;
+	}
 	}
 	return;
 }
@@ -412,6 +418,11 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 			struct fixc_fld_s fld = {
 				.tag = FIXC_MSG_TYPE,
 				.typ = FIXC_TYP_MSGTYP,
+				/* parent is the batch brace */
+				.tpc = FIXC_MSGT_BATCH,
+				/* this is the 1-th occurrence
+				 * compute me actually! */
+				.cnt = 1,
 #if defined HAVE_ANON_STRUCTS_INIT
 				.mtyp = mty,
 #endif	/* HAVE_ANON_STRUCTS_INIT */
