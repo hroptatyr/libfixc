@@ -443,7 +443,7 @@ fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 }
 
 int
-fixc_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
+fixc_add_tag(fixc_msg_t msg, fixc_attr_t tag, const char *val, size_t vsz)
 {
 	/* see if someone tricks us into adding the special fields */
 	switch (tag) {
@@ -460,15 +460,14 @@ fixc_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
 
 		/* finally time to adopt this fld */
 		cur = msg->nflds++;
-		msg->flds[cur].tag = tag;
+		msg->flds[cur].tag = (uint16_t)tag;
 		msg->flds[cur].typ = FIXC_TYP_OFF;
 		msg->flds[cur].off = msg->pz;
 		memcpy(msg->pr + msg->pz, val, vsz);
 		msg->pr[msg->pz += vsz] = '\0';
 		msg->pz++;
-		break;
+		return (int)cur;
 	}
-	return 0;
 }
 
 void

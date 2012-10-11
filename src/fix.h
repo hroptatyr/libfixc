@@ -44,6 +44,7 @@
 #include "fixml-canon-ctxt.h"
 #include "fixml-canon-msgt.h"
 #include "fixml-canon-comp.h"
+#include "fixml-canon-attr.h"
 
 typedef struct fixc_fld_s *fixc_fld_t;
 typedef struct fixc_msg_s *fixc_msg_t;
@@ -167,7 +168,7 @@ extern int fixc_add_fld(fixc_msg_t, struct fixc_fld_s fld);
 
 /**
  * Add TAG to MSG copying VAL (of size VSZ) to representation space. */
-extern int fixc_add_tag(fixc_msg_t, uint16_t tag, const char *val, size_t vsz);
+extern int fixc_add_tag(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz);
 
 /**
  * Delete field N in MSG.*/
