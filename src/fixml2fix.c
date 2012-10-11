@@ -44,12 +44,29 @@
 #include <sys/mman.h>
 
 #include "fix.h"
+#include "nifty.h"
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
 # define FIXC_DEBUG(args...)
 #endif	/* DEBUG_FLAG */
+
+static int verbp = 0;
+static int fixmlp = 0;
+
+static void
+pr_fld(int num, struct fixc_fld_s fld)
+{
+	fprintf(stderr, "FLD[%i] = {\n\
+  .tag = %hu,\n\
+  .typ = %hu,\n\
+  .tpc = %hu,\n\
+  .cnt = %hu,\n\
+  .val = 0x%lx,\n\
+};\n", num, fld.tag, fld.typ, fld.tpc, fld.cnt, fld.i64);
+	return;
+}
 
 static int
 proc1(const char *file)
@@ -82,9 +99,22 @@ proc1(const char *file)
 		res = -1;
 		goto munm_out;
 	}
+	if (UNLIKELY(verbp)) {
+		pr_fld(-4, msg->f8);
+		pr_fld(-3, msg->f9);
+		pr_fld(-2, msg->f35);
+		for (size_t i = 0; i < msg->nflds; i++) {
+			pr_fld(i, msg->flds[i]);
+		}
+		pr_fld(-1, msg->f10);
+	}
 	/* render the result */
-	{
+	if (!fixmlp) {
 		size_t nwr = fixc_render_fix(buf, sizeof(buf), msg);
+		fwrite(buf, 1, nwr, stdout);
+		fputc('\n', stdout);
+	} else {
+		size_t nwr = fixc_render_fixml(buf, sizeof(buf), msg);
 		fwrite(buf, 1, nwr, stdout);
 		fputc('\n', stdout);
 	}
@@ -99,14 +129,64 @@ clos_out:
 }
 
 
+static void
+pr_usage(FILE *whither)
+{
+	static char help[] = "\
+fixml2fix " PACKAGE_VERSION "\n\
+\n\
+Usage: fixml2fix [OPTION]... [FILE]...\n\
+\n\
+  -h                Print help and exit\n\
+  -V                Print version and exit\n\
+\n\
+  -v                Verbose mode, show internal states\n\
+  -x                Output FIXML again\n\
+";
+
+	fwrite(help, 1, sizeof(help) - 1, whither);
+	return;
+}
+
+static void
+pr_version(FILE *whither)
+{
+	static char vrsn[] = "fixml2fix " PACKAGE_VERSION "\n";
+
+	fwrite(vrsn, 1, sizeof(vrsn) - 1, whither);
+	return;
+}
+
 int
 main(int argc, char *argv[])
 {
 	int res = 0;
 
+	for (int opt; (opt = getopt(argc, argv, "hxvV")) != -1;) {
+		switch (opt) {
+		case 'h':
+			pr_usage(stdout);
+			goto out;
+		case 'v':
+			verbp = 1;
+			break;
+		case 'x':
+			fixmlp = 1;
+			break;
+		case 'V':
+			pr_version(stdout);
+			goto out;
+		default:
+			fputc('\n', stderr);
+			pr_usage(stderr);
+			goto out;
+		}
+	}
+
 	for (int i = 1; i < argc; i++) {
 		res -= proc1(argv[i]);
 	}
+out:
 	return res;
 }
 

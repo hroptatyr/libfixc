@@ -58,6 +58,9 @@
 #include "fixml-comp-by-ctx.h"
 #include "fixml-attr-by-ctx.h"
 
+#include "fixml-comp-rptb.h"
+#include "fixml-comp-rptb.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
@@ -88,10 +91,9 @@ struct ptx_ctxcb_s {
 
 	/* navigation info, stores the context */
 	__tid_t otag;
-	union {
-		void *obj;
-		long int objint;
-	};
+	/* parent field number */
+	__tid_t pfn;
+
 	ptx_ctxcb_t old_state;
 };
 
@@ -173,6 +175,34 @@ __mty_from_elem(const char *elem, size_t elen)
 	return p != NULL ? (fixc_msgt_t)p->mty : FIXC_MSGT_UNK;
 }
 
+static int
+__upd_rptb(fixc_msg_t msg, fixc_attr_t tag, fixc_ctxt_t ctx)
+{
+	size_t i = msg->nflds;
+	struct fixc_fld_s rpbf;
+
+	/* check the message so far, go backwards and try and find field TAG */
+	while (i-- && msg->flds[i].tpc == ctx.ui16) {
+		if (msg->flds[i].tag == tag) {
+			/* found it, fiddle with it */
+			msg->flds[i].i32++;
+			return (int)i;
+		}
+	}
+
+	/* otherwise, it must be the first such tag */
+	rpbf.tag = (uint16_t)tag;
+	rpbf.typ = FIXC_TYP_INT;
+	rpbf.tpc = (uint16_t)ctx.ui16;
+	rpbf.cnt = 0;
+	/* should be at least one innit? */
+	rpbf.i32 = 1;
+
+	/* just add it then */
+	fixc_add_fld(msg, rpbf);
+	return (int)(msg->nflds - 1);
+}
+
 
 static void
 init_ctxcb(__ctx_t ctx)
@@ -205,26 +235,24 @@ push_ctxcb(__ctx_t ctx, ptx_ctxcb_t ctxcb)
 	return;
 }
 
-static void*
+static void
 pop_state(__ctx_t ctx)
 {
 /* restore the previous current state */
 	ptx_ctxcb_t curr = ctx->state;
-	void *obj = curr->obj;
 
 	ctx->state = curr->old_state;
 	/* queue him in our pool */
 	push_ctxcb(ctx, curr);
-	return obj;
+	return;
 }
 
 static ptx_ctxcb_t
-push_state(__ctx_t ctx, __tid_t otag, void *obj)
+push_state(__ctx_t ctx, __tid_t otag)
 {
 	ptx_ctxcb_t res = pop_ctxcb(ctx);
 
 	/* stuff it with the object we want to keep track of */
-	res->obj = obj;
 	res->otag = otag;
 	/* fiddle with the states in our context */
 	res->old_state = ctx->state;
@@ -374,10 +402,18 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 		FIXC_DEBUG("found unknown FIXML attr: %s (=%s) in context %u\n",
 			   attr, value, ctxid);
 		break;
-	default:
+	default: {
+		int fidx;
+
 		/* just use fix.c's add_tag thingie for this */
-		fixc_add_tag(ctx->msg, (uint16_t)aid, value, strlen(value));
+		fidx = fixc_add_tag(ctx->msg, aid, value, strlen(value));
+
+		if (LIKELY(fidx >= 0)) {
+			/* also set the field's parent context and whatnot */
+			ctx->msg->flds[fidx].tpc = (uint16_t)ctxid;
+		}
 		break;
+	}
 	}
 	return;
 }
@@ -398,7 +434,7 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 	switch ((cid = fixc_get_cid(ctxid, elem, elen))) {
 	case FIXC_COMP_FIXML:
 		ptx_init(ctx);
-		push_state(ctx, FIXC_COMP_FIXML, NULL);
+		push_state(ctx, FIXC_COMP_FIXML);
 		break;
 
 	case FIXC_COMP_UNK: {
@@ -415,6 +451,11 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 			struct fixc_fld_s fld = {
 				.tag = FIXC_MSG_TYPE,
 				.typ = FIXC_TYP_MSGTYP,
+				/* parent is the batch brace */
+				.tpc = FIXC_MSGT_BATCH,
+				/* this is the 1-th occurrence
+				 * compute me actually! */
+				.cnt = 1,
 #if defined HAVE_ANON_STRUCTS_INIT
 				.mtyp = mty,
 #endif	/* HAVE_ANON_STRUCTS_INIT */
@@ -432,12 +473,21 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 		/* prepare for @fallthrough@ */
 		cid = (fixc_comp_t)mty;
 	}
-	default:
-		push_state(ctx, cid, NULL);
+	default: {
+		/* oh oh oh, lest we forget, repeating block attr */
+		fixc_attr_t rpba;
+
+		push_state(ctx, cid);
+
+		if (UNLIKELY((rpba = fixc_comp_rptb(cid)) != FIXC_ATTR_UNK)) {
+			__upd_rptb(ctx->msg, rpba, cid);
+		}
+
 		for (const char **ap = attr; ap && *ap; ap += 2) {
 			proc_FIXML_attr(ctx, ap[0], ap[1]);
 		}
 		break;
+	}
 	}
 	return;
 }

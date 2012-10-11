@@ -44,6 +44,7 @@
 #include "fixml-canon-ctxt.h"
 #include "fixml-canon-msgt.h"
 #include "fixml-canon-comp.h"
+#include "fixml-canon-attr.h"
 
 typedef struct fixc_fld_s *fixc_fld_t;
 typedef struct fixc_msg_s *fixc_msg_t;
@@ -84,10 +85,14 @@ enum {
 	FIXC_TYP_CHAR,
 	/** tag type is a (32b) integer */
 	FIXC_TYP_INT,
+	/** tag type is a (64b) integer */
+	FIXC_TYP_LONG,
 	/** for tag #35 (MsgType) */
 	FIXC_TYP_MSGTYP,
 	/** for field f35 but store a (more) generic context */
 	FIXC_TYP_CTXT,
+	/** for hierarchical messages */
+	FIXC_TYP_PTR,
 };
 
 struct fixc_fld_s {
@@ -95,15 +100,22 @@ struct fixc_fld_s {
 	uint16_t tag;
 	/** fix field type, or generally 0 if not computed or known */
 	uint16_t typ;
+	/** TAG's parent's context */
+	uint16_t tpc;
+	/** occurrence counter */
+	uint16_t cnt;
+
 	/** offset (from the beginning of the message) to the value */
 	union {
-		uint32_t off;
+		ptrdiff_t off;
 		int32_t i32;
+		int64_t i64;
 		uint8_t u8;
 		char c;
 		fixc_ver_t ver;
 		fixc_msgt_t mtyp;
 		fixc_ctxt_t ctx;
+		void *ptr;
 	};
 };
 
@@ -156,7 +168,7 @@ extern int fixc_add_fld(fixc_msg_t, struct fixc_fld_s fld);
 
 /**
  * Add TAG to MSG copying VAL (of size VSZ) to representation space. */
-extern int fixc_add_tag(fixc_msg_t, uint16_t tag, const char *val, size_t vsz);
+extern int fixc_add_tag(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz);
 
 /**
  * Delete field N in MSG.*/

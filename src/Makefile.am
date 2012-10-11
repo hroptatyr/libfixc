@@ -33,6 +33,7 @@ libfixc_la_SOURCES += fixml-comp-by-ctx.c fixml-comp-by-ctx.h
 libfixc_la_SOURCES += fixml-attr.xsl fixml-attr-rev.xsl
 libfixc_la_SOURCES += fixml-comp.xsl fixml-comp-rev.xsl
 libfixc_la_SOURCES += fixml-msg.xsl fixml-msg-rev.xsl
+libfixc_la_SOURCES += fixml-comp-rptb.xsl fixml-comp-rptb.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS)
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
@@ -54,6 +55,7 @@ BUILT_SOURCES += fixml-comp-by-ctx.c
 BUILT_SOURCES += fixml-attr-rev.c
 BUILT_SOURCES += fixml-comp-rev.c
 BUILT_SOURCES += fixml-msg-rev.c
+BUILT_SOURCES += fixml-comp-rptb.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-nsuri.h
@@ -69,11 +71,15 @@ EXTRA_DIST += fix-msg-type.h
 noinst_PROGRAMS += fixml2fix
 fixml2fix_CPPFLAGS = $(AM_CPPFLAGS)
 fixml2fix_CPPFLAGS += -DSTANDALONE
+fixml2fix_LDFLAGS = $(AM_LDFLAGS)
+fixml2fix_LDFLAGS += -static
 fixml2fix_LDADD = libfixc.la
 
 noinst_PROGRAMS += fix2fixml
 fix2fixml_CPPFLAGS = $(AM_CPPFLAGS)
 fix2fixml_CPPFLAGS += -DSTANDALONE
+fix2fixml_LDFLAGS = $(AM_LDFLAGS)
+fix2fixml_LDFLAGS += -static
 fix2fixml_LDADD = libfixc.la
 
 
@@ -138,6 +144,9 @@ fixml-comp.gperf: fixml-comp.xsl $(fix_repo).xml
 
 fixml-msg.gperf: fixml-msg.xsl $(fix_repo).xml
 	xsltproc -o $@ --stringparam MT $(DEPDIR)/$*.Po $+
+
+fixml-comp-rptb.c: fixml-comp-rptb.xsl $(fix_repo).xml
+	xsltproc -o $@ $+
 
 
 ## short cuts for stuff that's in the spec/ dir and named idiotically
