@@ -193,12 +193,21 @@ __render_ctx(
 
 	/* all them attrs belonging in context CID */
 	for (size_t i = 0; i < msg->nflds && p < ep; i++) {
-		fixc_attr_t aid = (fixc_attr_t)msg->flds[i].tag;
-		if (__attr_in_ctx_p(aid, ctx)) {
-			nattr++;
-			p += __render_attr(
-				p, ep - p, ctx, msg->pr, msg->flds[i]);
+		/* use the new .tpc field (if set) */
+		if (msg->flds[i].tpc && msg->flds[i].tpc != ctx.ui16) {
+			/* no match, new .tpc system */
+			continue;
+		} else if (msg->flds[i].tpc) {
+			/* there was a match, .tpc system */
+			;
+		} else if (!__attr_in_ctx_p(
+				   (fixc_attr_t)msg->flds[i].tag, ctx)) {
+			/* no match, exhaustive search */
+			continue;
 		}
+		/* weird condition tree but this is what happens for matches */
+		nattr++;
+		p += __render_attr(p, ep - p, ctx, msg->pr, msg->flds[i]);
 	}
 
 	/* closing tag */

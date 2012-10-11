@@ -185,7 +185,6 @@ __upd_rptb(fixc_msg_t msg, fixc_attr_t tag, fixc_ctxt_t ctx)
 	while (i-- && msg->flds[i].tpc == ctx.ui16) {
 		if (msg->flds[i].tag == tag) {
 			/* found it, fiddle with it */
-			FIXC_DEBUG("fiddling %zu\n", i);
 			msg->flds[i].i32++;
 			return (int)i;
 		}
