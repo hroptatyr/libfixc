@@ -284,6 +284,10 @@ fixc_render_fld(
 	case FIXC_TYP_PTR:
 		/* implement me */
 		abort();
+
+	case FIXC_TYP_CTXT:
+		/* shall we allow that? it's a msg snippet as opposed to
+		 * a proper msg.  well do what default would do */
 	default:
 		break;
 	}
