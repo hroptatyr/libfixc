@@ -53,6 +53,7 @@
 #endif	/* DEBUG_FLAG */
 
 static int verbp = 0;
+static int fixmlp = 0;
 
 static void
 pr_fld(int num, struct fixc_fld_s fld)
@@ -108,8 +109,12 @@ proc1(const char *file)
 		pr_fld(-1, msg->f10);
 	}
 	/* render the result */
-	{
+	if (!fixmlp) {
 		size_t nwr = fixc_render_fix(buf, sizeof(buf), msg);
+		fwrite(buf, 1, nwr, stdout);
+		fputc('\n', stdout);
+	} else {
+		size_t nwr = fixc_render_fixml(buf, sizeof(buf), msg);
 		fwrite(buf, 1, nwr, stdout);
 		fputc('\n', stdout);
 	}
@@ -166,6 +171,7 @@ main(int argc, char *argv[])
 			verbp = 1;
 			break;
 		case 'x':
+			fixmlp = 1;
 			break;
 		case 'V':
 			pr_version(stdout);
