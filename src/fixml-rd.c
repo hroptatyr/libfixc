@@ -58,6 +58,9 @@
 #include "fixml-comp-by-ctx.h"
 #include "fixml-attr-by-ctx.h"
 
+#include "fixml-comp-rptb.h"
+#include "fixml-comp-rptb.c"
+
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
@@ -170,6 +173,35 @@ __mty_from_elem(const char *elem, size_t elen)
 {
 	const struct fixml_msgt_s *p = __fixml_mtypify(elem, elen);
 	return p != NULL ? (fixc_msgt_t)p->mty : FIXC_MSGT_UNK;
+}
+
+static int
+__upd_rptb(fixc_msg_t msg, fixc_attr_t tag, fixc_ctxt_t ctx)
+{
+	size_t i = msg->nflds;
+	struct fixc_fld_s rpbf;
+
+	/* check the message so far, go backwards and try and find field TAG */
+	while (i-- && msg->flds[i].tpc == ctx.ui16) {
+		if (msg->flds[i].tag == tag) {
+			/* found it, fiddle with it */
+			FIXC_DEBUG("fiddling %zu\n", i);
+			msg->flds[i].i32++;
+			return (int)i;
+		}
+	}
+
+	/* otherwise, it must be the first such tag */
+	rpbf.tag = (uint16_t)tag;
+	rpbf.typ = FIXC_TYP_INT;
+	rpbf.tpc = (uint16_t)ctx.ui16;
+	rpbf.cnt = 0;
+	/* should be at least one innit? */
+	rpbf.i32 = 1;
+
+	/* just add it then */
+	fixc_add_fld(msg, rpbf);
+	return (int)(msg->nflds - 1);
 }
 
 
@@ -372,8 +404,16 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 			   attr, value, ctxid);
 		break;
 	default: {
+		/* oh oh oh, lest we forget, repeating block attr */
+		fixc_attr_t rpba;
+		int fidx;
+
+		if (UNLIKELY((rpba = fixc_comp_rptb(ctxid)) != FIXC_ATTR_UNK)) {
+			__upd_rptb(ctx->msg, rpba, ctxid);
+		}
+
 		/* just use fix.c's add_tag thingie for this */
-		int fidx = fixc_add_tag(ctx->msg, aid, value, strlen(value));
+		fidx = fixc_add_tag(ctx->msg, aid, value, strlen(value));
 
 		if (LIKELY(fidx >= 0)) {
 			/* also set the field's parent context and whatnot */
