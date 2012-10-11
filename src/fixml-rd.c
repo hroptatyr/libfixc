@@ -404,13 +404,7 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 			   attr, value, ctxid);
 		break;
 	default: {
-		/* oh oh oh, lest we forget, repeating block attr */
-		fixc_attr_t rpba;
 		int fidx;
-
-		if (UNLIKELY((rpba = fixc_comp_rptb(ctxid)) != FIXC_ATTR_UNK)) {
-			__upd_rptb(ctx->msg, rpba, ctxid);
-		}
 
 		/* just use fix.c's add_tag thingie for this */
 		fidx = fixc_add_tag(ctx->msg, aid, value, strlen(value));
@@ -480,12 +474,21 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 		/* prepare for @fallthrough@ */
 		cid = (fixc_comp_t)mty;
 	}
-	default:
+	default: {
+		/* oh oh oh, lest we forget, repeating block attr */
+		fixc_attr_t rpba;
+
 		push_state(ctx, cid);
+
+		if (UNLIKELY((rpba = fixc_comp_rptb(cid)) != FIXC_ATTR_UNK)) {
+			__upd_rptb(ctx->msg, rpba, cid);
+		}
+
 		for (const char **ap = attr; ap && *ap; ap += 2) {
 			proc_FIXML_attr(ctx, ap[0], ap[1]);
 		}
 		break;
+	}
 	}
 	return;
 }
