@@ -49,6 +49,7 @@ fixc_comp_rptb(fixc_ctxt_t ctx)
 	default:
 		return FIXC_ATTR_UNK;
 	}
+}
 
 /* fixml-comp-rptb.c ends here */
 </xsl:text>
