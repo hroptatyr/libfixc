@@ -267,6 +267,9 @@ fixc_render_fld(
 	case FIXC_TYP_INT:
 		res += snprintf(buf + res, bsz - res, "%" PRIi32, fld.i32);
 		break;
+	case FIXC_TYP_LONG:
+		res += snprintf(buf + res, bsz - res, "%" PRIi64, fld.i64);
+		break;
 
 	case FIXC_TYP_MSGTYP:
 		/* coincidentally the value of mtyp corresponds to the
@@ -278,6 +281,13 @@ fixc_render_fld(
 			res++;
 		}
 		break;
+	case FIXC_TYP_PTR:
+		/* implement me */
+		abort();
+
+	case FIXC_TYP_CTXT:
+		/* shall we allow that? it's a msg snippet as opposed to
+		 * a proper msg.  well do what default would do */
 	default:
 		break;
 	}

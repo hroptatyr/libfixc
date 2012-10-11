@@ -49,13 +49,14 @@ fixc_comp_rptb(fixc_ctxt_t ctx)
 	default:
 		return FIXC_ATTR_UNK;
 	}
+}
 
 /* fixml-comp-rptb.c ends here */
 </xsl:text>
   </xsl:template>
 
   <xsl:template match="fixc:field[@type='NumInGroup']" mode="find-rpta">
-    <xsl:text>&#0009;&#0009;return </xsl:text>
+    <xsl:text>&#0009;&#0009;return (fixc_attr_t)</xsl:text>
     <xsl:apply-templates select="." mode="enum"/>
     <xsl:text>;&#0010;</xsl:text>
   </xsl:template>
