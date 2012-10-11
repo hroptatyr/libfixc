@@ -131,6 +131,12 @@ pr_usage(FILE *whither)
 fixml2fix " PACKAGE_VERSION "\n\
 \n\
 Usage: fixml2fix [OPTION]... [FILE]...\n\
+\n\
+  -h                Print help and exit\n\
+  -V                Print version and exit\n\
+\n\
+  -v                Verbose mode, show internal states\n\
+  -x                Output FIXML again\n\
 ";
 
 	fwrite(help, 1, sizeof(help) - 1, whither);
@@ -151,13 +157,15 @@ main(int argc, char *argv[])
 {
 	int res = 0;
 
-	for (int opt; (opt = getopt(argc, argv, "hvV")) != -1;) {
+	for (int opt; (opt = getopt(argc, argv, "hxvV")) != -1;) {
 		switch (opt) {
 		case 'h':
 			pr_usage(stdout);
 			goto out;
 		case 'v':
 			verbp = 1;
+			break;
+		case 'x':
 			break;
 		case 'V':
 			pr_version(stdout);
