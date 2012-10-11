@@ -10,7 +10,9 @@ main(void)
 	/* a fixc_fld_s should be 2 ui16s and 1 union of max size ui32 */
 	should_be_z += sizeof(uint16_t);
 	should_be_z += sizeof(uint16_t);
-	should_be_z += sizeof(uint32_t);
+	should_be_z += sizeof(uint16_t);
+	should_be_z += sizeof(uint16_t);
+	should_be_z += sizeof(uint64_t);
 
 	if (fldz != should_be_z) {
 		return 1;
