@@ -71,11 +71,15 @@ EXTRA_DIST += fix-msg-type.h
 noinst_PROGRAMS += fixml2fix
 fixml2fix_CPPFLAGS = $(AM_CPPFLAGS)
 fixml2fix_CPPFLAGS += -DSTANDALONE
+fixml2fix_LDFLAGS = $(AM_LDFLAGS)
+fixml2fix_LDFLAGS += -static
 fixml2fix_LDADD = libfixc.la
 
 noinst_PROGRAMS += fix2fixml
 fix2fixml_CPPFLAGS = $(AM_CPPFLAGS)
 fix2fixml_CPPFLAGS += -DSTANDALONE
+fix2fixml_LDFLAGS = $(AM_LDFLAGS)
+fix2fixml_LDFLAGS += -static
 fix2fixml_LDADD = libfixc.la
 
 

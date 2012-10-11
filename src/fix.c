@@ -354,8 +354,6 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 	size_t vspc;
 	size_t old_sz;
 	size_t add_sz;
-	void *old_flds = NULL;
-	void *new_flds;
 	void *new_pr;
 
 	/* let's hope msg->pr is aligned, fingers crossed */
@@ -377,21 +375,21 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 	/* leave room for FSPC_RND new fields and VSPC_RND bytes msg */
 	add_sz = ROUND(add_vspc, VSPC_RND) +
 		ROUND(add_flds, FSPC_RND) * sizeof(*msg->flds);
-	old_flds = NULL;
 
 	/* make sure not to realloc the flexible array */
-	if (msg->flds != msg->these) {
-		old_flds = msg->flds;
-	}
-	/* final reallocing */
-	new_flds = realloc(old_flds, ROUNDv(old_sz + add_sz));
-
-	/* move the fields first */
-	if (new_flds != old_flds) {
+	if (msg->flds == msg->these) {
+		/* malloc them guys */
 		size_t mvz = msg->nflds * sizeof(*msg->flds);
-		memmove(new_flds, msg->flds, mvz);
+		void *new_flds;
+
+		new_flds = malloc(ROUNDv(old_sz + add_sz));
+		memcpy(new_flds, msg->flds, mvz);
 		msg->flds = new_flds;
+	} else {
+		/* realloc them fields, has a built-in memcpy() */
+		msg->flds = realloc(msg->flds, ROUNDv(old_sz + add_sz));
 	}
+
 	/* always move the pr */
 	new_pr = msg->flds + ROUND(fspc + add_flds, FSPC_RND);
 	memmove(new_pr, msg->pr, msg->pz);
@@ -443,7 +441,7 @@ fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 }
 
 int
-fixc_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
+fixc_add_tag(fixc_msg_t msg, fixc_attr_t tag, const char *val, size_t vsz)
 {
 	/* see if someone tricks us into adding the special fields */
 	switch (tag) {
@@ -460,15 +458,14 @@ fixc_add_tag(fixc_msg_t msg, uint16_t tag, const char *val, size_t vsz)
 
 		/* finally time to adopt this fld */
 		cur = msg->nflds++;
-		msg->flds[cur].tag = tag;
+		msg->flds[cur].tag = (uint16_t)tag;
 		msg->flds[cur].typ = FIXC_TYP_OFF;
 		msg->flds[cur].off = msg->pz;
 		memcpy(msg->pr + msg->pz, val, vsz);
 		msg->pr[msg->pz += vsz] = '\0';
 		msg->pz++;
-		break;
+		return (int)cur;
 	}
-	return 0;
 }
 
 void
