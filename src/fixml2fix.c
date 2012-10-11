@@ -53,6 +53,7 @@
 #endif	/* DEBUG_FLAG */
 
 static int verbp = 0;
+static int fixmlp = 0;
 
 static void
 pr_fld(int num, struct fixc_fld_s fld)
@@ -108,8 +109,12 @@ proc1(const char *file)
 		pr_fld(-1, msg->f10);
 	}
 	/* render the result */
-	{
+	if (!fixmlp) {
 		size_t nwr = fixc_render_fix(buf, sizeof(buf), msg);
+		fwrite(buf, 1, nwr, stdout);
+		fputc('\n', stdout);
+	} else {
+		size_t nwr = fixc_render_fixml(buf, sizeof(buf), msg);
 		fwrite(buf, 1, nwr, stdout);
 		fputc('\n', stdout);
 	}
@@ -131,6 +136,12 @@ pr_usage(FILE *whither)
 fixml2fix " PACKAGE_VERSION "\n\
 \n\
 Usage: fixml2fix [OPTION]... [FILE]...\n\
+\n\
+  -h                Print help and exit\n\
+  -V                Print version and exit\n\
+\n\
+  -v                Verbose mode, show internal states\n\
+  -x                Output FIXML again\n\
 ";
 
 	fwrite(help, 1, sizeof(help) - 1, whither);
@@ -151,13 +162,16 @@ main(int argc, char *argv[])
 {
 	int res = 0;
 
-	for (int opt; (opt = getopt(argc, argv, "hvV")) != -1;) {
+	for (int opt; (opt = getopt(argc, argv, "hxvV")) != -1;) {
 		switch (opt) {
 		case 'h':
 			pr_usage(stdout);
 			goto out;
 		case 'v':
 			verbp = 1;
+			break;
+		case 'x':
+			fixmlp = 1;
 			break;
 		case 'V':
 			pr_version(stdout);
