@@ -91,8 +91,10 @@ struct ptx_ctxcb_s {
 
 	/* navigation info, stores the context */
 	__tid_t otag;
-	/* parent field number */
-	__tid_t pfn;
+	/* just a plain counter */
+	unsigned int cnt;
+	/* and another one that counts consecutive occurrences */
+	unsigned int cns;
 
 	ptx_ctxcb_t old_state;
 };
@@ -175,34 +177,6 @@ __mty_from_elem(const char *elem, size_t elen)
 	return p != NULL ? (fixc_msgt_t)p->mty : FIXC_MSGT_UNK;
 }
 
-static int
-__upd_rptb(fixc_msg_t msg, fixc_attr_t tag, fixc_ctxt_t ctx)
-{
-	size_t i = msg->nflds;
-	struct fixc_fld_s rpbf;
-
-	/* check the message so far, go backwards and try and find field TAG */
-	while (i-- && msg->flds[i].tpc == ctx.ui16) {
-		if (msg->flds[i].tag == tag) {
-			/* found it, fiddle with it */
-			msg->flds[i].i32++;
-			return (int)i;
-		}
-	}
-
-	/* otherwise, it must be the first such tag */
-	rpbf.tag = (uint16_t)tag;
-	rpbf.typ = FIXC_TYP_INT;
-	rpbf.tpc = (uint16_t)ctx.ui16;
-	rpbf.cnt = 0;
-	/* should be at least one innit? */
-	rpbf.i32 = 1;
-
-	/* just add it then */
-	fixc_add_fld(msg, rpbf);
-	return (int)(msg->nflds - 1);
-}
-
 
 static void
 init_ctxcb(__ctx_t ctx)
@@ -235,6 +209,13 @@ push_ctxcb(__ctx_t ctx, ptx_ctxcb_t ctxcb)
 	return;
 }
 
+static ptx_ctxcb_t
+peek_ctxcb(__ctx_t ctx)
+{
+/* return the most recently popped state */
+	return ctx->ctxcb_head;
+}
+
 static void
 pop_state(__ctx_t ctx)
 {
@@ -250,13 +231,34 @@ pop_state(__ctx_t ctx)
 static ptx_ctxcb_t
 push_state(__ctx_t ctx, __tid_t otag)
 {
-	ptx_ctxcb_t res = pop_ctxcb(ctx);
+	ptx_ctxcb_t res;
+	unsigned int cns = 0U;
 
+	if ((res = peek_ctxcb(ctx))->otag == otag) {
+		cns = res->cns;
+	}
+
+	/* now for real */
+	res = pop_ctxcb(ctx);
 	/* stuff it with the object we want to keep track of */
 	res->otag = otag;
+	/* reset the counter */
+	res->cnt = 0U;
+	res->cns = cns;
 	/* fiddle with the states in our context */
 	res->old_state = ctx->state;
 	ctx->state = res;
+
+	/* consecutivity check with the actual message */
+	if (ctx->msg->nflds &&
+	    ctx->msg->flds[ctx->msg->nflds - 1].tpc != otag &&
+	    peek_ctxcb(ctx)->cns == 0U) {
+		/* oh, it's a child, but the peeked value indicates
+		 * that there was a leap to the parent in-between
+		 * so cns isn't quite as consecutive as we thought
+		 * reset it here */
+		ctx->state->cns = 0U;
+	}
 	return res;
 }
 
@@ -339,6 +341,98 @@ ptx_pref_p(__ctx_t ctx, const char *pref, size_t pref_len)
 	}
 }
 
+
+static size_t
+__upd_rptb(__ctx_t ctx, fixc_attr_t tag)
+{
+/* update the last counter tag TAG of context CTX and report its value */
+	struct fixc_fld_s rpbf;
+	fixc_msg_t msg = ctx->msg;
+
+	/* check the message so far, go backwards and try and find field TAG */
+#if 0
+	while (i-- && msg->flds[i].tpc == ctx.ui16) {
+		if (msg->flds[i].tag == tag) {
+			/* found it, fiddle with it */
+			return ++msg->flds[i].i32;
+		}
+	}
+#else
+	/* check the message so far, go backwards and try and find field TAG */
+	if (ctx->state->cns) {
+		size_t i = msg->nflds;
+
+		if (UNLIKELY(!i--)) {
+			/* do fuckall */
+			;
+		} else if (msg->flds[i].tpc != ctx->state->otag) {
+			/* ah, could be a child */
+			i -= peek_ctxcb(ctx)->cns + 1;
+		}
+		if (msg->flds[i -= ctx->state->cns].tag == tag) {
+			return ++msg->flds[i].i32;
+		}
+	}
+#endif
+
+	/* otherwise, it must be the first such tag */
+	rpbf.tag = (uint16_t)tag;
+	rpbf.typ = FIXC_TYP_INT;
+	rpbf.tpc = (uint16_t)ctx->state->otag;
+	rpbf.cnt = 0;
+	/* should be at least one innit? */
+	rpbf.i32 = 1;
+
+	/* just add it then */
+	fixc_add_fld(msg, rpbf);
+	/* first occurrence so no dramas */
+	return 1;
+}
+
+static void
+check_rptblk(__ctx_t ctx)
+{
+	unsigned int cid = ctx->state->otag;
+	fixc_attr_t rpba;
+
+	if (LIKELY((rpba = fixc_comp_rptb(cid)) == FIXC_ATTR_UNK)) {
+		return;
+	}
+	/* otherwise it's update time */
+	(void)__upd_rptb(ctx, rpba);
+
+	/* hm, i somehow feel bad about interacting with the
+	 * proc_FIXML_attr() stuff through ctx, but what do I know
+	 * reset the counter here coz we say this is a new context
+	 * even though the actual context might not have changed */
+	return;
+}
+
+static void
+bang_attr(__ctx_t ctx, fixc_attr_t tag, const char *val, size_t vsz)
+{
+	int fidx = ctx->msg->nflds - 1;
+
+	/* avoid duplicate additions */
+	if (UNLIKELY(ctx->msg->flds[fidx].tag == tag)) {
+		/* we've found a dupe, there's basically two strategies now:
+		 * - kill this tag and leave the previous one alone
+		 * - overwrite the previous one and replace by this
+		 * we chose the latter */
+		FIXC_DEBUG("DUP!\n");
+		ctx->msg->nflds--;
+	}
+
+	/* just use fix.c's add_tag thingie for this */
+	if (LIKELY((fidx = fixc_add_tag(ctx->msg, tag, val, vsz)) >= 0)) {
+		/* also set the field's parent context and whatnot */
+		ctx->msg->flds[fidx].tpc = (uint16_t)ctx->state->otag;
+		ctx->msg->flds[fidx].cnt = (uint16_t)ctx->state->cnt++;
+		ctx->state->cns++;
+	}
+	return;
+}
+
 static void
 proc_FIXC_xmlns(__ctx_t ctx, const char *pref, const char *value)
 {
@@ -402,18 +496,9 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 		FIXC_DEBUG("found unknown FIXML attr: %s (=%s) in context %u\n",
 			   attr, value, ctxid);
 		break;
-	default: {
-		int fidx;
-
-		/* just use fix.c's add_tag thingie for this */
-		fidx = fixc_add_tag(ctx->msg, aid, value, strlen(value));
-
-		if (LIKELY(fidx >= 0)) {
-			/* also set the field's parent context and whatnot */
-			ctx->msg->flds[fidx].tpc = (uint16_t)ctxid;
-		}
+	default:
+		bang_attr(ctx, aid, value, strlen(value));
 		break;
-	}
 	}
 	return;
 }
@@ -473,21 +558,16 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 		/* prepare for @fallthrough@ */
 		cid = (fixc_comp_t)mty;
 	}
-	default: {
-		/* oh oh oh, lest we forget, repeating block attr */
-		fixc_attr_t rpba;
-
+	default:
 		push_state(ctx, cid);
 
-		if (UNLIKELY((rpba = fixc_comp_rptb(cid)) != FIXC_ATTR_UNK)) {
-			__upd_rptb(ctx->msg, rpba, cid);
-		}
+		/* oh oh oh, lest we forget, repeating block attr */
+		check_rptblk(ctx);
 
 		for (const char **ap = attr; ap && *ap; ap += 2) {
 			proc_FIXML_attr(ctx, ap[0], ap[1]);
 		}
 		break;
-	}
 	}
 	return;
 }
