@@ -39,6 +39,7 @@
 #endif	/* HAVE_CONFIG_H */
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -77,6 +78,7 @@ proc1(const char *file)
 	void *p;
 	fixc_msg_t msg;
 	int res = 0;
+	size_t z;
 
 	if (stat(file, &st) < 0) {
 		return -1;
@@ -110,14 +112,21 @@ proc1(const char *file)
 	}
 	/* render the result */
 	if (!fixmlp) {
-		size_t nwr = fixc_render_fix(buf, sizeof(buf), msg);
-		fwrite(buf, 1, nwr, stdout);
-		fputc('\n', stdout);
+		z = fixc_render_fix(buf, sizeof(buf), msg);
+
 	} else {
-		size_t nwr = fixc_render_fixml(buf, sizeof(buf), msg);
-		fwrite(buf, 1, nwr, stdout);
-		fputc('\n', stdout);
+		z = fixc_render_fixml(buf, sizeof(buf), msg);
 	}
+
+	/* actually print the whole shebang, escape stuff on ttys */
+	if (isatty(STDOUT_FILENO)) {
+		for (char *q = buf; (q = strchr(q, '\001'));) {
+			/* the actual character could be configurable no? */
+			*q = '|';
+		}
+	}
+	buf[z++] = '\n';
+	write(STDOUT_FILENO, buf, z);
 
 	/* free our resources */
 	free_fixc(msg);
