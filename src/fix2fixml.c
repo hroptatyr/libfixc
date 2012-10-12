@@ -47,12 +47,15 @@
 #include <errno.h>
 
 #include "fix.h"
+#include "nifty.h"
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 #else  /* !DEBUG_FLAG */
 # define FIXC_DEBUG(args...)
 #endif	/* DEBUG_FLAG */
+
+static int verbp = 0;
 
 static int
 __attribute__((format(printf, 1, 2)))
@@ -69,6 +72,19 @@ error(const char *fmt, ...)
 	}
 	fputc('\n', stderr);
 	return errno;
+}
+
+static void
+pr_fld(int num, struct fixc_fld_s fld)
+{
+	fprintf(stderr, "FLD[%i] = {\n\
+  .tag = %hu,\n\
+  .typ = %hu,\n\
+  .tpc = %hu,\n\
+  .cnt = %hu,\n\
+  .val = 0x%lx,\n\
+};\n", num, fld.tag, fld.typ, fld.tpc, fld.cnt, fld.i64);
+	return;
 }
 
 static int
@@ -98,6 +114,15 @@ proc1(const char *file)
 	if ((msg = make_fixc_from_fix(p, st.st_size)) == NULL) {
 		res = error("cannot parse file `%s'", file);
 		goto munm_out;
+	}
+	if (UNLIKELY(verbp)) {
+		pr_fld(-4, msg->f8);
+		pr_fld(-3, msg->f9);
+		pr_fld(-2, msg->f35);
+		for (size_t i = 0; i < msg->nflds; i++) {
+			pr_fld(i, msg->flds[i]);
+		}
+		pr_fld(-1, msg->f10);
 	}
 	/* render the result */
 	{
@@ -148,11 +173,14 @@ main(int argc, char *argv[])
 {
 	int res = 0;
 
-	for (int opt; (opt = getopt(argc, argv, "hV")) != -1;) {
+	for (int opt; (opt = getopt(argc, argv, "hvV")) != -1;) {
 		switch (opt) {
 		case 'h':
 			pr_usage(stdout);
 			goto out;
+		case 'v':
+			verbp = 1;
+			break;
 		case 'V':
 			pr_version(stdout);
 			goto out;
