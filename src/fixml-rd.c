@@ -91,8 +91,8 @@ struct ptx_ctxcb_s {
 
 	/* navigation info, stores the context */
 	__tid_t otag;
-	/* parent field number */
-	__tid_t pfn;
+	/* just a plain counter */
+	unsigned int cnt;
 
 	ptx_ctxcb_t old_state;
 };
@@ -175,9 +175,10 @@ __mty_from_elem(const char *elem, size_t elen)
 	return p != NULL ? (fixc_msgt_t)p->mty : FIXC_MSGT_UNK;
 }
 
-static int
+static size_t
 __upd_rptb(fixc_msg_t msg, fixc_attr_t tag, fixc_ctxt_t ctx)
 {
+/* update the last counter tag of context CTX and report its value */
 	size_t i = msg->nflds;
 	struct fixc_fld_s rpbf;
 
@@ -185,8 +186,7 @@ __upd_rptb(fixc_msg_t msg, fixc_attr_t tag, fixc_ctxt_t ctx)
 	while (i-- && msg->flds[i].tpc == ctx.ui16) {
 		if (msg->flds[i].tag == tag) {
 			/* found it, fiddle with it */
-			msg->flds[i].i32++;
-			return (int)i;
+			return ++msg->flds[i].i32;
 		}
 	}
 
@@ -200,7 +200,8 @@ __upd_rptb(fixc_msg_t msg, fixc_attr_t tag, fixc_ctxt_t ctx)
 
 	/* just add it then */
 	fixc_add_fld(msg, rpbf);
-	return (int)(msg->nflds - 1);
+	/* first occurrence so no dramas */
+	return 1;
 }
 
 
@@ -254,6 +255,8 @@ push_state(__ctx_t ctx, __tid_t otag)
 
 	/* stuff it with the object we want to keep track of */
 	res->otag = otag;
+	/* reset the counter */
+	res->cnt = 0U;
 	/* fiddle with the states in our context */
 	res->old_state = ctx->state;
 	ctx->state = res;
@@ -339,6 +342,25 @@ ptx_pref_p(__ctx_t ctx, const char *pref, size_t pref_len)
 	}
 }
 
+
+static void
+check_rptblk(__ctx_t ctx, fixc_ctxt_t cid)
+{
+	fixc_attr_t rpba;
+	size_t cnt;
+
+	if (LIKELY((rpba = fixc_comp_rptb(cid)) == FIXC_ATTR_UNK)) {
+		return;
+	}
+	/* otherwise it's update time */
+	cnt = __upd_rptb(ctx->msg, rpba, cid);
+
+	/* hm, i somehow feel bad about interacting with the
+	 * proc_FIXML_attr() stuff through ctx, but what do I know */
+	ctx->state->cnt = (typeof(ctx->state->cnt))cnt;
+	return;
+}
+
 static void
 proc_FIXC_xmlns(__ctx_t ctx, const char *pref, const char *value)
 {
@@ -411,6 +433,7 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 		if (LIKELY(fidx >= 0)) {
 			/* also set the field's parent context and whatnot */
 			ctx->msg->flds[fidx].tpc = (uint16_t)ctxid;
+			ctx->msg->flds[fidx].cnt = (uint16_t)ctx->state->cnt;
 		}
 		break;
 	}
@@ -473,21 +496,16 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 		/* prepare for @fallthrough@ */
 		cid = (fixc_comp_t)mty;
 	}
-	default: {
-		/* oh oh oh, lest we forget, repeating block attr */
-		fixc_attr_t rpba;
-
+	default:
 		push_state(ctx, cid);
 
-		if (UNLIKELY((rpba = fixc_comp_rptb(cid)) != FIXC_ATTR_UNK)) {
-			__upd_rptb(ctx->msg, rpba, cid);
-		}
+		/* oh oh oh, lest we forget, repeating block attr */
+		check_rptblk(ctx, cid);
 
 		for (const char **ap = attr; ap && *ap; ap += 2) {
 			proc_FIXML_attr(ctx, ap[0], ap[1]);
 		}
 		break;
-	}
 	}
 	return;
 }
