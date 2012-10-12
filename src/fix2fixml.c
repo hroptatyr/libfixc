@@ -39,9 +39,12 @@
 #endif	/* HAVE_CONFIG_H */
 #include <stdio.h>
 #include <unistd.h>
+#include <stdarg.h>
+#include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <errno.h>
 
 #include "fix.h"
 
@@ -50,6 +53,23 @@
 #else  /* !DEBUG_FLAG */
 # define FIXC_DEBUG(args...)
 #endif	/* DEBUG_FLAG */
+
+static int
+__attribute__((format(printf, 1, 2)))
+error(const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(errno), stderr);
+	}
+	fputc('\n', stderr);
+	return errno;
+}
 
 static int
 proc1(const char *file)
@@ -62,24 +82,21 @@ proc1(const char *file)
 	int res = 0;
 
 	if (stat(file, &st) < 0) {
-		return -1;
+		return error("cannot find file `%s'", file);
 	}
 	/* otherwise open the file ... */
 	if ((fd = open(file, O_RDONLY)) < 0) {
-		perror("cannot open file");
-		return -1;
+		return error("cannot open file `%s'", file);
 	}
 	/* ... and mmap the file ... */
 	p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
 	if (p == MAP_FAILED) {
-		perror("cannot read file");
-		res = -1;
+		res = error("cannot read file `%s'", file);
 		goto clos_out;
 	}
 	/* ... and call the reader */
 	if ((msg = make_fixc_from_fix(p, st.st_size)) == NULL) {
-		fputs("cannot parse file\n", stderr);
-		res = -1;
+		res = error("cannot parse file `%s'", file);
 		goto munm_out;
 	}
 	/* render the result */
