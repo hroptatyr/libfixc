@@ -361,8 +361,9 @@ ptx_pref_p(__ctx_t ctx, const char *pref, size_t pref_len)
 
 
 static void
-check_rptblk(__ctx_t ctx, fixc_ctxt_t cid)
+check_rptblk(__ctx_t ctx)
 {
+	unsigned int cid = ctx->state->otag;
 	fixc_attr_t rpba;
 
 	if (LIKELY((rpba = fixc_comp_rptb(cid)) == FIXC_ATTR_UNK)) {
@@ -532,7 +533,7 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 		push_state(ctx, cid);
 
 		/* oh oh oh, lest we forget, repeating block attr */
-		check_rptblk(ctx, cid);
+		check_rptblk(ctx);
 
 		for (const char **ap = attr; ap && *ap; ap += 2) {
 			proc_FIXML_attr(ctx, ap[0], ap[1]);
