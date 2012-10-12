@@ -177,35 +177,6 @@ __mty_from_elem(const char *elem, size_t elen)
 	return p != NULL ? (fixc_msgt_t)p->mty : FIXC_MSGT_UNK;
 }
 
-static size_t
-__upd_rptb(fixc_msg_t msg, fixc_attr_t tag, fixc_ctxt_t ctx)
-{
-/* update the last counter tag of context CTX and report its value */
-	size_t i = msg->nflds;
-	struct fixc_fld_s rpbf;
-
-	/* check the message so far, go backwards and try and find field TAG */
-	while (i-- && msg->flds[i].tpc == ctx.ui16) {
-		if (msg->flds[i].tag == tag) {
-			/* found it, fiddle with it */
-			return ++msg->flds[i].i32;
-		}
-	}
-
-	/* otherwise, it must be the first such tag */
-	rpbf.tag = (uint16_t)tag;
-	rpbf.typ = FIXC_TYP_INT;
-	rpbf.tpc = (uint16_t)ctx.ui16;
-	rpbf.cnt = 0;
-	/* should be at least one innit? */
-	rpbf.i32 = 1;
-
-	/* just add it then */
-	fixc_add_fld(msg, rpbf);
-	/* first occurrence so no dramas */
-	return 1;
-}
-
 
 static void
 init_ctxcb(__ctx_t ctx)
@@ -277,6 +248,17 @@ push_state(__ctx_t ctx, __tid_t otag)
 	/* fiddle with the states in our context */
 	res->old_state = ctx->state;
 	ctx->state = res;
+
+	/* consecutivity check with the actual message */
+	if (ctx->msg->nflds &&
+	    ctx->msg->flds[ctx->msg->nflds - 1].tpc != otag &&
+	    peek_ctxcb(ctx)->cns == 0U) {
+		/* oh, it's a child, but the peeked value indicates
+		 * that there was a leap to the parent in-between
+		 * so cns isn't quite as consecutive as we thought
+		 * reset it here */
+		ctx->state->cns = 0U;
+	}
 	return res;
 }
 
@@ -360,6 +342,53 @@ ptx_pref_p(__ctx_t ctx, const char *pref, size_t pref_len)
 }
 
 
+static size_t
+__upd_rptb(__ctx_t ctx, fixc_attr_t tag)
+{
+/* update the last counter tag TAG of context CTX and report its value */
+	struct fixc_fld_s rpbf;
+	fixc_msg_t msg = ctx->msg;
+
+	/* check the message so far, go backwards and try and find field TAG */
+#if 0
+	while (i-- && msg->flds[i].tpc == ctx.ui16) {
+		if (msg->flds[i].tag == tag) {
+			/* found it, fiddle with it */
+			return ++msg->flds[i].i32;
+		}
+	}
+#else
+	/* check the message so far, go backwards and try and find field TAG */
+	if (ctx->state->cns) {
+		size_t i = msg->nflds;
+
+		if (UNLIKELY(!i--)) {
+			/* do fuckall */
+			;
+		} else if (msg->flds[i].tpc != ctx->state->otag) {
+			/* ah, could be a child */
+			i -= peek_ctxcb(ctx)->cns + 1;
+		}
+		if (msg->flds[i -= ctx->state->cns].tag == tag) {
+			return ++msg->flds[i].i32;
+		}
+	}
+#endif
+
+	/* otherwise, it must be the first such tag */
+	rpbf.tag = (uint16_t)tag;
+	rpbf.typ = FIXC_TYP_INT;
+	rpbf.tpc = (uint16_t)ctx->state->otag;
+	rpbf.cnt = 0;
+	/* should be at least one innit? */
+	rpbf.i32 = 1;
+
+	/* just add it then */
+	fixc_add_fld(msg, rpbf);
+	/* first occurrence so no dramas */
+	return 1;
+}
+
 static void
 check_rptblk(__ctx_t ctx)
 {
@@ -370,7 +399,7 @@ check_rptblk(__ctx_t ctx)
 		return;
 	}
 	/* otherwise it's update time */
-	(void)__upd_rptb(ctx->msg, rpba, cid);
+	(void)__upd_rptb(ctx, rpba);
 
 	/* hm, i somehow feel bad about interacting with the
 	 * proc_FIXML_attr() stuff through ctx, but what do I know
