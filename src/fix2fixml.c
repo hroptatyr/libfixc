@@ -191,7 +191,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	for (int i = 1; i < argc; i++) {
+	for (int i = optind; i < argc; i++) {
 		res -= proc1(argv[i]);
 	}
 out:
