@@ -39,6 +39,7 @@
 #endif	/* HAVE_CONFIG_H */
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -54,6 +55,7 @@
 
 static int verbp = 0;
 static int fixmlp = 0;
+static char tabc = '\t';
 
 static void
 pr_fld(int num, struct fixc_fld_s fld)
@@ -77,6 +79,7 @@ proc1(const char *file)
 	void *p;
 	fixc_msg_t msg;
 	int res = 0;
+	size_t z;
 
 	if (stat(file, &st) < 0) {
 		return -1;
@@ -110,14 +113,21 @@ proc1(const char *file)
 	}
 	/* render the result */
 	if (!fixmlp) {
-		size_t nwr = fixc_render_fix(buf, sizeof(buf), msg);
-		fwrite(buf, 1, nwr, stdout);
-		fputc('\n', stdout);
+		z = fixc_render_fix(buf, sizeof(buf), msg);
+
 	} else {
-		size_t nwr = fixc_render_fixml(buf, sizeof(buf), msg);
-		fwrite(buf, 1, nwr, stdout);
-		fputc('\n', stdout);
+		z = fixc_render_fixml(buf, sizeof(buf), msg);
 	}
+
+	/* actually print the whole shebang, escape stuff on ttys */
+	if (isatty(STDOUT_FILENO)) {
+		for (char *q = buf; (q = strchr(q, '\001'));) {
+			/* the actual character could be configurable no? */
+			*q = tabc;
+		}
+	}
+	buf[z++] = '\n';
+	write(STDOUT_FILENO, buf, z);
 
 	/* free our resources */
 	free_fixc(msg);
@@ -142,6 +152,9 @@ Usage: fixml2fix [OPTION]... [FILE]...\n\
 \n\
   -v                Verbose mode, show internal states\n\
   -x                Output FIXML again\n\
+\n\
+  -t CHAR           Use CHAR as tabbing character to separate\n\
+                    fix fields (only on a tty)\n\
 ";
 
 	fwrite(help, 1, sizeof(help) - 1, whither);
@@ -160,9 +173,10 @@ pr_version(FILE *whither)
 int
 main(int argc, char *argv[])
 {
+	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
 	int res = 0;
 
-	for (int opt; (opt = getopt(argc, argv, "hxvV")) != -1;) {
+	for (int opt; (opt = getopt(argc, argv, "hxvVt:")) != -1;) {
 		switch (opt) {
 		case 'h':
 			pr_usage(stdout);
@@ -172,6 +186,15 @@ main(int argc, char *argv[])
 			break;
 		case 'x':
 			fixmlp = 1;
+			break;
+		case 't':
+			if ((tabc = *optarg++) != '\\') {
+				;
+			} else if (*optarg < 'a' || *optarg > 'v') {
+				tabc = '\t';
+			} else {
+				tabc = esc_map[*optarg - 'a'];
+			}
 			break;
 		case 'V':
 			pr_version(stdout);
