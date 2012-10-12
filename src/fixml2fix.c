@@ -39,9 +39,12 @@
 #endif	/* HAVE_CONFIG_H */
 #include <stdio.h>
 #include <unistd.h>
+#include <stdarg.h>
+#include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <errno.h>
 
 #include "fix.h"
 #include "nifty.h"
@@ -54,6 +57,24 @@
 
 static int verbp = 0;
 static int fixmlp = 0;
+static char tabc = '\t';
+
+static int
+__attribute__((format(printf, 1, 2)))
+error(const char *fmt, ...)
+{
+	va_list vap;
+	va_start(vap, fmt);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(errno), stderr);
+	}
+	fputc('\n', stderr);
+	return errno;
+}
 
 static void
 pr_fld(int num, struct fixc_fld_s fld)
@@ -77,26 +98,24 @@ proc1(const char *file)
 	void *p;
 	fixc_msg_t msg;
 	int res = 0;
+	size_t z;
 
 	if (stat(file, &st) < 0) {
-		return -1;
+		return error("cannot find file `%s'", file);
 	}
 	/* otherwise open the file ... */
 	if ((fd = open(file, O_RDONLY)) < 0) {
-		perror("cannot open file");
-		return -1;
+		return error("cannot open file `%s'", file);
 	}
 	/* ... and mmap the file ... */
 	p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
 	if (p == MAP_FAILED) {
-		perror("cannot read file");
-		res = -1;
+		res = error("cannot read file `%s'", file);
 		goto clos_out;
 	}
 	/* ... and call the reader */
 	if ((msg = make_fixc_from_fixml(p, st.st_size)) == NULL) {
-		fputs("cannot parse file\n", stderr);
-		res = -1;
+		res = error("cannot parse file `%s'", file);
 		goto munm_out;
 	}
 	if (UNLIKELY(verbp)) {
@@ -110,14 +129,21 @@ proc1(const char *file)
 	}
 	/* render the result */
 	if (!fixmlp) {
-		size_t nwr = fixc_render_fix(buf, sizeof(buf), msg);
-		fwrite(buf, 1, nwr, stdout);
-		fputc('\n', stdout);
+		z = fixc_render_fix(buf, sizeof(buf), msg);
+
 	} else {
-		size_t nwr = fixc_render_fixml(buf, sizeof(buf), msg);
-		fwrite(buf, 1, nwr, stdout);
-		fputc('\n', stdout);
+		z = fixc_render_fixml(buf, sizeof(buf), msg);
 	}
+
+	/* actually print the whole shebang, escape stuff on ttys */
+	if (isatty(STDOUT_FILENO)) {
+		for (char *q = buf; (q = strchr(q, '\001'));) {
+			/* the actual character could be configurable no? */
+			*q = tabc;
+		}
+	}
+	buf[z++] = '\n';
+	write(STDOUT_FILENO, buf, z);
 
 	/* free our resources */
 	free_fixc(msg);
@@ -142,6 +168,9 @@ Usage: fixml2fix [OPTION]... [FILE]...\n\
 \n\
   -v                Verbose mode, show internal states\n\
   -x                Output FIXML again\n\
+\n\
+  -t CHAR           Use CHAR as tabbing character to separate\n\
+                    fix fields (only on a tty)\n\
 ";
 
 	fwrite(help, 1, sizeof(help) - 1, whither);
@@ -160,9 +189,10 @@ pr_version(FILE *whither)
 int
 main(int argc, char *argv[])
 {
+	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
 	int res = 0;
 
-	for (int opt; (opt = getopt(argc, argv, "hxvV")) != -1;) {
+	for (int opt; (opt = getopt(argc, argv, "hxvVt:")) != -1;) {
 		switch (opt) {
 		case 'h':
 			pr_usage(stdout);
@@ -172,6 +202,15 @@ main(int argc, char *argv[])
 			break;
 		case 'x':
 			fixmlp = 1;
+			break;
+		case 't':
+			if ((tabc = *optarg++) != '\\') {
+				;
+			} else if (*optarg < 'a' || *optarg > 'v') {
+				tabc = '\t';
+			} else {
+				tabc = esc_map[*optarg - 'a'];
+			}
 			break;
 		case 'V':
 			pr_version(stdout);
@@ -183,7 +222,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	for (int i = 1; i < argc; i++) {
+	for (int i = optind; i < argc; i++) {
 		res -= proc1(argv[i]);
 	}
 out:
