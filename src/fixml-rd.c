@@ -362,6 +362,30 @@ check_rptblk(__ctx_t ctx, fixc_ctxt_t cid)
 }
 
 static void
+bang_attr(__ctx_t ctx, fixc_attr_t tag, const char *val, size_t vsz)
+{
+	int fidx = ctx->msg->nflds - 1;
+
+	/* avoid duplicate additions */
+	if (UNLIKELY(ctx->msg->flds[fidx].tag == tag)) {
+		/* we've found a dupe, there's basically two strategies now:
+		 * - kill this tag and leave the previous one alone
+		 * - overwrite the previous one and replace by this
+		 * we chose the latter */
+		FIXC_DEBUG("DUP!\n");
+		ctx->msg->nflds--;
+	}
+
+	/* just use fix.c's add_tag thingie for this */
+	if (LIKELY((fidx = fixc_add_tag(ctx->msg, tag, val, vsz)) >= 0)) {
+		/* also set the field's parent context and whatnot */
+		ctx->msg->flds[fidx].tpc = (uint16_t)ctx->state->otag;
+		ctx->msg->flds[fidx].cnt = (uint16_t)ctx->state->cnt;
+	}
+	return;
+}
+
+static void
 proc_FIXC_xmlns(__ctx_t ctx, const char *pref, const char *value)
 {
 	FIXC_DEBUG("reg'ging name space %s <- %s\n", pref, value);
@@ -424,19 +448,9 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 		FIXC_DEBUG("found unknown FIXML attr: %s (=%s) in context %u\n",
 			   attr, value, ctxid);
 		break;
-	default: {
-		int fidx;
-
-		/* just use fix.c's add_tag thingie for this */
-		fidx = fixc_add_tag(ctx->msg, aid, value, strlen(value));
-
-		if (LIKELY(fidx >= 0)) {
-			/* also set the field's parent context and whatnot */
-			ctx->msg->flds[fidx].tpc = (uint16_t)ctxid;
-			ctx->msg->flds[fidx].cnt = (uint16_t)ctx->state->cnt;
-		}
+	default:
+		bang_attr(ctx, aid, value, strlen(value));
 		break;
-	}
 	}
 	return;
 }
