@@ -116,14 +116,57 @@ clos_out:
 }
 
 
+static void
+pr_usage(FILE *whither)
+{
+	static char help[] = "\
+fix2fixml " PACKAGE_VERSION "\n\
+\n\
+Usage: fix2fixml [OPTION]... [FILE]...\n\
+\n\
+  -h                Print help and exit\n\
+  -V                Print version and exit\n\
+\n\
+  -v                Verbose mode, show internal states\n\
+";
+
+	fwrite(help, 1, sizeof(help) - 1, whither);
+	return;
+}
+
+static void
+pr_version(FILE *whither)
+{
+	static char vrsn[] = "fix2fixml " PACKAGE_VERSION "\n";
+
+	fwrite(vrsn, 1, sizeof(vrsn) - 1, whither);
+	return;
+}
+
 int
 main(int argc, char *argv[])
 {
 	int res = 0;
 
+	for (int opt; (opt = getopt(argc, argv, "hV")) != -1;) {
+		switch (opt) {
+		case 'h':
+			pr_usage(stdout);
+			goto out;
+		case 'V':
+			pr_version(stdout);
+			goto out;
+		default:
+			fputc('\n', stderr);
+			pr_usage(stderr);
+			goto out;
+		}
+	}
+
 	for (int i = 1; i < argc; i++) {
 		res -= proc1(argv[i]);
 	}
+out:
 	return res;
 }
 
