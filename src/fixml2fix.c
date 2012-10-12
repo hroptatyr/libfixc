@@ -55,6 +55,7 @@
 
 static int verbp = 0;
 static int fixmlp = 0;
+static char tabc = '\t';
 
 static void
 pr_fld(int num, struct fixc_fld_s fld)
@@ -122,7 +123,7 @@ proc1(const char *file)
 	if (isatty(STDOUT_FILENO)) {
 		for (char *q = buf; (q = strchr(q, '\001'));) {
 			/* the actual character could be configurable no? */
-			*q = '|';
+			*q = tabc;
 		}
 	}
 	buf[z++] = '\n';
@@ -151,6 +152,9 @@ Usage: fixml2fix [OPTION]... [FILE]...\n\
 \n\
   -v                Verbose mode, show internal states\n\
   -x                Output FIXML again\n\
+\n\
+  -t CHAR           Use CHAR as tabbing character to separate\n\
+                    fix fields (only on a tty)\n\
 ";
 
 	fwrite(help, 1, sizeof(help) - 1, whither);
@@ -169,9 +173,10 @@ pr_version(FILE *whither)
 int
 main(int argc, char *argv[])
 {
+	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
 	int res = 0;
 
-	for (int opt; (opt = getopt(argc, argv, "hxvV")) != -1;) {
+	for (int opt; (opt = getopt(argc, argv, "hxvVt:")) != -1;) {
 		switch (opt) {
 		case 'h':
 			pr_usage(stdout);
@@ -181,6 +186,15 @@ main(int argc, char *argv[])
 			break;
 		case 'x':
 			fixmlp = 1;
+			break;
+		case 't':
+			if ((tabc = *optarg++) != '\\') {
+				;
+			} else if (*optarg < 'a' || *optarg > 'v') {
+				tabc = '\t';
+			} else {
+				tabc = esc_map[*optarg - 'a'];
+			}
 			break;
 		case 'V':
 			pr_version(stdout);
