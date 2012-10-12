@@ -93,6 +93,8 @@ struct ptx_ctxcb_s {
 	__tid_t otag;
 	/* just a plain counter */
 	unsigned int cnt;
+	/* and another one that counts consecutive occurrences */
+	unsigned int cns;
 
 	ptx_ctxcb_t old_state;
 };
@@ -236,6 +238,13 @@ push_ctxcb(__ctx_t ctx, ptx_ctxcb_t ctxcb)
 	return;
 }
 
+static ptx_ctxcb_t
+peek_ctxcb(__ctx_t ctx)
+{
+/* return the most recently popped state */
+	return ctx->ctxcb_head;
+}
+
 static void
 pop_state(__ctx_t ctx)
 {
@@ -251,12 +260,20 @@ pop_state(__ctx_t ctx)
 static ptx_ctxcb_t
 push_state(__ctx_t ctx, __tid_t otag)
 {
-	ptx_ctxcb_t res = pop_ctxcb(ctx);
+	ptx_ctxcb_t res;
+	unsigned int cns = 0U;
 
+	if ((res = peek_ctxcb(ctx))->otag == otag) {
+		cns = res->cns;
+	}
+
+	/* now for real */
+	res = pop_ctxcb(ctx);
 	/* stuff it with the object we want to keep track of */
 	res->otag = otag;
 	/* reset the counter */
 	res->cnt = 0U;
+	res->cns = cns;
 	/* fiddle with the states in our context */
 	res->old_state = ctx->state;
 	ctx->state = res;
@@ -347,17 +364,17 @@ static void
 check_rptblk(__ctx_t ctx, fixc_ctxt_t cid)
 {
 	fixc_attr_t rpba;
-	size_t cnt;
 
 	if (LIKELY((rpba = fixc_comp_rptb(cid)) == FIXC_ATTR_UNK)) {
 		return;
 	}
 	/* otherwise it's update time */
-	cnt = __upd_rptb(ctx->msg, rpba, cid);
+	(void)__upd_rptb(ctx->msg, rpba, cid);
 
 	/* hm, i somehow feel bad about interacting with the
-	 * proc_FIXML_attr() stuff through ctx, but what do I know */
-	ctx->state->cnt = (typeof(ctx->state->cnt))cnt;
+	 * proc_FIXML_attr() stuff through ctx, but what do I know
+	 * reset the counter here coz we say this is a new context
+	 * even though the actual context might not have changed */
 	return;
 }
 
@@ -380,7 +397,8 @@ bang_attr(__ctx_t ctx, fixc_attr_t tag, const char *val, size_t vsz)
 	if (LIKELY((fidx = fixc_add_tag(ctx->msg, tag, val, vsz)) >= 0)) {
 		/* also set the field's parent context and whatnot */
 		ctx->msg->flds[fidx].tpc = (uint16_t)ctx->state->otag;
-		ctx->msg->flds[fidx].cnt = (uint16_t)ctx->state->cnt;
+		ctx->msg->flds[fidx].cnt = (uint16_t)ctx->state->cnt++;
+		ctx->state->cns++;
 	}
 	return;
 }
