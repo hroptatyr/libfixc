@@ -74,6 +74,61 @@
 # define CHAR_BIT	(8U)
 #endif	/* !CHAR_BIT */
 
+typedef struct __ctx_s *__ctx_t;
+typedef struct ptx_ctxcb_s *ptx_ctxcb_t;
+
+struct ptx_ctxcb_s {
+	/* for a linked list */
+	ptx_ctxcb_t next;
+
+	/* navigation info, stores the context */
+	fixc_comp_sub_t osub;
+
+	ptx_ctxcb_t old_state;
+};
+
+struct __ctx_s {
+	/* parser state, for contextual callbacks */
+	ptx_ctxcb_t state;
+	/* pool of context trackers, implies maximum parsing depth */
+	struct ptx_ctxcb_s ctxcb_pool[16];
+	ptx_ctxcb_t ctxcb_head;
+
+	fixc_msg_t msg;
+};
+
+static void
+init_ctxcb(__ctx_t ctx)
+{
+	memset(ctx->ctxcb_pool, 0, sizeof(ctx->ctxcb_pool));
+	for (size_t i = 0; i < countof(ctx->ctxcb_pool) - 1; i++) {
+		ctx->ctxcb_pool[i].next = ctx->ctxcb_pool + i + 1;
+	}
+	ctx->ctxcb_head = ctx->ctxcb_pool;
+	return;
+}
+
+static ptx_ctxcb_t
+pop_ctxcb(__ctx_t ctx)
+{
+	ptx_ctxcb_t res = ctx->ctxcb_head;
+
+	if (LIKELY(res != NULL)) {
+		ctx->ctxcb_head = res->next;
+		memset(res, 0, sizeof(*res));
+	}
+	return res;
+}
+
+static void
+push_ctxcb(__ctx_t ctx, ptx_ctxcb_t ctxcb)
+{
+	ctxcb->next = ctx->ctxcb_head;
+	ctx->ctxcb_head = ctxcb;
+	return;
+}
+
+
 static char*
 sputc(char *restrict buf, const char *eob, char c)
 {
@@ -323,6 +378,69 @@ __render_v(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	p = sncpy(p, ep, vstr, strlen(vstr));
 	p = sputc(p, ep, '"');
 	return p - buf;
+}
+
+static void
+pop_state(__ctx_t ctx)
+{
+/* restore the previous current state */
+	ptx_ctxcb_t curr = ctx->state;
+
+	ctx->state = curr->old_state;
+	/* queue him in our pool */
+	push_ctxcb(ctx, curr);
+	return;
+}
+
+static ptx_ctxcb_t
+push_state(__ctx_t ctx, fixc_ctxt_t otag)
+{
+	ptx_ctxcb_t res;
+	fixc_comp_sub_t sub = fixc_get_comp_sub(otag);
+
+	if (UNLIKELY(sub->min == 0 && sub->max == -1)) {
+		/* one of them optimised implict blocks */
+		sub = fixc_get_comp_sub((fixc_comp_t)sub->subs[0]);
+	}
+
+	/* now for real */
+	res = pop_ctxcb(ctx);
+	/* stuff it with the object we want to keep track of */
+	res->osub = sub;
+	/* fiddle with the states in our context */
+	res->old_state = ctx->state;
+	ctx->state = res;
+	return res;
+}
+
+static void
+ptx_init(__ctx_t ctx)
+{
+	/* initialise the ctxcb pool */
+	init_ctxcb(ctx);
+	return;
+}
+
+static void
+__change_ctx(__ctx_t ctx, fixc_ctxt_t new)
+{
+	/* open a tag, question is child or sibling */
+	while (ctx->state != NULL) {
+		fixc_comp_sub_t sub = ctx->state->osub;
+
+		for (size_t i = 0; i < sub->nsubs; i++) {
+			if (sub->subs[i] == new.ui16) {
+			new_chld:
+				/* it's a child, yay */
+				push_state(ctx, new);
+				return;
+			}
+		}
+		/* otherwise, must be a sibling or a cousin */
+		pop_state(ctx);
+	}
+	FIXC_DEBUG("completely unwound, probably buggered FIX message\n");
+	goto new_chld;
 }
 
 
