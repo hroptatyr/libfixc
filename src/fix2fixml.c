@@ -115,6 +115,9 @@ proc1(const char *file)
 		res = error("cannot parse file `%s'", file);
 		goto munm_out;
 	}
+	/* always fixup msg for later use in fixml printer */
+	fixc_fixup(msg);
+
 	if (UNLIKELY(verbp)) {
 		pr_fld(-4, msg->f8);
 		pr_fld(-3, msg->f9);

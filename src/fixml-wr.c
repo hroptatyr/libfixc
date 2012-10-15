@@ -570,6 +570,11 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	struct __ctx_s ctx = {0};
 	fixc_ctxt_t otpc = {0};
 
+	if (msg->nflds && msg->flds[0].tpc == 0U) {
+		/* just in case the reader hasn't given us contexts */
+		fixc_fixup(msg);
+	}
+
 	/* the usual stuff upfront, xml PI */
 	p = sncpy(p, ep, xml_pre, sizeof(xml_pre) - 1);
 	/* newline this one, all other tags will have no indentation */
