@@ -94,7 +94,8 @@ struct __ctx_s {
 	struct ptx_ctxcb_s ctxcb_pool[16];
 	ptx_ctxcb_t ctxcb_head;
 
-	fixc_msg_t msg;
+	char *restrict p;
+	const char *ep;
 };
 
 static void
@@ -204,7 +205,7 @@ __render_attr(
 		p = sncpy(p, ep, b + fld.off, len);
 		break;
 	case FIXC_TYP_UCHAR:
-		p += snprintf(p, ep - p - 1, "%03" PRIu8, fld.u8);
+		p += snprintf(p, ep - p - 1, "%03u", (unsigned int)fld.u8);
 		break;
 	case FIXC_TYP_CHAR:
 		p = sputc(p, ep, fld.c);
@@ -380,16 +381,22 @@ __render_v(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	return p - buf;
 }
 
-static void
+static fixc_comp_sub_t
 pop_state(__ctx_t ctx)
 {
 /* restore the previous current state */
 	ptx_ctxcb_t curr = ctx->state;
+	fixc_comp_sub_t res;
 
+	if (UNLIKELY(curr == NULL)) {
+		return NULL;
+	}
+	/* otherwise store res for later use */
+	res = curr->osub;
 	ctx->state = curr->old_state;
 	/* queue him in our pool */
 	push_ctxcb(ctx, curr);
-	return;
+	return res;
 }
 
 static ptx_ctxcb_t
@@ -414,10 +421,12 @@ push_state(__ctx_t ctx, fixc_ctxt_t otag)
 }
 
 static void
-ptx_init(__ctx_t ctx)
+ptx_init(__ctx_t ctx, char *restrict p, const char *ep)
 {
 	/* initialise the ctxcb pool */
 	init_ctxcb(ctx);
+	ctx->p = p;
+	ctx->ep = ep;
 	return;
 }
 
@@ -446,52 +455,113 @@ __childp(fixc_comp_sub_t parent, fixc_ctxt_t child)
 	return 0;
 }
 
-static int
-childp(fixc_comp_sub_t ancest, fixc_ctxt_t descend)
+static __attribute__((unused)) fixc_comp_t
+__ancestp(fixc_comp_sub_t ancest, fixc_ctxt_t descend)
 {
-/* Return non-0 if DESCEND is a child or grand-child of ANCEST. */
-	if (__childp(ancest, descend)) {
-		return 1;
-	}
+/* Return non-0 if DESCEND is a grand-child of ANCEST. */
 	/* oh, could be one of them comp-only blocks in between */
 	for (size_t i = 0; i < ancest->nsubs; i++) {
-		fixc_ctxt_t xctx = {.ui16 = ancest->subs[i]};
-		fixc_comp_sub_t xpar = fixc_get_comp_sub(xctx);
+		fixc_comp_t xcmp = (fixc_comp_t)ancest->subs[i];
+		fixc_comp_sub_t xpar = fixc_get_comp_sub(xcmp);
 
-		if (childp(xpar, descend)) {
-			FIXC_DEBUG("need anon block <%hu>\n", xpar->ctx);
-			return 1;
+		/* unrolled */
+		for (size_t j = 0; j < xpar->nsubs; j++) {
+			fixc_comp_t ycmp = (fixc_comp_t)xpar->subs[j];
+			fixc_comp_sub_t ypar;
+
+			if (ycmp == descend.ui16) {
+				return xcmp;
+			}
+
+			ypar = fixc_get_comp_sub(ycmp);
+			for (size_t k = 0; k < ypar->nsubs; k++) {
+				fixc_comp_t zcmp = (fixc_comp_t)ypar->subs[k];
+
+				if (zcmp == descend.ui16) {
+					return ycmp;
+				}
+			}
 		}
 	}
-	return 0;
+	return FIXC_COMP_UNK;
 }
 
-static size_t
-__change_ctx(char *restrict buf, size_t bsz, __ctx_t ctx, fixc_ctxt_t new)
+static void
+push_rndr_state(__ctx_t ctx, fixc_ctxt_t otag)
 {
-	char *restrict p = buf;
-	const char *ep = p + bsz;
+	push_state(ctx, otag);
 
+	ctx->p = sputc(ctx->p, ctx->ep, '<');
+	ctx->p = __fixmlify(ctx->p, ctx->ep, otag);
+	return;
+}
+
+static fixc_comp_sub_t
+pop_rndr_state(__ctx_t ctx)
+{
+	fixc_comp_sub_t sub = pop_state(ctx);
+
+	ctx->p = sputc(ctx->p, ctx->ep, '<');
+	ctx->p = sputc(ctx->p, ctx->ep, '/');
+	ctx->p = __fixmlify(ctx->p, ctx->ep, (fixc_comp_t)sub->ctx);
+	ctx->p = sputc(ctx->p, ctx->ep, '>');
+	return sub;
+}
+
+static fixc_comp_t
+__ancest_rndr(__ctx_t ctx, fixc_comp_sub_t ancest, fixc_ctxt_t descend)
+{
+/* Return non-0 if DESCEND is a grand-child of ANCEST. */
+	/* oh, could be one of them comp-only blocks in between */
+	for (size_t i = 0; i < ancest->nsubs; i++) {
+		fixc_comp_t xcmp = (fixc_comp_t)ancest->subs[i];
+		fixc_comp_sub_t xpar = fixc_get_comp_sub(xcmp);
+
+		if (xcmp == descend.ui16) {
+			return xcmp;
+		}
+
+		/* unrolled */
+		for (size_t j = 0; j < xpar->nsubs; j++) {
+			fixc_comp_t ycmp = (fixc_comp_t)xpar->subs[j];
+			fixc_comp_sub_t ypar;
+
+			if (ycmp == descend.ui16) {
+				push_rndr_state(ctx, xcmp);
+				return ycmp;
+			}
+
+			ypar = fixc_get_comp_sub(ycmp);
+			for (size_t k = 0; k < ypar->nsubs; k++) {
+				fixc_comp_t zcmp = (fixc_comp_t)ypar->subs[k];
+
+				if (zcmp == descend.ui16) {
+					push_rndr_state(ctx, xcmp);
+					push_rndr_state(ctx, ycmp);
+					return zcmp;
+				}
+			}
+		}
+	}
+	return FIXC_COMP_UNK;
+}
+
+static void
+__change_ctx(__ctx_t ctx, fixc_ctxt_t new)
+{
 	/* open a tag, question is child or sibling */
 	while (ctx->state != NULL) {
 		fixc_comp_sub_t sub = ctx->state->osub;
 
-		if (childp(sub, new)) {
+		if (__childp(sub, new) || __ancest_rndr(ctx, sub, new)) {
 		new_chld:
 			/* it's a child, yay */
-			push_state(ctx, new);
-
-			p = sputc(p, ep, '<');
-			p = __fixmlify(p, ep, new);
-			return p - buf;
+			push_rndr_state(ctx, new);
+			return;
 		}
-		/* otherwise, must be a sibling or a cousin */
-		pop_state(ctx);
 
-		p = sputc(p, ep, '<');
-		p = sputc(p, ep, '/');
-		p = __fixmlify(p, ep, (fixc_comp_t)sub->ctx);
-		p = sputc(p, ep, '>');
+		/* otherwise, must be a sibling or a cousin */
+		pop_rndr_state(ctx);
 	}
 	FIXC_DEBUG("completely unwound, probably buggered FIX message\n");
 	goto new_chld;
@@ -568,7 +638,7 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	p = sputc(p, ep, '>');
 
 	/* set up our stack */
-	ptx_init(&ctx);
+	ptx_init(&ctx, p, ep);
 	/* traverse the message only once */
 	for (size_t i = 0; i < msg->nflds; i++) {
 		/* several edge triggers here:
@@ -577,11 +647,15 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 		if (msg->flds[i].tpc != otpc.ui16) {
 			/* let's see what to do to our stack */
 			fixc_ctxt_t tmp = {.ui16 = msg->flds[i].tpc};
-			p += __change_ctx(p, ep - p, &ctx, tmp);
+			__change_ctx(&ctx, tmp);
 			otpc.ui16 = msg->flds[i].tpc;
 		}
 	}
 
+	while (pop_rndr_state(&ctx) != NULL);
+
+	/* copy the context pointer back */
+	p = ctx.p;
 	/* final verdict */
 	p = sputc(p, ep, '<');
 	p = sputc(p, ep, '/');
