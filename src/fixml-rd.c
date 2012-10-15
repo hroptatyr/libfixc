@@ -59,7 +59,6 @@
 #include "fixml-attr-by-ctx.h"
 
 #include "fixml-comp-rptb.h"
-#include "fixml-comp-rptb.c"
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)

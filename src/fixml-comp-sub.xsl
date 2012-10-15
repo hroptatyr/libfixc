@@ -45,6 +45,25 @@ fixc_comp_sub_t fixc_get_comp_sub(fixc_ctxt_t ctx)
 		static const struct fixc_comp_sub_s this = {
 			.ctx = </xsl:text>
     <xsl:apply-templates select="." mode="enum"/><xsl:text>,
+			.min = </xsl:text>
+    <xsl:choose>
+      <xsl:when test="@not_req_xml = '1' or
+                      @type = 'OptimisedImplicitBlockRepeating'">
+        <xsl:text>0</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>1</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose><xsl:text>,
+			.max = </xsl:text>
+    <xsl:choose>
+      <xsl:when test="contains(@type, 'Repeating')">
+        <xsl:text>-1</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>1</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose><xsl:text>,
 			.nsubs = </xsl:text>
     <xsl:value-of select="count(fixc:component)"/><xsl:text>,
 			.subs = {&#0010;</xsl:text>

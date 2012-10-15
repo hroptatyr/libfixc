@@ -37,6 +37,7 @@
 #if !defined INCLUDED_fixml_canon_ctxt_h_
 #define INCLUDED_fixml_canon_ctxt_h_
 
+#include <stdint.h>
 #include "fixml-canon-comp.h"
 #include "fixml-canon-msgt.h"
 

@@ -141,6 +141,8 @@ fixc_parse_fld(fixc_msg_t msg, const char *str, size_t len)
 	return;
 }
 
+
+/* ctors and dtors */
 fixc_msg_t
 make_fixc_msg(fixc_ctxt_t ctx)
 {
@@ -259,7 +261,9 @@ fixc_render_fld(
 		break;
 	}
 	case FIXC_TYP_UCHAR:
-		res += snprintf(buf + res, bsz - res, "%03" PRIu8, fld.u8);
+		res += snprintf(
+			buf + res, bsz - res,
+			"%03u", (unsigned int)fld.u8);
 		break;
 	case FIXC_TYP_CHAR:
 		buf[res++] = fld.c;

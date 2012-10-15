@@ -174,4 +174,8 @@ extern int fixc_add_tag(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz);
  * Delete field N in MSG.*/
 extern void fixc_del_fld(fixc_msg_t, size_t n);
 
+
+/* for internal use */
+extern void fixc_fixup(fixc_msg_t);
+
 #endif	/* INCLUDED_fix_h_ */
