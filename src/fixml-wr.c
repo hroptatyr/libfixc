@@ -549,7 +549,8 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 			otpc.ui16 = msg->flds[i].tpc;
 		} else if (msg->flds[i].cnt == 0) {
 			/* consecutive counter reset */
-
+			ictx = pop_rndr_state(&ctx);
+			push_rndr_state(&ctx, ictx);
 		}
 		/* of course the attr needs rendering */
 		__render_attr(&ctx, ictx, msg->pr, msg->flds[i]);
