@@ -540,7 +540,10 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 		/* several edge triggers here:
 		 * - whenever the .tpc (parent ctx) changes
 		 * - whenever the .cnt (field counter) goes back to 0 */
-		if (msg->flds[i].tpc != otpc.ui16) {
+		if (UNLIKELY(msg->flds[i].tag == fixc_comp_rptb(ictx))) {
+			/* don't even render this guy */
+			continue;
+		} else if (msg->flds[i].tpc != otpc.ui16) {
 			/* let's see what to do to our stack */
 			__change_ctx(&ctx, ictx);
 			otpc.ui16 = msg->flds[i].tpc;
