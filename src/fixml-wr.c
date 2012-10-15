@@ -154,181 +154,49 @@ sncpy(char *restrict buf, const char *eob, const char *s, size_t slen)
 
 
 /* fixml guts */
-static int
-__attr_in_ctx_p(fixc_attr_t a, fixc_ctxt_t ctx)
+static void
+__render_attr(__ctx_t ctx, fixc_ctxt_t t, const char *b, struct fixc_fld_s fld)
 {
-/* return non-0 if tag A is a member of component CTX or msg-type CTX. */
-#if 1
-	fixc_comp_fld_t fld = fixc_get_comp_fld(ctx);
-
-	for (size_t i = 0; i < fld->nflds; i++) {
-		if (a == fld->flds[i]) {
-			return 1;
-		}
-	}
-	return 0;
-#else  /* !0 */
-	fixc_fld_ctx_t fcm = fixc_get_fld_ctx((unsigned int)a);
-
-	for (size_t i = 0; i < fcm->nmsgs + fcm->ncomps; i++) {
-		if (ctx == fcm->ctxs[i]) {
-			return 1;
-		}
-	}
-	return 0;
-#endif	/* 0 */
-}
-
-static size_t
-__render_attr(
-	char *restrict const buf, size_t bsz,
-	fixc_ctxt_t ctx, const char *b, struct fixc_fld_s fld)
-{
-	const char *attr = fixc_attr_fixmlify(ctx, (fixc_attr_t)fld.tag);
+	const char *attr = fixc_attr_fixmlify(t, (fixc_attr_t)fld.tag);
 	size_t alen = strlen(attr);
-	char *p = buf;
-	const char *ep = buf + bsz;
 
 	if (!alen) {
 		/* probably fubar'd or an unknown attr */
-		return 0UL;
+		return;
 	}
 
-	p = sputc(p, ep, ' ');
-	p = sncpy(p, ep, attr, alen);
-	p = sputc(p, ep, '=');
-	p = sputc(p, ep, '"');
+	ctx->p = sputc(ctx->p, ctx->ep, ' ');
+	ctx->p = sncpy(ctx->p, ctx->ep, attr, alen);
+	ctx->p = sputc(ctx->p, ctx->ep, '=');
+	ctx->p = sputc(ctx->p, ctx->ep, '"');
 	switch (fld.typ) {
 		size_t len;
 	case FIXC_TYP_OFF:
 		len = strlen(b + fld.off);
-		p = sncpy(p, ep, b + fld.off, len);
+		ctx->p = sncpy(ctx->p, ctx->ep, b + fld.off, len);
 		break;
 	case FIXC_TYP_UCHAR:
-		p += snprintf(p, ep - p - 1, "%03u", (unsigned int)fld.u8);
+		ctx->p += snprintf(
+			ctx->p, ctx->ep - ctx->p - 1,
+			"%03u", (unsigned int)fld.u8);
 		break;
 	case FIXC_TYP_CHAR:
-		p = sputc(p, ep, fld.c);
+		ctx->p = sputc(ctx->p, ctx->ep, fld.c);
 		break;
 	case FIXC_TYP_INT:
-		p += snprintf(p, ep - p - 1, "%" PRIi32, fld.i32);
+		ctx->p += snprintf(
+			ctx->p, ctx->ep - ctx->p - 1,
+			"%" PRIi32, fld.i32);
 		break;
 
 	case FIXC_TYP_VER:
 	case FIXC_TYP_MSGTYP:
 	default:
 		/* huh? */
-		return 0UL;
+		return;
 	}
-	p = sputc(p, ep, '"');
-	return p - buf;
-}
-
-/* fwd decl */
-static size_t
-__render_comp(
-	char *restrict const buf, size_t bsz,
-	fixc_msg_t msg, fixc_comp_t cid);
-
-static size_t
-__render_ctx(
-	char *restrict const buf, size_t bsz,
-	fixc_msg_t msg, fixc_ctxt_t ctx,
-	const char *elem, size_t elen)
-{
-	char *p = buf;
-	const char *ep = buf + bsz;
-	fixc_comp_sub_t sub;
-	int nattr = 0;
-	int nsub = 0;
-
-	/* start the tag */
-	/* start the comp tag */
-	p = sputc(p, ep, '<');
-	p = sncpy(p, ep, elem, elen);
-
-	/* all them attrs belonging in context CID */
-	for (size_t i = 0; i < msg->nflds && p < ep; i++) {
-		/* use the new .tpc field (if set) */
-		if (msg->flds[i].tpc && msg->flds[i].tpc != ctx.ui16) {
-			/* no match, new .tpc system */
-			continue;
-		} else if (msg->flds[i].tpc) {
-			/* there was a match, .tpc system */
-			;
-		} else if (!__attr_in_ctx_p(
-				   (fixc_attr_t)msg->flds[i].tag, ctx)) {
-			/* no match, exhaustive search */
-			continue;
-		}
-		/* weird condition tree but this is what happens for matches */
-		nattr++;
-		p += __render_attr(p, ep - p, ctx, msg->pr, msg->flds[i]);
-	}
-
-	/* closing tag */
-	sub = fixc_get_comp_sub(ctx);
-	/* otherwise finish the tag */
-	p = sputc(p, ep, '>');
-
-	/* sub components */
-	for (size_t i = 0; i < sub->nsubs; i++) {
-		fixc_comp_t cid = (fixc_comp_t)sub->subs[i];
-		size_t add;
-
-		if ((add = __render_comp(p, ep - p, msg, cid)) > 0) {
-			p += add;
-			nsub++;
-		}
-	}
-	/* check if any sub elements have been added */
-	if (!nsub && !nattr) {
-		/* we printed nothing */
-		return 0UL;
-
-	} else if (!nsub) {
-		/* no subs, but attributes, rewind p a bit */
-		p--;
-		p = sputc(p, ep, '/');
-		p = sputc(p, ep, '>');
-
-	} else {
-		/* we printed at least one sub-tag so finish this component */
-		p = sputc(p, ep, '<');
-		p = sputc(p, ep, '/');
-		p = sncpy(p, ep, elem, elen);
-		p = sputc(p, ep, '>');
-	}
-	return p - buf;
-}
-
-static size_t
-__render_comp(
-	char *restrict const buf, size_t bsz,
-	fixc_msg_t msg, fixc_comp_t cid)
-{
-	const char *comp = fixc_comp_fixmlify(cid);
-	size_t clen = strlen(comp);
-
-	if (!clen) {
-		/* must be fubar'd */
-		return 0UL;
-	}
-	return __render_ctx(buf, bsz, msg, cid, comp, clen);
-}
-
-static size_t
-__render_msgtyp(char *restrict const buf, size_t bsz, fixc_msg_t msg)
-{
-	fixc_msgt_t mty = msg->f35.mtyp;
-	const char *mstr = fixc_msgt_fixmlify((fixc_msgt_t)mty);
-	size_t mlen = strlen(mstr);
-
-	if (!mlen) {
-		/* probably fubar'd or an unknown msgtyp */
-		return 0UL;
-	}
-	return __render_ctx(buf, bsz, msg, mty, mstr, mlen);
+	ctx->p = sputc(ctx->p, ctx->ep, '"');
+	return;
 }
 
 static size_t
@@ -644,15 +512,18 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	ptx_init(&ctx, p, ep);
 	/* traverse the message only once */
 	for (size_t i = 0; i < msg->nflds; i++) {
+		fixc_ctxt_t ictx = {.ui16 = msg->flds[i].tpc};
+
 		/* several edge triggers here:
 		 * - whenever the .tpc (parent ctx) changes
 		 * - whenever the .cnt (field counter) goes back to 0 */
 		if (msg->flds[i].tpc != otpc.ui16) {
 			/* let's see what to do to our stack */
-			fixc_ctxt_t tmp = {.ui16 = msg->flds[i].tpc};
-			__change_ctx(&ctx, tmp);
+			__change_ctx(&ctx, ictx);
 			otpc.ui16 = msg->flds[i].tpc;
 		}
+		/* of course the attr needs rendering */
+		__render_attr(&ctx, ictx, msg->pr, msg->flds[i]);
 	}
 
 	while (pop_rndr_state(&ctx) != NULL);
