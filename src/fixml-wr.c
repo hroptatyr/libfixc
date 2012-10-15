@@ -278,12 +278,6 @@ static void
 push_state(__ctx_t ctx, fixc_ctxt_t otag)
 {
 	ptx_ctxcb_t res;
-	fixc_comp_sub_t sub = fixc_get_comp_sub(otag);
-
-	if (UNLIKELY(sub->min == 0 && sub->max == -1)) {
-		/* one of them optimised implict blocks */
-		sub = fixc_get_comp_sub((fixc_comp_t)sub->subs[0]);
-	}
 
 	/* now for real */
 	res = pop_ctxcb(ctx);
@@ -324,10 +318,16 @@ static int
 __childp(fixc_comp_sub_t parent, fixc_ctxt_t child)
 {
 /* Return non-0 if CHILD is a child of PARENT. */
+retry:
 	for (size_t i = 0; i < parent->nsubs; i++) {
 		if (parent->subs[i] == child.ui16) {
 			return 1;
 		}
+	}
+	if (UNLIKELY(parent->min == 0 && parent->max == -1)) {
+		/* one of them optimised implict blocks */
+		parent = fixc_get_comp_sub((fixc_comp_t)parent->subs[0]);
+		goto retry;
 	}
 	return 0;
 }
