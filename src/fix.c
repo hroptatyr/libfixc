@@ -141,6 +141,8 @@ fixc_parse_fld(fixc_msg_t msg, const char *str, size_t len)
 	return;
 }
 
+
+/* ctors and dtors */
 fixc_msg_t
 make_fixc_msg(fixc_ctxt_t ctx)
 {
