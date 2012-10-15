@@ -421,23 +421,77 @@ ptx_init(__ctx_t ctx)
 	return;
 }
 
-static void
-__change_ctx(__ctx_t ctx, fixc_ctxt_t new)
+static char*
+__fixmlify(char *restrict p, const char *ep, fixc_ctxt_t ctx)
 {
+	const char *tag;
+
+	if (ctx.i > 0x2000) {
+		tag = fixc_msgt_fixmlify(ctx.msgt);
+	} else {
+		tag = fixc_comp_fixmlify(ctx.comp);
+	}
+	return sncpy(p, ep, tag, strlen(tag));
+}
+
+static int
+__childp(fixc_comp_sub_t parent, fixc_ctxt_t child)
+{
+/* Return non-0 if CHILD is a child of PARENT. */
+	for (size_t i = 0; i < parent->nsubs; i++) {
+		if (parent->subs[i] == child.ui16) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static int
+childp(fixc_comp_sub_t ancest, fixc_ctxt_t descend)
+{
+/* Return non-0 if DESCEND is a child or grand-child of ANCEST. */
+	if (__childp(ancest, descend)) {
+		return 1;
+	}
+	/* oh, could be one of them comp-only blocks in between */
+	for (size_t i = 0; i < ancest->nsubs; i++) {
+		fixc_ctxt_t xctx = {.ui16 = ancest->subs[i]};
+		fixc_comp_sub_t xpar = fixc_get_comp_sub(xctx);
+
+		if (childp(xpar, descend)) {
+			FIXC_DEBUG("need anon block <%hu>\n", xpar->ctx);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static size_t
+__change_ctx(char *restrict buf, size_t bsz, __ctx_t ctx, fixc_ctxt_t new)
+{
+	char *restrict p = buf;
+	const char *ep = p + bsz;
+
 	/* open a tag, question is child or sibling */
 	while (ctx->state != NULL) {
 		fixc_comp_sub_t sub = ctx->state->osub;
 
-		for (size_t i = 0; i < sub->nsubs; i++) {
-			if (sub->subs[i] == new.ui16) {
-			new_chld:
-				/* it's a child, yay */
-				push_state(ctx, new);
-				return;
-			}
+		if (childp(sub, new)) {
+		new_chld:
+			/* it's a child, yay */
+			push_state(ctx, new);
+
+			p = sputc(p, ep, '<');
+			p = __fixmlify(p, ep, new);
+			return p - buf;
 		}
 		/* otherwise, must be a sibling or a cousin */
 		pop_state(ctx);
+
+		p = sputc(p, ep, '<');
+		p = sputc(p, ep, '/');
+		p = __fixmlify(p, ep, (fixc_comp_t)sub->ctx);
+		p = sputc(p, ep, '>');
 	}
 	FIXC_DEBUG("completely unwound, probably buggered FIX message\n");
 	goto new_chld;
@@ -445,6 +499,7 @@ __change_ctx(__ctx_t ctx, fixc_ctxt_t new)
 
 
 /* public functions */
+#if 0
 size_t
 fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 {
@@ -482,5 +537,59 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	*p = '\0';
 	return p - buf;
 }
+#else
+/* new system with tag parent context and counter */
+size_t
+fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
+{
+	static const char xml_pre[] = "\
+<?xml version=\"1.0\"?>";
+	static const char fixml[] = "FIXML";
+	const char *ep = buf + bsz;
+	char *restrict p = buf;
+	struct __ctx_s ctx = {0};
+	fixc_ctxt_t otpc = {0};
+
+	/* the usual stuff upfront, xml PI */
+	p = sncpy(p, ep, xml_pre, sizeof(xml_pre) - 1);
+	/* newline this one, all other tags will have no indentation */
+	*p++ = '\n';
+	/* ... and open our tag */
+	p = sputc(p, ep, '<');
+	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
+
+	/* fill in xmlns uri */
+	p += __render_xmlns(p, ep - p, msg);
+
+	/* fill in v attr */
+	p += __render_v(p, ep - p, msg);
+
+	/* eo FIXML tag start */
+	p = sputc(p, ep, '>');
+
+	/* set up our stack */
+	ptx_init(&ctx);
+	/* traverse the message only once */
+	for (size_t i = 0; i < msg->nflds; i++) {
+		/* several edge triggers here:
+		 * - whenever the .tpc (parent ctx) changes
+		 * - whenever the .cnt (field counter) goes back to 0 */
+		if (msg->flds[i].tpc != otpc.ui16) {
+			/* let's see what to do to our stack */
+			fixc_ctxt_t tmp = {.ui16 = msg->flds[i].tpc};
+			p += __change_ctx(p, ep - p, &ctx, tmp);
+			otpc.ui16 = msg->flds[i].tpc;
+		}
+	}
+
+	/* final verdict */
+	p = sputc(p, ep, '<');
+	p = sputc(p, ep, '/');
+	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
+	p = sputc(p, ep, '>');
+	*p = '\0';
+	return p - buf;
+}
+#endif
 
 /* fixml-wr.c ends here */
