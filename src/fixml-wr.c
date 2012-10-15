@@ -463,45 +463,6 @@ __change_ctx(__ctx_t ctx, fixc_ctxt_t new)
 
 
 /* public functions */
-#if 0
-size_t
-fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
-{
-	static const char xml_pre[] = "\
-<?xml version=\"1.0\"?>";
-	static const char fixml[] = "FIXML";
-	const char *ep = buf + bsz;
-	char *restrict p = buf;
-
-	/* the usual stuff upfront, xml PI */
-	p = sncpy(p, ep, xml_pre, sizeof(xml_pre) - 1);
-	/* newline this one, all other tags will have no indentation */
-	*p++ = '\n';
-	/* ... and open our tag */
-	p = sputc(p, ep, '<');
-	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
-
-	/* fill in xmlns uri */
-	p += __render_xmlns(p, ep - p, msg);
-
-	/* fill in v attr */
-	p += __render_v(p, ep - p, msg);
-
-	/* eo FIXML tag start */
-	p = sputc(p, ep, '>');
-
-	/* there ought to be just one message in there innit? */
-	p += __render_msgtyp(p, ep - p, msg);
-
-	/* final verdict */
-	p = sputc(p, ep, '<');
-	p = sputc(p, ep, '/');
-	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
-	p = sputc(p, ep, '>');
-	*p = '\0';
-	return p - buf;
-}
-#else
 /* new system with tag parent context and counter */
 size_t
 fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
@@ -568,6 +529,5 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	*p = '\0';
 	return p - buf;
 }
-#endif
 
 /* fixml-wr.c ends here */
