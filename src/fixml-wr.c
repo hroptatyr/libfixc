@@ -499,8 +499,11 @@ push_rndr_state(__ctx_t ctx, fixc_ctxt_t otag)
 static fixc_comp_sub_t
 pop_rndr_state(__ctx_t ctx)
 {
-	fixc_comp_sub_t sub = pop_state(ctx);
+	fixc_comp_sub_t sub;
 
+	if (UNLIKELY((sub = pop_state(ctx)) == NULL)) {
+		return NULL;
+	}
 	ctx->p = sputc(ctx->p, ctx->ep, '<');
 	ctx->p = sputc(ctx->p, ctx->ep, '/');
 	ctx->p = __fixmlify(ctx->p, ctx->ep, (fixc_comp_t)sub->ctx);
