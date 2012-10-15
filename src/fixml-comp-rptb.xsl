@@ -19,6 +19,7 @@
 
 #include "fixml-attr.h"
 #include "fixml-comp-rptb.h"
+#include "fixml-comp.h"
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:869)
