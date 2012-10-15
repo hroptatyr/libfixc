@@ -462,6 +462,101 @@ __change_ctx(__ctx_t ctx, fixc_ctxt_t new)
 }
 
 
+/* fixing stuff up */
+static int
+fld_ctx_p(fixc_fld_ctx_t fc, fixc_ctxt_t a)
+{
+	for (size_t j = 0; j < fc->nmsgs + fc->ncomps; j++) {
+		if (fc->ctxs[j] == a.i) {
+			/* yay, that was easy innit? */
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static fixc_comp_t
+fu_ancest_p(fixc_fld_ctx_t fc, fixc_ctxt_t c)
+{
+	/* oh, could be one of them comp-only blocks in between */
+	fixc_comp_sub_t sub = fixc_get_comp_sub(c);
+
+	/* first level is breadth-first, otherwise depth first */
+	for (size_t i = 0; i < sub->nsubs; i++) {
+		fixc_comp_t xcmp = (fixc_comp_t)sub->subs[i];
+
+		if (fld_ctx_p(fc, xcmp)) {
+			return xcmp;
+		}
+	}
+
+	for (size_t i = 0; i < sub->nsubs; i++) {
+		/* unrolled */
+		fixc_comp_t xcmp = (fixc_comp_t)sub->subs[i];
+		fixc_comp_sub_t xpar = fixc_get_comp_sub(xcmp);
+
+		for (size_t j = 0; j < xpar->nsubs; j++) {
+			fixc_comp_t ycmp = (fixc_comp_t)xpar->subs[j];
+			fixc_comp_sub_t ypar;
+
+			if (fld_ctx_p(fc, ycmp)) {
+				return ycmp;
+			}
+
+			ypar = fixc_get_comp_sub(ycmp);
+			for (size_t k = 0; k < ypar->nsubs; k++) {
+				fixc_comp_t zcmp = (fixc_comp_t)ypar->subs[k];
+
+				if (fld_ctx_p(fc, zcmp)) {
+					return zcmp;
+				}
+			}
+		}
+	}
+	return FIXC_COMP_UNK;
+}
+
+void
+fixc_fixup(fixc_msg_t msg)
+{
+	/* previously known ctx */
+	static fixc_ctxt_t stk[16];
+	size_t nstk = 0;
+	unsigned int streak = 0;
+
+#define push(x)		(streak = 0, stk[nstk++] = (fixc_ctxt_t){x})
+#define peek()		stk[nstk - 1]
+#define pop()		(streak = 0, stk[--nstk])
+
+	push(msg->f35.mtyp);
+	for (size_t i = 0; i < msg->nflds; i++) {
+		fixc_attr_t ma = (fixc_attr_t)msg->flds[i].tag;
+		fixc_fld_ctx_t fc = fixc_get_fld_ctx(ma);
+
+		do {
+			if (fld_ctx_p(fc, peek())) {
+				goto succ;
+			}
+			/* otherwise go through subs of lctx */
+			for (fixc_comp_t x; (x = fu_ancest_p(fc, peek()));) {
+				push(x);
+				goto succ;
+			}
+			/* go back then? */
+			pop();
+		} while (nstk);
+
+		FIXC_DEBUG("couldn't find context for %hu\n", msg->flds[i].tag);
+		push(msg->f35.mtyp);
+		continue;
+	succ:
+		msg->flds[i].tpc = (uint16_t)peek().ui16;
+		msg->flds[i].cnt = (uint16_t)streak++;
+	}
+	return;
+}
+
+
 /* public functions */
 /* new system with tag parent context and counter */
 size_t
@@ -474,6 +569,11 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	char *restrict p = buf;
 	struct __ctx_s ctx = {0};
 	fixc_ctxt_t otpc = {0};
+
+	if (msg->nflds && msg->flds[0].tpc == 0U) {
+		/* just in case the reader hasn't given us contexts */
+		fixc_fixup(msg);
+	}
 
 	/* the usual stuff upfront, xml PI */
 	p = sncpy(p, ep, xml_pre, sizeof(xml_pre) - 1);
