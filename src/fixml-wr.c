@@ -83,6 +83,10 @@ struct ptx_ctxcb_s {
 
 	/* navigation info, stores the context */
 	fixc_comp_sub_t osub;
+	/* non-0 if attrs have been rendered */
+	unsigned int cnta;
+	/* non-0 if sub components have been opened */
+	unsigned int cntc;
 
 	ptx_ctxcb_t old_state;
 };
@@ -196,6 +200,8 @@ __render_attr(__ctx_t ctx, fixc_ctxt_t t, const char *b, struct fixc_fld_s fld)
 		return;
 	}
 	ctx->p = sputc(ctx->p, ctx->ep, '"');
+	/* we should up the attr counter here */
+	ctx->state->cnta++;
 	return;
 }
 
@@ -282,6 +288,8 @@ push_state(__ctx_t ctx, fixc_ctxt_t otag)
 	res = pop_ctxcb(ctx);
 	/* stuff it with the object we want to keep track of */
 	res->osub = sub;
+	res->cnta = 0;
+	res->cntc = 0;
 	/* fiddle with the states in our context */
 	res->old_state = ctx->state;
 	ctx->state = res;
@@ -357,26 +365,40 @@ __ancestp(fixc_comp_sub_t ancest, fixc_ctxt_t descend)
 static void
 push_rndr_state(__ctx_t ctx, fixc_ctxt_t otag)
 {
-	push_state(ctx, otag);
-
+	if (LIKELY(ctx->state != NULL)) {
+		if (ctx->state->cntc++ == 0) {
+			/* finish the parent's opening tag */
+			ctx->p = sputc(ctx->p, ctx->ep, '>');
+		}
+	}
+	/* render the attr */
 	ctx->p = sputc(ctx->p, ctx->ep, '<');
 	ctx->p = __fixmlify(ctx->p, ctx->ep, otag);
+
+	/* push the state onto our stack */
+	push_state(ctx, otag);
 	return;
 }
 
 static fixc_comp_sub_t
 pop_rndr_state(__ctx_t ctx)
 {
-	fixc_comp_sub_t sub;
-
-	if (UNLIKELY((sub = pop_state(ctx)) == NULL)) {
+	if (UNLIKELY(ctx->state == NULL)) {
 		return NULL;
 	}
-	ctx->p = sputc(ctx->p, ctx->ep, '<');
-	ctx->p = sputc(ctx->p, ctx->ep, '/');
-	ctx->p = __fixmlify(ctx->p, ctx->ep, (fixc_comp_t)sub->ctx);
-	ctx->p = sputc(ctx->p, ctx->ep, '>');
-	return sub;
+
+	if (ctx->state->cntc) {
+		fixc_comp_sub_t sub = ctx->state->osub;
+
+		ctx->p = sputc(ctx->p, ctx->ep, '<');
+		ctx->p = sputc(ctx->p, ctx->ep, '/');
+		ctx->p = __fixmlify(ctx->p, ctx->ep, (fixc_comp_t)sub->ctx);
+		ctx->p = sputc(ctx->p, ctx->ep, '>');
+	} else {
+		ctx->p = sputc(ctx->p, ctx->ep, '/');
+		ctx->p = sputc(ctx->p, ctx->ep, '>');
+	}
+	return pop_state(ctx);
 }
 
 static fixc_comp_t
