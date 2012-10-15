@@ -46,6 +46,7 @@
 #include "fixml-comp-sub.c"
 #include "fixml-comp-fld.h"
 #include "fixml-comp-fld.c"
+#include "fixml-comp-rptb.h"
 #include "fixml-fld-ctx.h"
 #include "fixml-fld-ctx.c"
 
