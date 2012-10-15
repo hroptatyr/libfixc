@@ -82,11 +82,11 @@ struct ptx_ctxcb_s {
 	ptx_ctxcb_t next;
 
 	/* navigation info, stores the context */
-	fixc_comp_sub_t osub;
+	fixc_ctxt_t osub;
 	/* non-0 if attrs have been rendered */
-	unsigned int cnta;
+	uint16_t cnta;
 	/* non-0 if sub components have been opened */
-	unsigned int cntc;
+	uint16_t cntc;
 
 	ptx_ctxcb_t old_state;
 };
@@ -255,15 +255,15 @@ __render_v(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	return p - buf;
 }
 
-static fixc_comp_sub_t
+static fixc_ctxt_t
 pop_state(__ctx_t ctx)
 {
 /* restore the previous current state */
 	ptx_ctxcb_t curr = ctx->state;
-	fixc_comp_sub_t res;
+	fixc_ctxt_t res;
 
 	if (UNLIKELY(curr == NULL)) {
-		return NULL;
+		return (fixc_ctxt_t){0U};
 	}
 	/* otherwise store res for later use */
 	res = curr->osub;
@@ -273,7 +273,7 @@ pop_state(__ctx_t ctx)
 	return res;
 }
 
-static ptx_ctxcb_t
+static void
 push_state(__ctx_t ctx, fixc_ctxt_t otag)
 {
 	ptx_ctxcb_t res;
@@ -287,13 +287,13 @@ push_state(__ctx_t ctx, fixc_ctxt_t otag)
 	/* now for real */
 	res = pop_ctxcb(ctx);
 	/* stuff it with the object we want to keep track of */
-	res->osub = sub;
+	res->osub = otag;
 	res->cnta = 0;
 	res->cntc = 0;
 	/* fiddle with the states in our context */
 	res->old_state = ctx->state;
 	ctx->state = res;
-	return res;
+	return;
 }
 
 static void
@@ -380,19 +380,19 @@ push_rndr_state(__ctx_t ctx, fixc_ctxt_t otag)
 	return;
 }
 
-static fixc_comp_sub_t
+static fixc_ctxt_t
 pop_rndr_state(__ctx_t ctx)
 {
 	if (UNLIKELY(ctx->state == NULL)) {
-		return NULL;
+		return (fixc_ctxt_t){0U};
 	}
 
 	if (ctx->state->cntc) {
-		fixc_comp_sub_t sub = ctx->state->osub;
+		fixc_ctxt_t otag = ctx->state->osub;
 
 		ctx->p = sputc(ctx->p, ctx->ep, '<');
 		ctx->p = sputc(ctx->p, ctx->ep, '/');
-		ctx->p = __fixmlify(ctx->p, ctx->ep, (fixc_comp_t)sub->ctx);
+		ctx->p = __fixmlify(ctx->p, ctx->ep, otag);
 		ctx->p = sputc(ctx->p, ctx->ep, '>');
 	} else {
 		ctx->p = sputc(ctx->p, ctx->ep, '/');
@@ -444,7 +444,7 @@ __change_ctx(__ctx_t ctx, fixc_ctxt_t new)
 {
 	/* open a tag, question is child or sibling */
 	while (ctx->state != NULL) {
-		fixc_comp_sub_t sub = ctx->state->osub;
+		fixc_comp_sub_t sub = fixc_get_comp_sub(ctx->state->osub);
 
 		if (__childp(sub, new) || __ancest_rndr(ctx, sub, new)) {
 		new_chld:
@@ -543,12 +543,15 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 			/* let's see what to do to our stack */
 			__change_ctx(&ctx, ictx);
 			otpc.ui16 = msg->flds[i].tpc;
+		} else if (msg->flds[i].cnt == 0) {
+			/* consecutive counter reset */
+
 		}
 		/* of course the attr needs rendering */
 		__render_attr(&ctx, ictx, msg->pr, msg->flds[i]);
 	}
 
-	while (pop_rndr_state(&ctx) != NULL);
+	while (pop_rndr_state(&ctx).i);
 
 	/* copy the context pointer back */
 	p = ctx.p;
