@@ -320,15 +320,18 @@ static int
 __childp(fixc_comp_sub_t parent, fixc_ctxt_t child)
 {
 /* Return non-0 if CHILD is a child of PARENT. */
+	fixc_comp_t tmp;
+
 retry:
 	for (size_t i = 0; i < parent->nsubs; i++) {
 		if (parent->subs[i] == child.ui16) {
 			return 1;
 		}
 	}
-	if (UNLIKELY(parent->min == 0 && parent->max == -1)) {
+	/* see if we're falling for optimised implicit blocks */
+	if (UNLIKELY((tmp = fixc_get_comp_orb((fixc_comp_t)parent->ctx)))) {
 		/* one of them optimised implict blocks */
-		parent = fixc_get_comp_sub((fixc_comp_t)parent->subs[0]);
+		parent = fixc_get_comp_sub(tmp);
 		goto retry;
 	}
 	return 0;
