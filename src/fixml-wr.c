@@ -371,7 +371,9 @@ __ancestp(fixc_comp_sub_t ancest, fixc_ctxt_t descend)
 static void
 push_rndr_state(__ctx_t ctx, fixc_ctxt_t otag)
 {
-	if (LIKELY(ctx->state != NULL)) {
+	if (UNLIKELY(fixc_get_comp_orb(otag))) {
+		return;
+	} else if (LIKELY(ctx->state != NULL)) {
 		if (ctx->state->cntc++ == 0) {
 			/* finish the parent's opening tag */
 			ctx->p = sputc(ctx->p, ctx->ep, '>');
