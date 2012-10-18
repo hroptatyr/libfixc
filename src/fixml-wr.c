@@ -47,6 +47,8 @@
 #include "fixml-comp-fld.h"
 #include "fixml-comp-fld.c"
 #include "fixml-comp-rptb.h"
+#include "fixml-comp-orb.h"
+#include "fixml-comp-orb.c"
 #include "fixml-fld-ctx.h"
 #include "fixml-fld-ctx.c"
 
@@ -546,7 +548,11 @@ fixc_fixup(fixc_msg_t msg)
 				goto succ;
 			}
 			/* otherwise go through subs of lctx */
-			for (fixc_comp_t x; (x = fu_ancest_p(fc, peek()));) {
+			for (fixc_comp_t x, y; (x = fu_ancest_p(fc, peek()));) {
+				if (UNLIKELY((y = fixc_get_comp_orb(x)))) {
+					/* fixup optimised repeating blocks */
+					x = y;
+				}
 				push(x, i);
 				goto succ;
 			}
