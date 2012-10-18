@@ -547,16 +547,19 @@ fixc_fixup(fixc_msg_t msg)
 		fixc_fld_ctx_t fc = fixc_get_fld_ctx(ma);
 
 		do {
+			fixc_comp_t anc;
+
 			if (fld_ctx_p(fc, peek())) {
 				goto succ;
-			}
-			/* otherwise go through subs of lctx */
-			for (fixc_comp_t x, y; (x = fu_ancest_p(fc, peek()));) {
-				if (UNLIKELY((y = fixc_get_comp_orb(x)))) {
+			} else if ((anc = fu_ancest_p(fc, peek()))) {
+				/* otherwise go through subs of lctx */
+				fixc_comp_t tmp;
+
+				if (UNLIKELY((tmp = fixc_get_comp_orb(anc)))) {
 					/* fixup optimised repeating blocks */
-					x = y;
+					anc = tmp;
 				}
-				push(x, i);
+				push(anc, i);
 				goto succ;
 			}
 			/* go back then? */
