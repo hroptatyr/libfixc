@@ -174,6 +174,9 @@ extern int fixc_add_tag(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz);
  * Delete field N in MSG.*/
 extern void fixc_del_fld(fixc_msg_t, size_t n);
 
+/**
+ * Extract the N-th occurrence of context CTX in MSG. */
+extern fixc_msg_t fixc_extr_ctxt(fixc_msg_t msg, fixc_ctxt_t ctx, int n);
 
 /* for internal use */
 extern void fixc_fixup(fixc_msg_t);
