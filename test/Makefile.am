@@ -29,6 +29,10 @@ TESTS += $(rd_tests)
 check_PROGRAMS += $(rd_tests)
 rd_tests =
 
+TESTS += $(api_tests)
+check_PROGRAMS += $(api_tests)
+api_tests =
+
 TESTS += $(bin_tests)
 bin_tests =
 
@@ -62,6 +66,11 @@ fixml_tests += fixml_to_fixc_hash_11
 #fixml_tests += fixc_to_fixml_hash_04
 #fixml_tests += fixc_to_fixml_hash_05
 #fixml_tests += fixc_to_fixml_hash_06
+
+api_tests += fixc_extr_01
+fixc_extr_01_LDADD = $(top_builddir)/src/libfixc.la
+api_tests += fixc_extr_02
+fixc_extr_02_LDADD = $(top_builddir)/src/libfixc.la
 
 rd_tests += fixml_rd_01
 fixml_rd_01_LDADD = $(top_builddir)/src/libfixc.la
