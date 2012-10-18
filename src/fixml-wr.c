@@ -47,6 +47,8 @@
 #include "fixml-comp-fld.h"
 #include "fixml-comp-fld.c"
 #include "fixml-comp-rptb.h"
+#include "fixml-comp-orb.h"
+#include "fixml-comp-orb.c"
 #include "fixml-fld-ctx.h"
 #include "fixml-fld-ctx.c"
 
@@ -318,15 +320,18 @@ static int
 __childp(fixc_comp_sub_t parent, fixc_ctxt_t child)
 {
 /* Return non-0 if CHILD is a child of PARENT. */
+	fixc_comp_t tmp;
+
 retry:
 	for (size_t i = 0; i < parent->nsubs; i++) {
 		if (parent->subs[i] == child.ui16) {
 			return 1;
 		}
 	}
-	if (UNLIKELY(parent->min == 0 && parent->max == -1)) {
+	/* see if we're falling for optimised implicit blocks */
+	if (UNLIKELY((tmp = fixc_get_comp_orb((fixc_comp_t)parent->ctx)))) {
 		/* one of them optimised implict blocks */
-		parent = fixc_get_comp_sub((fixc_comp_t)parent->subs[0]);
+		parent = fixc_get_comp_sub(tmp);
 		goto retry;
 	}
 	return 0;
@@ -366,7 +371,9 @@ __ancestp(fixc_comp_sub_t ancest, fixc_ctxt_t descend)
 static void
 push_rndr_state(__ctx_t ctx, fixc_ctxt_t otag)
 {
-	if (LIKELY(ctx->state != NULL)) {
+	if (UNLIKELY(fixc_get_comp_orb(otag))) {
+		return;
+	} else if (LIKELY(ctx->state != NULL)) {
 		if (ctx->state->cntc++ == 0) {
 			/* finish the parent's opening tag */
 			ctx->p = sputc(ctx->p, ctx->ep, '>');
@@ -542,12 +549,19 @@ fixc_fixup(fixc_msg_t msg)
 		fixc_fld_ctx_t fc = fixc_get_fld_ctx(ma);
 
 		do {
+			fixc_comp_t anc;
+
 			if (fld_ctx_p(fc, peek())) {
 				goto succ;
-			}
-			/* otherwise go through subs of lctx */
-			for (fixc_comp_t x; (x = fu_ancest_p(fc, peek()));) {
-				push(x, i);
+			} else if ((anc = fu_ancest_p(fc, peek()))) {
+				/* otherwise go through subs of lctx */
+				fixc_comp_t tmp;
+
+				if (UNLIKELY((tmp = fixc_get_comp_orb(anc)))) {
+					/* fixup optimised repeating blocks */
+					anc = tmp;
+				}
+				push(anc, i);
 				goto succ;
 			}
 			/* go back then? */
