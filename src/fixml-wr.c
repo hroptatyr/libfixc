@@ -520,15 +520,23 @@ void
 fixc_fixup(fixc_msg_t msg)
 {
 	/* previously known ctx */
-	static fixc_ctxt_t stk[16];
-	size_t nstk = 0;
+	static struct {
+		fixc_ctxt_t ctx;
+		unsigned int idx;
+	} stk[16];
+	ssize_t nstk = -1;
 	unsigned int streak = 0;
 
-#define push(x)		(streak = 0, stk[nstk++] = (fixc_ctxt_t){x})
-#define peek()		stk[nstk - 1]
-#define pop()		(streak = 0, stk[--nstk])
+#define rset()		(streak = 0)
+#define push(x, i)	(rset(),				\
+			 nstk++,				\
+			 stk[nstk].idx = i,			\
+			 stk[nstk].ctx = (fixc_ctxt_t){x})
+#define peeki()		stk[nstk].idx
+#define peek()		stk[nstk].ctx
+#define pop()		(streak = 0, stk[nstk--].ctx)
 
-	push(msg->f35.mtyp);
+	push(msg->f35.mtyp, 0);
 	for (size_t i = 0; i < msg->nflds; i++) {
 		fixc_attr_t ma = (fixc_attr_t)msg->flds[i].tag;
 		fixc_fld_ctx_t fc = fixc_get_fld_ctx(ma);
@@ -539,18 +547,22 @@ fixc_fixup(fixc_msg_t msg)
 			}
 			/* otherwise go through subs of lctx */
 			for (fixc_comp_t x; (x = fu_ancest_p(fc, peek()));) {
-				push(x);
+				push(x, i);
 				goto succ;
 			}
 			/* go back then? */
 			pop();
-		} while (nstk);
+		} while (nstk >= 0);
 
 		FIXC_DEBUG("couldn't find context for %hu\n", msg->flds[i].tag);
-		push(msg->f35.mtyp);
+		push(msg->f35.mtyp, 0);
 		continue;
 	succ:
 		msg->flds[i].tpc = (uint16_t)peek().ui16;
+		if (i > peeki() + 1 &&
+		    msg->flds[peeki() + 1].tag == msg->flds[i].tag) {
+			rset();
+		}
 		msg->flds[i].cnt = (uint16_t)streak++;
 	}
 	return;
