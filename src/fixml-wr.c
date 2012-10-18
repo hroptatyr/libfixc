@@ -47,6 +47,8 @@
 #include "fixml-comp-fld.h"
 #include "fixml-comp-fld.c"
 #include "fixml-comp-rptb.h"
+#include "fixml-comp-orb.h"
+#include "fixml-comp-orb.c"
 #include "fixml-fld-ctx.h"
 #include "fixml-fld-ctx.c"
 
@@ -318,15 +320,18 @@ static int
 __childp(fixc_comp_sub_t parent, fixc_ctxt_t child)
 {
 /* Return non-0 if CHILD is a child of PARENT. */
+	fixc_comp_t tmp;
+
 retry:
 	for (size_t i = 0; i < parent->nsubs; i++) {
 		if (parent->subs[i] == child.ui16) {
 			return 1;
 		}
 	}
-	if (UNLIKELY(parent->min == 0 && parent->max == -1)) {
+	/* see if we're falling for optimised implicit blocks */
+	if (UNLIKELY((tmp = fixc_get_comp_orb((fixc_comp_t)parent->ctx)))) {
 		/* one of them optimised implict blocks */
-		parent = fixc_get_comp_sub((fixc_comp_t)parent->subs[0]);
+		parent = fixc_get_comp_sub(tmp);
 		goto retry;
 	}
 	return 0;
@@ -366,7 +371,9 @@ __ancestp(fixc_comp_sub_t ancest, fixc_ctxt_t descend)
 static void
 push_rndr_state(__ctx_t ctx, fixc_ctxt_t otag)
 {
-	if (LIKELY(ctx->state != NULL)) {
+	if (UNLIKELY(fixc_get_comp_orb(otag))) {
+		return;
+	} else if (LIKELY(ctx->state != NULL)) {
 		if (ctx->state->cntc++ == 0) {
 			/* finish the parent's opening tag */
 			ctx->p = sputc(ctx->p, ctx->ep, '>');
@@ -520,37 +527,56 @@ void
 fixc_fixup(fixc_msg_t msg)
 {
 	/* previously known ctx */
-	static fixc_ctxt_t stk[16];
-	size_t nstk = 0;
+	static struct {
+		fixc_ctxt_t ctx;
+		unsigned int idx;
+	} stk[16];
+	ssize_t nstk = -1;
 	unsigned int streak = 0;
 
-#define push(x)		(streak = 0, stk[nstk++] = (fixc_ctxt_t){x})
-#define peek()		stk[nstk - 1]
-#define pop()		(streak = 0, stk[--nstk])
+#define rset()		(streak = 0)
+#define push(x, i)	(rset(),				\
+			 nstk++,				\
+			 stk[nstk].idx = i,			\
+			 stk[nstk].ctx = (fixc_ctxt_t){x})
+#define peeki()		stk[nstk].idx
+#define peek()		stk[nstk].ctx
+#define pop()		(streak = 0, stk[nstk--].ctx)
 
-	push(msg->f35.mtyp);
+	push(msg->f35.mtyp, 0);
 	for (size_t i = 0; i < msg->nflds; i++) {
 		fixc_attr_t ma = (fixc_attr_t)msg->flds[i].tag;
 		fixc_fld_ctx_t fc = fixc_get_fld_ctx(ma);
 
 		do {
+			fixc_comp_t anc;
+
 			if (fld_ctx_p(fc, peek())) {
 				goto succ;
-			}
-			/* otherwise go through subs of lctx */
-			for (fixc_comp_t x; (x = fu_ancest_p(fc, peek()));) {
-				push(x);
+			} else if ((anc = fu_ancest_p(fc, peek()))) {
+				/* otherwise go through subs of lctx */
+				fixc_comp_t tmp;
+
+				if (UNLIKELY((tmp = fixc_get_comp_orb(anc)))) {
+					/* fixup optimised repeating blocks */
+					anc = tmp;
+				}
+				push(anc, i);
 				goto succ;
 			}
 			/* go back then? */
 			pop();
-		} while (nstk);
+		} while (nstk >= 0);
 
 		FIXC_DEBUG("couldn't find context for %hu\n", msg->flds[i].tag);
-		push(msg->f35.mtyp);
+		push(msg->f35.mtyp, 0);
 		continue;
 	succ:
 		msg->flds[i].tpc = (uint16_t)peek().ui16;
+		if (i > peeki() + 1 &&
+		    msg->flds[peeki() + 1].tag == msg->flds[i].tag) {
+			rset();
+		}
 		msg->flds[i].cnt = (uint16_t)streak++;
 	}
 	return;
