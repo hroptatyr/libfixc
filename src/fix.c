@@ -494,4 +494,48 @@ fixc_del_fld(fixc_msg_t msg, size_t n)
 	return;
 }
 
+
+/* extraction */
+static size_t
+__extr_off(const char *tgt[static 1], fixc_msg_t msg, struct fixc_fld_s fld)
+{
+/* for fields of type OFF put a usable pointer into TGT and return its length */
+	if (LIKELY(fld.typ == FIXC_TYP_OFF)) {
+		*tgt = msg->pr + fld.off;
+		return strlen(*tgt);
+	}
+	/* otherwise it would be fair to crash but we're too nice *sigh* ... */
+	*tgt = NULL;
+	return 0UL;
+}
+
+fixc_msg_t
+fixc_extr_ctxt(fixc_msg_t msg, fixc_ctxt_t ctx, int n)
+{
+	fixc_msg_t res = make_fixc_msg(ctx);
+
+	/* check if we've got tpcs and cnts */
+	if (msg->nflds && !msg->flds[0].tpc) {
+		fixc_fixup(msg);
+	}
+
+	/* all them attrs belonging in context CID */
+	for (size_t i = 0; i < msg->nflds; i++) {
+		struct fixc_fld_s fld = msg->flds[i];
+
+		if (fld.tpc == ctx.ui16) {
+			if (fld.typ == FIXC_TYP_OFF) {
+				const char *p;
+				fixc_attr_t a = (fixc_attr_t)fld.tag;
+				size_t z = __extr_off(&p, msg, fld);
+
+				fixc_add_tag(res, a, p, z);
+			} else {
+				fixc_add_fld(res, fld);
+			}
+		}
+	}
+	return res;
+}
+
 /* fix.c ends here */
