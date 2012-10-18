@@ -520,10 +520,26 @@ fixc_extr_ctxt(fixc_msg_t msg, fixc_ctxt_t ctx, int n)
 	}
 
 	/* all them attrs belonging in context CID */
-	for (size_t i = 0; i < msg->nflds; i++) {
+	for (size_t i = 0, cnt = 0, last = 0; i < msg->nflds; i++) {
 		struct fixc_fld_s fld = msg->flds[i];
 
 		if (fld.tpc == ctx.ui16) {
+			if (fld.cnt < last) {
+				cnt++;
+			}
+			/* keep track of consecutive counter */
+			last = fld.cnt;
+
+			/* check if we're the N-th occurrence really */
+			if (n >= 0) {
+				if (cnt > (size_t)n) {
+					break;
+				} else if (cnt < (size_t)n) {
+					continue;
+				}
+			}
+
+			/* oh yes we are, snarf it */
 			if (fld.typ == FIXC_TYP_OFF) {
 				const char *p;
 				fixc_attr_t a = (fixc_attr_t)fld.tag;
