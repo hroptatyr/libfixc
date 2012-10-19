@@ -411,6 +411,61 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 	return;
 }
 
+size_t
+fixc_msg_z(fixc_msg_t msg)
+{
+	/* field space */
+	size_t fspc;
+	/* value space */
+	size_t vspc;
+	size_t res;
+
+	/* let's hope msg->pr is aligned, fingers crossed */
+	fspc = (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
+	/* determine the size of the pr section, multiple of VSPC_RND */
+	vspc = ROUND(msg->pz + 1, VSPC_RND);
+
+	res = vspc + fspc * sizeof(*msg->flds) + sizeof(*msg);
+	return res;
+}
+
+size_t
+fixc_msg_cpy(void *restrict tgt, size_t tsz, fixc_msg_t msg)
+{
+	size_t tailz = fixc_msg_z(msg);
+
+	if (UNLIKELY(tsz < tailz)) {
+		return 0UL;
+	}
+
+	if (msg->flds == msg->these) {
+		/* great, it's just one big shlong */
+		ptrdiff_t prdf = (char*)msg->pr - (char*)msg;
+		fixc_msg_t tmsg;
+
+		memcpy((tmsg = tgt), msg, tailz);
+		tmsg->pr = (char*)tgt + prdf;
+		tmsg->flds = tmsg->these;
+	} else {
+		/* chunk copies */
+		fixc_msg_t tmsg;
+		size_t fspc;
+		ptrdiff_t prdf;
+
+		memcpy((tmsg = tgt), msg, sizeof(*msg));
+
+		/* copy them fields */
+		fspc = msg->nflds * sizeof(*msg->flds);
+		memcpy(tmsg->flds = tmsg->these, msg->flds, fspc);
+
+		/* and now for the pr */
+		prdf = (char*)msg->pr - (char*)msg->flds;
+		tmsg->pr = (char*)tmsg->flds + prdf;
+		memcpy(tmsg->pr, msg->pr, msg->pz + 1);
+	}
+	return tailz;
+}
+
 int
 fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 {

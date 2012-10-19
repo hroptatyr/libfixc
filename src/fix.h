@@ -178,7 +178,15 @@ extern void fixc_del_fld(fixc_msg_t, size_t n);
  * Extract the N-th occurrence of context CTX in MSG. */
 extern fixc_msg_t fixc_extr_ctxt(fixc_msg_t msg, fixc_ctxt_t ctx, int n);
 
-/* for internal use */
+/** for internal use */
 extern void fixc_fixup(fixc_msg_t);
+
+/** return the allocated size for MSG. */
+extern size_t fixc_msg_z(fixc_msg_t);
+
+/**
+ * Put a (shallow) copy of MSG into TGT of size TSZ and return the number
+ * of bytes written. */
+extern size_t fixc_msg_cpy(void *restrict tgt, size_t tsz, fixc_msg_t);
 
 #endif	/* INCLUDED_fix_h_ */
