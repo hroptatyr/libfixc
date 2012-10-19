@@ -184,4 +184,9 @@ extern void fixc_fixup(fixc_msg_t);
 /** return the allocated size for MSG. */
 extern size_t fixc_msg_z(fixc_msg_t);
 
+/**
+ * Put a (shallow) copy of MSG into TGT of size TSZ and return the number
+ * of bytes written. */
+extern size_t fixc_msg_cpy(void *restrict tgt, size_t tsz, fixc_msg_t);
+
 #endif	/* INCLUDED_fix_h_ */
