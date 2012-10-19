@@ -75,6 +75,8 @@ api_tests += fixc_cpy_01
 fixc_cpy_01_LDADD = $(top_builddir)/src/libfixc.la
 api_tests += fixc_cpy_02
 fixc_cpy_02_LDADD = $(top_builddir)/src/libfixc.la
+api_tests += fixc_cpy_03
+fixc_cpy_03_LDADD = $(top_builddir)/src/libfixc.la
 
 rd_tests += fixml_rd_01
 fixml_rd_01_LDADD = $(top_builddir)/src/libfixc.la
