@@ -411,6 +411,24 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 	return;
 }
 
+size_t
+fixc_msg_z(fixc_msg_t msg)
+{
+	/* field space */
+	size_t fspc;
+	/* value space */
+	size_t vspc;
+	size_t res;
+
+	/* let's hope msg->pr is aligned, fingers crossed */
+	fspc = (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
+	/* determine the size of the pr section, multiple of VSPC_RND */
+	vspc = ROUND(msg->pz + 1, VSPC_RND);
+
+	res = vspc + fspc * sizeof(*msg->flds) + sizeof(*msg);
+	return res;
+}
+
 int
 fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 {
