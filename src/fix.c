@@ -152,7 +152,11 @@ make_fixc_msg(fixc_ctxt_t ctx)
 	res = calloc(1, sizeof(*res));
 
 	res->f35.tag = FIXC_MSG_TYPE;
-	res->f35.typ = FIXC_TYP_CTXT;
+	if (LIKELY(ctx.ui16 > 0x2000)) {
+		res->f35.typ = FIXC_TYP_MSGTYP;
+	} else {
+		res->f35.typ = FIXC_TYP_CTXT;
+	}
 	res->f35.ctx = ctx;
 	return res;
 }
@@ -499,8 +503,13 @@ fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 		msg->f10 = fld;
 		break;
 	case FIXC_MSG_TYPE:
-		if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
+		switch (msg->f35.mtyp) {
+		case FIXC_MSGT_UNK:
+			msg->f35.mtyp = FIXC_MSGT_BATCH;
+		case FIXC_MSGT_BATCH:
 			goto bang;
+		default:
+			break;
 		}
 		/* otherwise it's the main message type */
 		msg->f35 = fld;
@@ -513,7 +522,7 @@ int
 fixc_add_tag(fixc_msg_t msg, fixc_attr_t tag, const char *val, size_t vsz)
 {
 	/* see if someone tricks us into adding the special fields */
-	switch (tag) {
+	switch ((unsigned int)tag) {
 		size_t cur;
 	case FIXC_TAG_UNK:
 	case FIXC_BEGIN_STRING:

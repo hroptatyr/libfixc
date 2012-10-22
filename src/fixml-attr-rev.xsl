@@ -20,7 +20,7 @@
 
 const char *fixc_attr_fixmlify(fixc_ctxt_t ctx, fixc_attr_t aid)
 {
-	switch (aid) {
+	switch ((unsigned int)aid) {
 </xsl:text>
 
     <!-- all the attributes grouped by name -->
@@ -59,6 +59,8 @@ const char *fixc_attr_fixmlify(fixc_ctxt_t ctx, fixc_attr_t aid)
 		return "xmlns";
 	case FIXC_ATTR_V:
 		return "v";
+	case FIXC_ATTR_XV:
+		return "xv";
 
 	case FIXC_ATTR_UNK:
 	default:

@@ -151,6 +151,7 @@ fixc_attr_t fixc_get_aid(fixc_ctxt_t ctx, const char *attr, size_t alen)
 %%
 xmlns,FIXC_ATTR_XMLNS
 v,FIXC_ATTR_V
+xv,FIXC_ATTR_XV
 </xsl:text>
 
       <!-- loop over them fields again -->

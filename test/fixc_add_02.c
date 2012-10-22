@@ -26,7 +26,7 @@ main(void)
 	fixc_fixup(msg);
 
 	for (size_t i = 0; i < msg->nflds; i++) {
-		if (msg->flds[i].tpc != FIXC_MSGT_BATCH) {
+		if (msg->flds[i].tpc != FIXML_MSG_Quote) {
 			fprintf(stderr, "oooh, parent ctx not Batch but %hu\n",
 				msg->flds[i].tpc);
 			res = 1;

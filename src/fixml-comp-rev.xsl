@@ -18,7 +18,7 @@
 
 const char *fixc_comp_fixmlify(fixc_comp_t cid)
 {
-	switch (cid) {
+	switch ((unsigned int)cid) {
 </xsl:text>
 
     <!-- all the attributes grouped by name -->

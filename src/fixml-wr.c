@@ -172,6 +172,16 @@ __render_attr(__ctx_t ctx, fixc_ctxt_t t, const char *b, struct fixc_fld_s fld)
 		return;
 	}
 
+	/* comb out everything that mustn't be rendered */
+	switch (fld.typ) {
+	case FIXC_TYP_VER:
+	case FIXC_TYP_MSGTYP:
+	case FIXC_TYP_CTXT:
+		return;
+	default:
+		break;
+	}
+
 	ctx->p = sputc(ctx->p, ctx->ep, ' ');
 	ctx->p = sncpy(ctx->p, ctx->ep, attr, alen);
 	ctx->p = sputc(ctx->p, ctx->ep, '=');
@@ -198,9 +208,10 @@ __render_attr(__ctx_t ctx, fixc_ctxt_t t, const char *b, struct fixc_fld_s fld)
 
 	case FIXC_TYP_VER:
 	case FIXC_TYP_MSGTYP:
+	case FIXC_TYP_CTXT:
 	default:
 		/* huh? */
-		return;
+		break;
 	}
 	ctx->p = sputc(ctx->p, ctx->ep, '"');
 	/* we should up the attr counter here */
@@ -308,7 +319,9 @@ __fixmlify(char *restrict p, const char *ep, fixc_ctxt_t ctx)
 {
 	const char *tag;
 
-	if (ctx.i > 0x2000) {
+	if (UNLIKELY(ctx.i == FIXC_MSGT_BATCH)) {
+		tag = "Batch";
+	} else if (ctx.i > 0x2000) {
 		tag = fixc_msgt_fixmlify(ctx.msgt);
 	} else {
 		tag = fixc_comp_fixmlify(ctx.comp);
@@ -553,6 +566,11 @@ fixc_fixup(fixc_msg_t msg)
 
 			if (fld_ctx_p(fc, peek())) {
 				goto succ;
+			} else if (UNLIKELY(ma == FIXC_MSG_TYPE)) {
+				/* ok, those guys take precedence inasmuchas
+				 * they're their own parent's context */
+				push(msg->flds[i].mtyp, i);
+				goto succ;
 			} else if ((anc = fu_ancest_p(fc, peek()))) {
 				/* otherwise go through subs of lctx */
 				fixc_comp_t tmp;
@@ -565,7 +583,7 @@ fixc_fixup(fixc_msg_t msg)
 				goto succ;
 			}
 			/* go back then? */
-			pop();
+			(void)pop();
 		} while (nstk >= 0);
 
 		FIXC_DEBUG("couldn't find context for %hu\n", msg->flds[i].tag);
@@ -618,11 +636,17 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	/* eo FIXML tag start */
 	p = sputc(p, ep, '>');
 
+	/* see if we need to produce the Batch tag */
+	if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
+		p = sputc(p, ep, '<');
+		p = __fixmlify(p, ep, FIXC_MSGT_BATCH);
+		p = sputc(p, ep, '>');
+	}
 	/* set up our stack */
 	ptx_init(&ctx, p, ep);
 	/* traverse the message only once */
 	for (size_t i = 0; i < msg->nflds; i++) {
-		fixc_ctxt_t ictx = {.ui16 = msg->flds[i].tpc};
+		fixc_ctxt_t ictx = {(unsigned int)msg->flds[i].tpc};
 
 		/* several edge triggers here:
 		 * - whenever the .tpc (parent ctx) changes
@@ -647,11 +671,19 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 
 	/* copy the context pointer back */
 	p = ctx.p;
+	/* see if we need to close the Batch tag */
+	if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
+		p = sputc(p, ep, '<');
+		p = sputc(p, ep, '/');
+		p = __fixmlify(p, ep, FIXC_MSGT_BATCH);
+		p = sputc(p, ep, '>');
+	}
 	/* final verdict */
 	p = sputc(p, ep, '<');
 	p = sputc(p, ep, '/');
 	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
 	p = sputc(p, ep, '>');
+	p = sputc(p, ep, '\n');
 	*p = '\0';
 	return p - buf;
 }
