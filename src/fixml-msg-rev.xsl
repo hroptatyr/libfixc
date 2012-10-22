@@ -18,7 +18,7 @@
 
 const char *fixc_msgt_fixmlify(fixc_msgt_t mty)
 {
-	switch (mty) {
+	switch ((unsigned int)mty) {
 </xsl:text>
 
     <!-- all the attributes grouped by name -->
