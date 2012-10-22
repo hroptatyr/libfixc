@@ -553,6 +553,11 @@ fixc_fixup(fixc_msg_t msg)
 
 			if (fld_ctx_p(fc, peek())) {
 				goto succ;
+			} else if (UNLIKELY(ma == FIXC_MSG_TYPE)) {
+				/* ok, those guys take precedence inasmuchas
+				 * they're their own parent's context */
+				push(msg->flds[i].mtyp, i);
+				goto succ;
 			} else if ((anc = fu_ancest_p(fc, peek()))) {
 				/* otherwise go through subs of lctx */
 				fixc_comp_t tmp;
