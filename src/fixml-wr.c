@@ -172,6 +172,16 @@ __render_attr(__ctx_t ctx, fixc_ctxt_t t, const char *b, struct fixc_fld_s fld)
 		return;
 	}
 
+	/* comb out everything that mustn't be rendered */
+	switch (fld.typ) {
+	case FIXC_TYP_VER:
+	case FIXC_TYP_MSGTYP:
+	case FIXC_TYP_CTXT:
+		return;
+	default:
+		break;
+	}
+
 	ctx->p = sputc(ctx->p, ctx->ep, ' ');
 	ctx->p = sncpy(ctx->p, ctx->ep, attr, alen);
 	ctx->p = sputc(ctx->p, ctx->ep, '=');
@@ -198,9 +208,10 @@ __render_attr(__ctx_t ctx, fixc_ctxt_t t, const char *b, struct fixc_fld_s fld)
 
 	case FIXC_TYP_VER:
 	case FIXC_TYP_MSGTYP:
+	case FIXC_TYP_CTXT:
 	default:
 		/* huh? */
-		return;
+		break;
 	}
 	ctx->p = sputc(ctx->p, ctx->ep, '"');
 	/* we should up the attr counter here */
