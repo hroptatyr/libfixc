@@ -11,7 +11,7 @@ int
 main(void)
 {
 /* starting out with an empty message, add 2 Quot's */
-	fixc_msg_t msg = make_fixc_msg((fixc_msgt_t)FIXC_MSGT_UNK);
+	fixc_msg_t msg = make_fixc_msg((fixc_msgt_t)FIXC_MSGT_BATCH);
 	struct fixc_fld_s fld = {
 		.tag = 35,
 		.typ = FIXC_TYP_MSGTYP,
@@ -24,9 +24,9 @@ main(void)
 	/* and again */
 	fixc_add_fld(msg, fld);
 
-	if (msg->f35.tag != FIXC_MSGT_BATCH) {
-		fprintf(stderr, "promotion to batch message broken: %hu\n",
-			msg->f35.tag);
+	if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
+		fprintf(stderr, "promotion to batch message broken: %u\n",
+			msg->f35.mtyp);
 		res = 1;
 	}
 	if (msg->nflds != 2) {
