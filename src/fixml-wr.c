@@ -657,6 +657,7 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	p = sputc(p, ep, '/');
 	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
 	p = sputc(p, ep, '>');
+	p = sputc(p, ep, '\n');
 	*p = '\0';
 	return p - buf;
 }
