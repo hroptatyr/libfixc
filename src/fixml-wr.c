@@ -583,7 +583,7 @@ fixc_fixup(fixc_msg_t msg)
 				goto succ;
 			}
 			/* go back then? */
-			pop();
+			(void)pop();
 		} while (nstk >= 0);
 
 		FIXC_DEBUG("couldn't find context for %hu\n", msg->flds[i].tag);
