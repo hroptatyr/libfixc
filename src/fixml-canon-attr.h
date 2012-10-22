@@ -48,6 +48,9 @@ typedef enum {
 	FIXC_ATTR_V = 65534U,
 } fixc_attr_t;
 
+#define FIXC_ATTR_XMLNS		(fixc_attr_t)FIXC_ATTR_XMLNS
+#define FIXC_ATTR_V		(fixc_attr_t)FIXC_ATTR_V
+
 /**
  * Return fixml string for attribute AID. */
 extern const char *fixc_attr_fixmlify(fixc_ctxt_t, fixc_attr_t);
