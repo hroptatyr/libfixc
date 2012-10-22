@@ -538,10 +538,13 @@ fixc_add_fld_at(fixc_msg_t msg, struct fixc_fld_s fld, size_t idx)
 
 		/* move all fields from idx to nflds out of the way */
 		if (LIKELY(idx < msg->nflds)) {
-			size_t nmv = (msg->nflds++ - idx);
+			size_t nmv = (msg->nflds - idx);
 			size_t nmv_b = nmv * sizeof(*msg->flds);
 			memmove(msg->flds + idx + 1, msg->flds + idx, nmv_b);
 		}
+
+		/* in total the number got up'd by 1 */
+		msg->nflds++;
 
 		/* finally time to adopt this fld */
 		msg->flds[idx] = fld;
@@ -618,10 +621,13 @@ fixc_add_tag_at(
 
 		/* move all fields from idx to nflds out of the way */
 		if (LIKELY(idx < msg->nflds)) {
-			size_t nmv = (msg->nflds++ - idx);
+			size_t nmv = (msg->nflds - idx);
 			size_t nmv_b = nmv * sizeof(*msg->flds);
 			memmove(msg->flds + idx + 1, msg->flds + idx, nmv_b);
 		}
+
+		/* in total the number of fields is up by 1 */
+		msg->nflds++;
 
 		/* finally time to adopt this fld */
 		msg->flds[idx].tag = (uint16_t)tag;
