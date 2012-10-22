@@ -152,7 +152,11 @@ make_fixc_msg(fixc_ctxt_t ctx)
 	res = calloc(1, sizeof(*res));
 
 	res->f35.tag = FIXC_MSG_TYPE;
-	res->f35.typ = FIXC_TYP_CTXT;
+	if (LIKELY(ctx.ui16 > 0x2000)) {
+		res->f35.typ = FIXC_TYP_MSGTYP;
+	} else {
+		res->f35.typ = FIXC_TYP_CTXT;
+	}
 	res->f35.ctx = ctx;
 	return res;
 }
