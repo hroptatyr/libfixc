@@ -163,12 +163,25 @@ extern size_t fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg);
 extern size_t fixc_render_fixml(char *restrict buf, size_t bsz, fixc_msg_t msg);
 
 /**
- * Add FLD to MSG. */
+ * Add FLD to MSG.
+ * Upon failure a value <0 is returned. */
 extern int fixc_add_fld(fixc_msg_t, struct fixc_fld_s fld);
 
 /**
- * Add TAG to MSG copying VAL (of size VSZ) to representation space. */
+ * Like `fixc_add_fld()' but insert FLD before field IDX. */
+extern int fixc_add_fld_at(fixc_msg_t, struct fixc_fld_s fld, size_t idx);
+
+/**
+ * Add TAG to MSG copying VAL (of size VSZ) to representation space.
+ * Upon failure a value <0 is returned. */
 extern int fixc_add_tag(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz);
+
+/**
+ * Like `fixc_add_tag()' but insert VAL (VSZ) before field IDX. */
+extern int
+fixc_add_tag_at(
+	fixc_msg_t, fixc_attr_t,
+	const char *val, size_t vsz, size_t idx);
 
 /**
  * Delete field N in MSG.*/
