@@ -503,13 +503,8 @@ fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 		msg->f10 = fld;
 		break;
 	case FIXC_MSG_TYPE:
-		switch (msg->f35.mtyp) {
-		case FIXC_MSGT_UNK:
-			msg->f35.mtyp = FIXC_MSGT_BATCH;
-		case FIXC_MSGT_BATCH:
+		if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
 			goto bang;
-		default:
-			break;
 		}
 		/* otherwise it's the main message type */
 		msg->f35 = fld;
