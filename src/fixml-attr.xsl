@@ -46,10 +46,13 @@ typedef enum {
     <xsl:text>_ATTR_UNK,&#0010;</xsl:text>
     <xsl:text>&#0009;</xsl:text>
     <xsl:value-of select="$VERSN"/>
-    <xsl:text>_ATTR_XMLNS = 65535,&#0010;</xsl:text>
+    <xsl:text>_ATTR_XMLNS = 65535U,&#0010;</xsl:text>
     <xsl:text>&#0009;</xsl:text>
     <xsl:value-of select="$VERSN"/>
-    <xsl:text>_ATTR_V = 65534,&#0010;</xsl:text>
+    <xsl:text>_ATTR_V = 65534U,&#0010;</xsl:text>
+    <xsl:text>&#0009;</xsl:text>
+    <xsl:value-of select="$VERSN"/>
+    <xsl:text>_ATTR_XV = 65533U,&#0010;</xsl:text>
 
     <!-- all the attributes grouped by name -->
     <xsl:for-each select="fixc:field">

@@ -59,6 +59,8 @@ const char *fixc_attr_fixmlify(fixc_ctxt_t ctx, fixc_attr_t aid)
 		return "xmlns";
 	case FIXC_ATTR_V:
 		return "v";
+	case FIXC_ATTR_XV:
+		return "xv";
 
 	case FIXC_ATTR_UNK:
 	default:
