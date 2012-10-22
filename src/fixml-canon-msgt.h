@@ -40,8 +40,10 @@
 typedef enum {
 	/* these ones are our own */
 	FIXC_MSGT_UNK,
-	FIXC_MSGT_BATCH = 0xffff,
+	FIXC_MSGT_BATCH = 0xffffU,
 } fixc_msgt_t;
+
+#define FIXC_MSGT_BATCH		(fixc_msgt_t)FIXC_MSGT_BATCH
 
 /**
  * Return fixml string for message type MTY. */
