@@ -319,7 +319,9 @@ __fixmlify(char *restrict p, const char *ep, fixc_ctxt_t ctx)
 {
 	const char *tag;
 
-	if (ctx.i > 0x2000) {
+	if (UNLIKELY(ctx.i == FIXC_MSGT_BATCH)) {
+		tag = "Batch";
+	} else if (ctx.i > 0x2000) {
 		tag = fixc_msgt_fixmlify(ctx.msgt);
 	} else {
 		tag = fixc_comp_fixmlify(ctx.comp);
@@ -634,6 +636,12 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	/* eo FIXML tag start */
 	p = sputc(p, ep, '>');
 
+	/* see if we need to produce the Batch tag */
+	if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
+		p = sputc(p, ep, '<');
+		p = __fixmlify(p, ep, FIXC_MSGT_BATCH);
+		p = sputc(p, ep, '>');
+	}
 	/* set up our stack */
 	ptx_init(&ctx, p, ep);
 	/* traverse the message only once */
@@ -663,6 +671,13 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 
 	/* copy the context pointer back */
 	p = ctx.p;
+	/* see if we need to close the Batch tag */
+	if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
+		p = sputc(p, ep, '<');
+		p = sputc(p, ep, '/');
+		p = __fixmlify(p, ep, FIXC_MSGT_BATCH);
+		p = sputc(p, ep, '>');
+	}
 	/* final verdict */
 	p = sputc(p, ep, '<');
 	p = sputc(p, ep, '/');
