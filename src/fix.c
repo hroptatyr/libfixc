@@ -522,7 +522,7 @@ int
 fixc_add_tag(fixc_msg_t msg, fixc_attr_t tag, const char *val, size_t vsz)
 {
 	/* see if someone tricks us into adding the special fields */
-	switch (tag) {
+	switch ((unsigned int)tag) {
 		size_t cur;
 	case FIXC_TAG_UNK:
 	case FIXC_BEGIN_STRING:
