@@ -46,10 +46,13 @@ typedef enum {
 	FIXC_ATTR_XMLNS = 65535U,
 	/* fixml's version declarator */
 	FIXC_ATTR_V = 65534U,
+	/* fixml's version declarator */
+	FIXC_ATTR_XV = 65533U,
 } fixc_attr_t;
 
 #define FIXC_ATTR_XMLNS		(fixc_attr_t)FIXC_ATTR_XMLNS
 #define FIXC_ATTR_V		(fixc_attr_t)FIXC_ATTR_V
+#define FIXC_ATTR_XV		(fixc_attr_t)FIXC_ATTR_XV
 
 /**
  * Return fixml string for attribute AID. */
