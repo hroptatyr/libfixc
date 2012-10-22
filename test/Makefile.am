@@ -45,19 +45,17 @@ EXTRA_DIST += fix_ex_01.fix
 EXTRA_DIST += fix_ex_02.fix
 
 EXTRA_DIST += fixml_to_fixc_prep.c
-EXTRA_DIST += fixml-attr.h
-EXTRA_DIST += fixml-comp.h
-fixml_tests += fixml_to_fixc_hash_01
+#fixml_tests += fixml_to_fixc_hash_01
 #fixml_tests += fixml_to_fixc_hash_02
-fixml_tests += fixml_to_fixc_hash_03
+#fixml_tests += fixml_to_fixc_hash_03
 #fixml_tests += fixml_to_fixc_hash_04
-fixml_tests += fixml_to_fixc_hash_05
+#fixml_tests += fixml_to_fixc_hash_05
 #fixml_tests += fixml_to_fixc_hash_06
-fixml_tests += fixml_to_fixc_hash_07
+#fixml_tests += fixml_to_fixc_hash_07
 #fixml_tests += fixml_to_fixc_hash_08
-fixml_tests += fixml_to_fixc_hash_09
+#fixml_tests += fixml_to_fixc_hash_09
 #fixml_tests += fixml_to_fixc_hash_10
-fixml_tests += fixml_to_fixc_hash_11
+#fixml_tests += fixml_to_fixc_hash_11
 #fixml_tests += fixml_to_fixc_hash_12
 
 #fixml_tests += fixc_to_fixml_hash_01
