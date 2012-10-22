@@ -43,9 +43,9 @@ typedef enum {
 	/* these ones are our own */
 	FIXC_ATTR_UNK,
 	/* canonical xml name space declarator */
-	FIXC_ATTR_XMLNS = 65535,
+	FIXC_ATTR_XMLNS = 65535U,
 	/* fixml's version declarator */
-	FIXC_ATTR_V = 65534,
+	FIXC_ATTR_V = 65534U,
 } fixc_attr_t;
 
 /**
