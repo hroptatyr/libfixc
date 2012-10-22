@@ -583,7 +583,7 @@ fixc_fixup(fixc_msg_t msg)
 				goto succ;
 			}
 			/* go back then? */
-			pop();
+			(void)pop();
 		} while (nstk >= 0);
 
 		FIXC_DEBUG("couldn't find context for %hu\n", msg->flds[i].tag);
@@ -646,7 +646,7 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	ptx_init(&ctx, p, ep);
 	/* traverse the message only once */
 	for (size_t i = 0; i < msg->nflds; i++) {
-		fixc_ctxt_t ictx = {.ui16 = msg->flds[i].tpc};
+		fixc_ctxt_t ictx = {(unsigned int)msg->flds[i].tpc};
 
 		/* several edge triggers here:
 		 * - whenever the .tpc (parent ctx) changes
