@@ -434,39 +434,69 @@ fixc_msg_z(fixc_msg_t msg)
 }
 
 size_t
+fixc_msg_optz(fixc_msg_t msg)
+{
+/* like fixc_msg_z() but return the optimal space needed to hold MSG */
+	/* field space */
+	size_t fspc;
+	/* value space */
+	size_t vspc;
+	size_t res;
+
+	/* let's hope msg->pr is aligned, fingers crossed */
+	fspc = ROUND(msg->nflds, FSPC_RND);
+	/* determine the size of the pr section, multiple of VSPC_RND */
+	vspc = ROUND(msg->pz + 1, VSPC_RND);
+
+	res = vspc + fspc * sizeof(*msg->flds) + sizeof(*msg);
+	return res;
+}
+
+size_t
+fixc_msg_minz(fixc_msg_t msg)
+{
+/* like fixc_msg_z() but return the minimum space needed to hold MSG */
+	/* field space */
+	size_t fspc;
+	/* value space */
+	size_t vspc;
+	size_t res;
+
+	/* let's hope msg->pr is aligned, fingers crossed */
+	fspc = msg->nflds;
+	/* determine the size of the pr section, multiple of VSPC_RND */
+	vspc = msg->pz + 1;
+
+	res = vspc + fspc * sizeof(*msg->flds) + sizeof(*msg);
+	return res;
+}
+
+size_t
 fixc_msg_cpy(void *restrict tgt, size_t tsz, fixc_msg_t msg)
 {
-	size_t tailz = fixc_msg_z(msg);
+	struct fixc_msg_s *restrict tmsg = tgt;
+	size_t fspc = msg->nflds * sizeof(*msg->flds);
+	size_t tailz = fixc_msg_minz(msg);
 
 	if (UNLIKELY(tsz < tailz)) {
 		return 0UL;
 	}
 
 	if (msg->flds == msg->these) {
-		/* great, it's just one big shlong */
-		ptrdiff_t prdf = (char*)msg->pr - (char*)msg;
-		fixc_msg_t tmsg;
-
-		memcpy((tmsg = tgt), msg, tailz);
-		tmsg->pr = (char*)tgt + prdf;
-		tmsg->flds = tmsg->these;
+		/* great, it's just one big shlong, but we'll optimise
+		 * the whole shebang anyway */
+		memcpy(tmsg, msg, sizeof(*msg) + fspc);
 	} else {
 		/* chunk copies */
-		fixc_msg_t tmsg;
-		size_t fspc;
-		ptrdiff_t prdf;
-
-		memcpy((tmsg = tgt), msg, sizeof(*msg));
+		/* copy the head-bit */
+		memcpy(tmsg, msg, sizeof(*msg));
 
 		/* copy them fields */
-		fspc = msg->nflds * sizeof(*msg->flds);
 		memcpy(tmsg->flds = tmsg->these, msg->flds, fspc);
-
-		/* and now for the pr */
-		prdf = (char*)msg->pr - (char*)msg->flds;
-		tmsg->pr = (char*)tmsg->flds + prdf;
-		memcpy(tmsg->pr, msg->pr, msg->pz + 1);
 	}
+	/* reset the new pr */
+	tmsg->pr = (void*)(tmsg->flds + msg->nflds);
+	memcpy(tmsg->pr, msg->pr, msg->pz + 1);
 	return tailz;
 }
 
