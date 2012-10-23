@@ -197,6 +197,12 @@ extern void fixc_fixup(fixc_msg_t);
 /** return the allocated size for MSG. */
 extern size_t fixc_msg_z(fixc_msg_t);
 
+/** return the optimal size needed to hold MSG. */
+extern size_t fixc_msg_optz(fixc_msg_t);
+
+/** return the minimum size needed to hold MSG. */
+extern size_t fixc_msg_minz(fixc_msg_t);
+
 /**
  * Put a (shallow) copy of MSG into TGT of size TSZ and return the number
  * of bytes written. */

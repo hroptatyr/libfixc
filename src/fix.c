@@ -434,6 +434,44 @@ fixc_msg_z(fixc_msg_t msg)
 }
 
 size_t
+fixc_msg_optz(fixc_msg_t msg)
+{
+/* like fixc_msg_z() but return the optimal space needed to hold MSG */
+	/* field space */
+	size_t fspc;
+	/* value space */
+	size_t vspc;
+	size_t res;
+
+	/* let's hope msg->pr is aligned, fingers crossed */
+	fspc = ROUND(msg->nflds, FSPC_RND);
+	/* determine the size of the pr section, multiple of VSPC_RND */
+	vspc = ROUND(msg->pz + 1, VSPC_RND);
+
+	res = vspc + fspc * sizeof(*msg->flds) + sizeof(*msg);
+	return res;
+}
+
+size_t
+fixc_msg_minz(fixc_msg_t msg)
+{
+/* like fixc_msg_z() but return the minimum space needed to hold MSG */
+	/* field space */
+	size_t fspc;
+	/* value space */
+	size_t vspc;
+	size_t res;
+
+	/* let's hope msg->pr is aligned, fingers crossed */
+	fspc = msg->nflds;
+	/* determine the size of the pr section, multiple of VSPC_RND */
+	vspc = msg->pz + 1;
+
+	res = vspc + fspc * sizeof(*msg->flds) + sizeof(*msg);
+	return res;
+}
+
+size_t
 fixc_msg_cpy(void *restrict tgt, size_t tsz, fixc_msg_t msg)
 {
 	size_t tailz = fixc_msg_z(msg);
