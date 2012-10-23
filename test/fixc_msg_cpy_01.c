@@ -12,7 +12,7 @@ main(void)
 {
 /* create a secdef message from FIXML (including .cnt and .tpc info), then
  * copy the whole shebang and see if the .tpc and .cnt info is still there */
-	static char buf[4096];
+	static char buf[512];
 	static const char sdx[] = "\
 <?xml version=\"1.0\"?>\n\
 <FIXML xmlns=\"http://www.fixprotocol.org/FIXML-5-0-SP2\" v=\"5.0 SP2\">\
@@ -30,8 +30,9 @@ MinPxIncr=\"0.000050\"/>\
 	/* add the message type */
 	if ((bsz = fixc_msg_cpy(buf, sizeof(buf), msg)) < sizeof(*msg)) {
 		fprintf(stderr, "copy of msg won't fit, got %zu, need %zu\n",
-			bsz, fixc_msg_z(msg));
+			bsz, fixc_msg_minz(msg));
 		res = 1;
+		goto out;
 	}
 
 	if (msg->nflds != cpy->nflds) {
@@ -59,6 +60,7 @@ MinPxIncr=\"0.000050\"/>\
 		}			
 	}
 
+out:
 	free_fixc(msg);
 	return res;
 }
