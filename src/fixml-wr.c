@@ -600,6 +600,40 @@ fixc_fixup(fixc_msg_t msg)
 	return;
 }
 
+#if defined DEBUG_FLAG
+static void
+pr_fld(int num, struct fixc_fld_s fld)
+{
+	fprintf(stderr, "FLD[%i] = {\n\
+  .tag = %hu,\n\
+  .typ = %hu,\n\
+  .tpc = %hu,\n\
+  .cnt = %hu,\n\
+  .val = 0x%lx,\n\
+};\n", num, fld.tag, fld.typ, fld.tpc, fld.cnt, fld.i64);
+	return;
+}
+#endif	/* DEBUG_FLAG */
+
+void
+fixc_dump(fixc_msg_t msg)
+{
+#if defined DEBUG_FLAG
+	pr_fld(-4, msg->f8);
+	pr_fld(-3, msg->f9);
+	pr_fld(-2, msg->f35);
+	for (size_t i = 0; i < msg->nflds; i++) {
+		pr_fld(i, msg->flds[i]);
+	}
+	pr_fld(-1, msg->f10);
+#else  /* !DEBUG_FLAG */
+	if (msg == NULL) {
+		;
+	}
+#endif	/* DEBUG_FLAG */
+	return;
+}
+
 
 /* public functions */
 /* new system with tag parent context and counter */

@@ -202,4 +202,7 @@ extern size_t fixc_msg_z(fixc_msg_t);
  * of bytes written. */
 extern size_t fixc_msg_cpy(void *restrict tgt, size_t tsz, fixc_msg_t);
 
+/** for internal use */
+extern void fixc_dump(fixc_msg_t);
+
 #endif	/* INCLUDED_fix_h_ */
