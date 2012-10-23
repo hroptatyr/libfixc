@@ -49,14 +49,17 @@ MinPxIncr=\"0.000050\"/>\
 		if (msgf.tag != cpyf.tag) {
 			fprintf(stderr, "fld[%zu].tag differ: %hu v %hu\n",
 				i, msgf.tag, cpyf.tag);
+			res = 1;
 		}
 		if (msgf.tpc != cpyf.tpc) {
 			fprintf(stderr, "fld[%zu].tpc differ: %hu v %hu\n",
 				i, msgf.tpc, cpyf.tpc);
+			res = 1;
 		}			
 		if (msgf.cnt != cpyf.cnt) {
 			fprintf(stderr, "fld[%zu].cnt differ: %hu v %hu\n",
 				i, msgf.cnt, cpyf.cnt);
+			res = 1;
 		}			
 	}
 
