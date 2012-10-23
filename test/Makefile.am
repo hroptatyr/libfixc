@@ -93,6 +93,10 @@ api_tests += fixc_add_fld_04
 fixc_add_fld_04_LDADD = $(top_builddir)/src/libfixc.la
 api_tests += fixc_add_fld_05
 fixc_add_fld_05_LDADD = $(top_builddir)/src/libfixc.la
+api_tests += fixc_add_tag_01
+fixc_add_tag_01_LDADD = $(top_builddir)/src/libfixc.la
+api_tests += fixc_add_tag_02
+fixc_add_tag_02_LDADD = $(top_builddir)/src/libfixc.la
 
 rd_tests += fixml_rd_01
 fixml_rd_01_LDADD = $(top_builddir)/src/libfixc.la
