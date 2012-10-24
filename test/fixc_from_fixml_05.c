@@ -39,10 +39,15 @@ MinPxIncr=\"0.000050\">\
 	/* check fields for tpc and cnt slots */
 	for (size_t i = 0; i < msg->nflds; i++) {
 		struct fixc_fld_s f = msg->flds[i];
-		const char *v = msg->pr + f.off;
-		size_t vz = strlen(v);
+		const char *v;
 
-		fixc_add_tag(cpy, (fixc_attr_t)f.tag, v, vz);
+		if ((v = fixc_get_tag(msg, i)) != NULL) {
+			size_t vz = strlen(v);
+			fixc_add_tag(cpy, (fixc_attr_t)f.tag, v, vz);
+		} else {
+			/* it's no danger adding the whole field */
+			fixc_add_fld(cpy, f);
+		}
 	}
 
 	/* and again */
@@ -51,10 +56,15 @@ MinPxIncr=\"0.000050\">\
 	/* check fields for tpc and cnt slots */
 	for (size_t i = 0; i < msg->nflds; i++) {
 		struct fixc_fld_s f = msg->flds[i];
-		const char *v = msg->pr + f.off;
-		size_t vz = strlen(v);
+		const char *v;
 
-		fixc_add_tag(cpy, (fixc_attr_t)f.tag, v, vz);
+		if ((v = fixc_get_tag(msg, i)) != NULL) {
+			size_t vz = strlen(v);
+			fixc_add_tag(cpy, (fixc_attr_t)f.tag, v, vz);
+		} else {
+			/* it's no danger adding the whole field */
+			fixc_add_fld(cpy, f);
+		}
 	}
 
 	if (cpy->nflds != msg->nflds * 2 + 2) {
@@ -77,11 +87,14 @@ MinPxIncr=\"0.000050\">\
 		const char *v;
 
 		if (i == 0 || i == msg->nflds + 1) {
-			continue;
-		}
-
-		v = cpy->pr + cpy->flds[i].off;
-		if (strlen(v) > 17) {
+			/* them 35-tags */
+			;
+		} else if ((v = fixc_get_tag(cpy, i)) == NULL) {
+			fprintf(stderr, "uh oh, "
+				"didn't expect no string data for fld %zu\n",
+				i);
+			res = 1;
+		} else if (strlen(v) > 17) {
 			fprintf(stderr, "string too long: %s\n", v);
 			res = 1;
 		}
