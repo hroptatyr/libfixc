@@ -40,6 +40,7 @@
 #include <inttypes.h>
 
 #include "fix.h"
+#include "fix-private.h"
 #include "nifty.h"
 
 #include "fixml-canon-attr.h"

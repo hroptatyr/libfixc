@@ -17,6 +17,7 @@ EXTRA_DIST = $(BUILT_SOURCES)
 
 lib_LTLIBRARIES += libfixc.la
 libfixc_la_SOURCES = fix.c fix.h
+libfixc_la_SOURCES += fix-private.h
 libfixc_la_SOURCES += fixml-wr.c
 libfixc_la_SOURCES += fixml-rd.c
 libfixc_la_SOURCES += nifty.h
