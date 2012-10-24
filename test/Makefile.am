@@ -100,6 +100,7 @@ fixc_add_tag_02_LDADD = $(top_builddir)/src/libfixc.la
 api_tests += fixc_msg_cpy_01
 fixc_msg_cpy_01_LDADD = $(top_builddir)/src/libfixc.la
 
+TESTS_ENVIRONMENT += MALLOC_PERTURB_=64
 rd_tests += fixml_rd_01
 fixml_rd_01_LDADD = $(top_builddir)/src/libfixc.la
 
