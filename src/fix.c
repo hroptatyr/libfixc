@@ -385,18 +385,19 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		/* nothing to do, time for trip home */
 		return;
 	}
-	/* grrr, otherwise there's lots of work to do :/ */
-	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu\n",
-		       fspc, vspc, fspc + add_flds, vspc + add_vspc);
 
 	/* find out how big the whole dynamic room was */
 	old_sz = vspc + fspc * sizeof(*msg->flds);
 	/* leave room for FSPC_RND new fields and VSPC_RND bytes msg */
 	add_sz = ROUND(add_vspc, VSPC_RND) +
 		ROUND(add_flds, FSPC_RND) * sizeof(*msg->flds);
-
-	/* just to make sure we speak about the same sizes */
+	/* just to make sure we're talking the same sizes */
 	new_sz = ROUNDv(old_sz + add_sz);
+
+	/* grrr, otherwise there's lots of work to do :/ */
+	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu  i.e. %zub -> %zub\n",
+		       fspc, vspc, fspc + add_flds, vspc + add_vspc,
+		       old_sz, new_sz);
 
 	/* make sure not to realloc the flexible array */
 	if (msg->flds == msg->these) {
