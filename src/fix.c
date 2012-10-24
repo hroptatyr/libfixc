@@ -758,7 +758,7 @@ fixc_extr_ctxt(fixc_msg_t msg, fixc_ctxt_t ctx, int n)
 	fixc_msg_t res = make_fixc_msg(ctx);
 
 	/* check if we've got tpcs and cnts */
-	if (msg->nflds && !msg->flds[0].tpc) {
+	if (fixc_msg_needs_fixup_p(msg)) {
 		fixc_fixup(msg);
 	}
 

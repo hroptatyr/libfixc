@@ -37,6 +37,7 @@
 #if !defined INCLUDED_fix_private_h_
 #define INCLUDED_fix_private_h_
 
+#include <stdbool.h>
 #include "fix.h"
 
 
@@ -45,5 +46,13 @@ extern void fixc_fixup(fixc_msg_t);
 
 /** for internal use */
 extern void fixc_dump(fixc_msg_t);
+
+
+/* crucial inlines */
+static inline bool
+fixc_msg_needs_fixup_p(fixc_msg_t msg)
+{
+	return msg->nflds && msg->flds[0].tpc == 0U;
+}
 
 #endif	/* INCLUDED_fix_private_h_ */
