@@ -623,6 +623,8 @@ fixc_add_tag(fixc_msg_t msg, fixc_attr_t tag, const char *val, size_t vsz)
 		msg->flds[cur].tag = (uint16_t)tag;
 		msg->flds[cur].typ = FIXC_TYP_OFF;
 		msg->flds[cur].off = msg->pz;
+		msg->flds[cur].tpc = 0;
+		msg->flds[cur].cnt = 0;
 		memcpy(msg->pr + msg->pz, val, vsz);
 		msg->pr[msg->pz += vsz] = '\0';
 		msg->pz++;
