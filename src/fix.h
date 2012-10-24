@@ -207,6 +207,10 @@ extern struct fixc_tag_data_s fixc_get_tag_data(fixc_msg_t, size_t idx);
  * Extract the N-th occurrence of context CTX in MSG. */
 extern fixc_msg_t fixc_extr_ctxt(fixc_msg_t msg, fixc_ctxt_t ctx, int n);
 
+/**
+ * Extract the N-th occurrence of context CTX (and all subcontexts) in MSG. */
+extern fixc_msg_t fixc_extr_ctxt_deep(fixc_msg_t msg, fixc_ctxt_t ctx, int n);
+
 /** return the allocated size for MSG. */
 extern size_t fixc_msg_z(fixc_msg_t);
 
