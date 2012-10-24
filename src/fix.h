@@ -188,6 +188,12 @@ fixc_add_tag_at(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz, size_t i);
 extern void fixc_del_fld(fixc_msg_t, size_t n);
 
 /**
+ * Return a pointer to the data of a tag, or NULL if the tag is not of type
+ * FIXC_TYP_OFF, or NULL if the index IDX is out of bounds..
+ * This is somewhat the inverse of fixc_add_tag(). */
+extern const char *fixc_get_tag(fixc_msg_t, size_t idx);
+
+/**
  * Extract the N-th occurrence of context CTX in MSG. */
 extern fixc_msg_t fixc_extr_ctxt(fixc_msg_t msg, fixc_ctxt_t ctx, int n);
 

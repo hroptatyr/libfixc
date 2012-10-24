@@ -687,6 +687,18 @@ fixc_del_fld(fixc_msg_t msg, size_t n)
 	return;
 }
 
+const char*
+fixc_get_tag(fixc_msg_t msg, size_t idx)
+{
+	if (UNLIKELY(idx >= msg->nflds)) {
+		return NULL;
+	} else if (UNLIKELY(msg->flds[idx].typ != FIXC_TYP_OFF)) {
+		return NULL;
+	}
+	/* otherwise go ahead */
+	return msg->pr + msg->flds[idx].off;
+}
+
 
 /* extraction */
 static size_t
