@@ -372,7 +372,7 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 	size_t vspc;
 	size_t old_sz;
 	size_t add_sz;
-	void *new_pr;
+	size_t new_sz;
 
 	/* let's hope msg->pr is aligned, fingers crossed */
 	fspc = (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
@@ -384,34 +384,41 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		/* nothing to do, time for trip home */
 		return;
 	}
-	/* grrr, otherwise there's lots of work to do :/ */
-	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu\n",
-		       fspc, vspc, fspc + add_flds, vspc + add_vspc);
 
 	/* find out how big the whole dynamic room was */
 	old_sz = vspc + fspc * sizeof(*msg->flds);
 	/* leave room for FSPC_RND new fields and VSPC_RND bytes msg */
 	add_sz = ROUND(add_vspc, VSPC_RND) +
 		ROUND(add_flds, FSPC_RND) * sizeof(*msg->flds);
+	/* just to make sure we're talking the same sizes */
+	new_sz = ROUNDv(old_sz + add_sz);
 
-	/* make sure not to realloc the flexible array */
-	if (msg->flds == msg->these) {
+	/* grrr, otherwise there's lots of work to do :/ */
+	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu  i.e. %zub -> %zub\n",
+		       fspc, vspc, fspc + add_flds, vspc + add_vspc,
+		       old_sz, new_sz);
+
+	{
 		/* malloc them guys */
 		size_t mvz = msg->nflds * sizeof(*msg->flds);
-		void *new_flds;
+		fixc_fld_t new_flds;
+		void *new_pr;
 
-		new_flds = malloc(ROUNDv(old_sz + add_sz));
+		new_flds = malloc(new_sz);
 		memcpy(new_flds, msg->flds, mvz);
-		msg->flds = new_flds;
-	} else {
-		/* realloc them fields, has a built-in memcpy() */
-		msg->flds = realloc(msg->flds, ROUNDv(old_sz + add_sz));
-	}
 
-	/* always move the pr */
-	new_pr = msg->flds + ROUND(fspc + add_flds, FSPC_RND);
-	memmove(new_pr, msg->pr, msg->pz);
-	msg->pr = new_pr;
+		/* also move the pr stuff a bit */
+		new_pr = new_flds + ROUND(fspc + add_flds, FSPC_RND);
+		memcpy(new_pr, msg->pr, msg->pz);
+
+		/* make sure not to free the flexible array */
+		if (msg->flds != msg->these) {
+			free(msg->flds);
+		}
+		/* reass and out */
+		msg->flds = new_flds;
+		msg->pr = new_pr;
+	}
 	return;
 }
 
@@ -434,39 +441,69 @@ fixc_msg_z(fixc_msg_t msg)
 }
 
 size_t
+fixc_msg_optz(fixc_msg_t msg)
+{
+/* like fixc_msg_z() but return the optimal space needed to hold MSG */
+	/* field space */
+	size_t fspc;
+	/* value space */
+	size_t vspc;
+	size_t res;
+
+	/* let's hope msg->pr is aligned, fingers crossed */
+	fspc = ROUND(msg->nflds, FSPC_RND);
+	/* determine the size of the pr section, multiple of VSPC_RND */
+	vspc = ROUND(msg->pz + 1, VSPC_RND);
+
+	res = vspc + fspc * sizeof(*msg->flds) + sizeof(*msg);
+	return res;
+}
+
+size_t
+fixc_msg_minz(fixc_msg_t msg)
+{
+/* like fixc_msg_z() but return the minimum space needed to hold MSG */
+	/* field space */
+	size_t fspc;
+	/* value space */
+	size_t vspc;
+	size_t res;
+
+	/* let's hope msg->pr is aligned, fingers crossed */
+	fspc = msg->nflds;
+	/* determine the size of the pr section, multiple of VSPC_RND */
+	vspc = msg->pz + 1;
+
+	res = vspc + fspc * sizeof(*msg->flds) + sizeof(*msg);
+	return res;
+}
+
+size_t
 fixc_msg_cpy(void *restrict tgt, size_t tsz, fixc_msg_t msg)
 {
-	size_t tailz = fixc_msg_z(msg);
+	struct fixc_msg_s *restrict tmsg = tgt;
+	size_t fspc = msg->nflds * sizeof(*msg->flds);
+	size_t tailz = fixc_msg_minz(msg);
 
 	if (UNLIKELY(tsz < tailz)) {
 		return 0UL;
 	}
 
 	if (msg->flds == msg->these) {
-		/* great, it's just one big shlong */
-		ptrdiff_t prdf = (char*)msg->pr - (char*)msg;
-		fixc_msg_t tmsg;
-
-		memcpy((tmsg = tgt), msg, tailz);
-		tmsg->pr = (char*)tgt + prdf;
-		tmsg->flds = tmsg->these;
+		/* great, it's just one big shlong, but we'll optimise
+		 * the whole shebang anyway */
+		memcpy(tmsg, msg, sizeof(*msg) + fspc);
 	} else {
 		/* chunk copies */
-		fixc_msg_t tmsg;
-		size_t fspc;
-		ptrdiff_t prdf;
-
-		memcpy((tmsg = tgt), msg, sizeof(*msg));
+		/* copy the head-bit */
+		memcpy(tmsg, msg, sizeof(*msg));
 
 		/* copy them fields */
-		fspc = msg->nflds * sizeof(*msg->flds);
 		memcpy(tmsg->flds = tmsg->these, msg->flds, fspc);
-
-		/* and now for the pr */
-		prdf = (char*)msg->pr - (char*)msg->flds;
-		tmsg->pr = (char*)tmsg->flds + prdf;
-		memcpy(tmsg->pr, msg->pr, msg->pz + 1);
 	}
+	/* reset the new pr */
+	tmsg->pr = (void*)(tmsg->flds + msg->nflds);
+	memcpy(tmsg->pr, msg->pr, msg->pz + 1);
 	return tailz;
 }
 
@@ -586,10 +623,12 @@ fixc_add_tag(fixc_msg_t msg, fixc_attr_t tag, const char *val, size_t vsz)
 		msg->flds[cur].tag = (uint16_t)tag;
 		msg->flds[cur].typ = FIXC_TYP_OFF;
 		msg->flds[cur].off = msg->pz;
+		msg->flds[cur].tpc = 0;
+		msg->flds[cur].cnt = 0;
 		memcpy(msg->pr + msg->pz, val, vsz);
 		msg->pr[msg->pz += vsz] = '\0';
 		msg->pz++;
-		return (int)cur;
+		return 0;
 	}
 }
 
@@ -650,6 +689,51 @@ fixc_del_fld(fixc_msg_t msg, size_t n)
 	}
 	msg->flds[n].tag = FIXC_ATTR_UNK;
 	return;
+}
+
+const char*
+fixc_get_tag(fixc_msg_t msg, size_t idx)
+{
+	if (UNLIKELY(idx >= msg->nflds)) {
+		return NULL;
+	} else if (UNLIKELY(msg->flds[idx].typ != FIXC_TYP_OFF)) {
+		return NULL;
+	}
+	/* otherwise go ahead */
+	return msg->pr + msg->flds[idx].off;
+}
+
+struct fixc_tag_data_s
+fixc_get_tag_data(fixc_msg_t msg, size_t idx)
+{
+	static const struct fixc_tag_data_s nul = {
+		.s = NULL,
+		.z = 0UL,
+	};
+
+	if (UNLIKELY(idx >= msg->nflds)) {
+		return nul;
+	} else if (UNLIKELY(msg->flds[idx].typ != FIXC_TYP_OFF)) {
+		return nul;
+	}
+	/* otherwise go ahead */
+	{
+		size_t off = msg->flds[idx].off;
+		struct fixc_tag_data_s res = {
+			.s = msg->pr + off,
+		};
+
+		/* SLIGHT optimisation of just pulling off strlen() */
+		if (idx + 1 == msg->nflds) {
+			res.z = msg->pz - off - 1;
+		} else if (msg->flds[idx + 1].typ == FIXC_TYP_OFF) {
+			/* let's hope they're consecutive */
+			res.z = msg->flds[idx + 1].off - off - 1;
+		} else {
+			res.z = strlen(res.s);
+		}
+		return res;
+	}
 }
 
 

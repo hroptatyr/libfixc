@@ -43,6 +43,7 @@
 
 typedef union {
 	unsigned int i;
+	int j;
 	uint32_t ui16:16;
 	fixc_comp_t comp;
 	fixc_msgt_t msgt;

@@ -137,6 +137,12 @@ struct fixc_msg_s {
 	struct fixc_fld_s these[];
 };
 
+/** for passing in and out actual tag data along with its size. */
+struct fixc_tag_data_s {
+	const char *s;
+	size_t z;
+};
+
 
 /**
  * Generate a fixc message from a FIX message string in MSG of length MSGLEN */
@@ -174,18 +180,28 @@ extern int fixc_add_fld_at(fixc_msg_t, struct fixc_fld_s fld, size_t idx);
 /**
  * Add TAG to MSG copying VAL (of size VSZ) to representation space.
  * Upon failure a value <0 is returned. */
-extern int fixc_add_tag(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz);
+extern int
+fixc_add_tag(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz);
 
 /**
- * Like `fixc_add_tag()' but insert VAL (VSZ) before field IDX. */
+ * Like `fixc_add_tag()' but insert VAL (VSZ) before field I.
+ * Upon failure a value <0 is returned. */
 extern int
-fixc_add_tag_at(
-	fixc_msg_t, fixc_attr_t,
-	const char *val, size_t vsz, size_t idx);
+fixc_add_tag_at(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz, size_t i);
 
 /**
  * Delete field N in MSG.*/
 extern void fixc_del_fld(fixc_msg_t, size_t n);
+
+/**
+ * Return a pointer to the data of a tag, or NULL if the tag is not of type
+ * FIXC_TYP_OFF, or NULL if the index IDX is out of bounds..
+ * This is somewhat the inverse of fixc_add_tag(). */
+extern const char *fixc_get_tag(fixc_msg_t, size_t idx);
+
+/**
+ * Like `fixc_get_tag()' but also return the size of the string. */
+extern struct fixc_tag_data_s fixc_get_tag_data(fixc_msg_t, size_t idx);
 
 /**
  * Extract the N-th occurrence of context CTX in MSG. */
@@ -197,9 +213,18 @@ extern void fixc_fixup(fixc_msg_t);
 /** return the allocated size for MSG. */
 extern size_t fixc_msg_z(fixc_msg_t);
 
+/** return the optimal size needed to hold MSG. */
+extern size_t fixc_msg_optz(fixc_msg_t);
+
+/** return the minimum size needed to hold MSG. */
+extern size_t fixc_msg_minz(fixc_msg_t);
+
 /**
  * Put a (shallow) copy of MSG into TGT of size TSZ and return the number
  * of bytes written. */
 extern size_t fixc_msg_cpy(void *restrict tgt, size_t tsz, fixc_msg_t);
+
+/** for internal use */
+extern void fixc_dump(fixc_msg_t);
 
 #endif	/* INCLUDED_fix_h_ */

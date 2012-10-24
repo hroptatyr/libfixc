@@ -423,8 +423,9 @@ bang_attr(__ctx_t ctx, fixc_attr_t tag, const char *val, size_t vsz)
 	}
 
 	/* just use fix.c's add_tag thingie for this */
-	if (LIKELY((fidx = fixc_add_tag(ctx->msg, tag, val, vsz)) >= 0)) {
+	if (LIKELY(fixc_add_tag(ctx->msg, tag, val, vsz) >= 0)) {
 		/* also set the field's parent context and whatnot */
+		fidx = ctx->msg->nflds - 1;
 		ctx->msg->flds[fidx].tpc = (uint16_t)ctx->state->otag;
 		ctx->msg->flds[fidx].cnt = (uint16_t)ctx->state->cnt++;
 		ctx->state->cns++;
