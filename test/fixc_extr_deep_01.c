@@ -20,6 +20,22 @@ static char test[] = "\
 		res = 1;
 	}
 
+	/* should be 8 7Us and 9 96Us */
+	for (size_t i = 0; i < 8UL; i++) {
+		if (sub->flds[i].tpc != 7U) {
+			fprintf(stderr, "expected .tpc 7U, got %hu\n",
+				sub->flds[i].tpc);
+			res = 1;
+		}
+	}
+	for (size_t i = 8; i < 17UL; i++) {
+		if (sub->flds[i].tpc != 96U) {
+			fprintf(stderr, "expected .tpc 96U, got %hu\n",
+				sub->flds[i].tpc);
+			res = 1;
+		}
+	}
+
 	free_fixc(msg);
 	free_fixc(sub);
 	return res;
