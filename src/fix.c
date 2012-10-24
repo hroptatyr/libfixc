@@ -372,7 +372,6 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 	size_t vspc;
 	size_t old_sz;
 	size_t add_sz;
-	void *new_pr;
 	size_t new_sz;
 
 	/* let's hope msg->pr is aligned, fingers crossed */
@@ -399,24 +398,27 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		       fspc, vspc, fspc + add_flds, vspc + add_vspc,
 		       old_sz, new_sz);
 
-	/* make sure not to realloc the flexible array */
-	if (msg->flds == msg->these) {
+	{
 		/* malloc them guys */
 		size_t mvz = msg->nflds * sizeof(*msg->flds);
-		void *new_flds;
+		fixc_fld_t new_flds;
+		void *new_pr;
 
 		new_flds = malloc(new_sz);
 		memcpy(new_flds, msg->flds, mvz);
-		msg->flds = new_flds;
-	} else {
-		/* realloc them fields, has a built-in memcpy() */
-		msg->flds = realloc(msg->flds, new_sz);
-	}
 
-	/* always move the pr */
-	new_pr = msg->flds + ROUND(fspc + add_flds, FSPC_RND);
-	memmove(new_pr, msg->pr, msg->pz);
-	msg->pr = new_pr;
+		/* also move the pr stuff a bit */
+		new_pr = new_flds + ROUND(fspc + add_flds, FSPC_RND);
+		memcpy(new_pr, msg->pr, msg->pz);
+
+		/* make sure not to free the flexible array */
+		if (msg->flds != msg->these) {
+			free(msg->flds);
+		}
+		/* reass and out */
+		msg->flds = new_flds;
+		msg->pr = new_pr;
+	}
 	return;
 }
 
