@@ -15,10 +15,25 @@ static char test[] = "\
 	fixc_msg_t msg = make_fixc_from_fix(test, sizeof(test));
 	fixc_msg_t sub = fixc_extr_ctxt_deep(msg, 7U, 0);
 
-	fixc_dump(msg);
 	if (sub->nflds != 17) {
 		fprintf(stderr, "sub nflds: %zu  should be: 17\n", sub->nflds);
 		res = 1;
+	}
+
+	/* should be 8 7Us and 9 96Us */
+	for (size_t i = 0; i < 8UL; i++) {
+		if (sub->flds[i].tpc != 7U) {
+			fprintf(stderr, "expected .tpc 7U, got %hu\n",
+				sub->flds[i].tpc);
+			res = 1;
+		}
+	}
+	for (size_t i = 8; i < 17UL; i++) {
+		if (sub->flds[i].tpc != 96U) {
+			fprintf(stderr, "expected .tpc 96U, got %hu\n",
+				sub->flds[i].tpc);
+			res = 1;
+		}
 	}
 
 	free_fixc(msg);
