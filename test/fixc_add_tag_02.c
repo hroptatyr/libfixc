@@ -42,7 +42,7 @@ MinPxIncr=\"0.000050\"/>\
 	/* now add all fields of SDM by _tag */
 	for (size_t i = 0; i < sdm->nflds; i++) {
 		struct fixc_fld_s sdmfld = sdm->flds[i];
-		const char *v = sdm->pr + sdmfld.off;
+		const char *v = fixc_get_tag(sdm, i);
 		size_t vz = strlen(v);
 
 		fixc_add_tag(msg, (fixc_attr_t)sdmfld.tag, v, vz);
