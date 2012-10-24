@@ -137,6 +137,12 @@ struct fixc_msg_s {
 	struct fixc_fld_s these[];
 };
 
+/** for passing in and out actual tag data along with its size. */
+struct fixc_tag_data_s {
+	const char *s;
+	size_t z;
+};
+
 
 /**
  * Generate a fixc message from a FIX message string in MSG of length MSGLEN */
@@ -192,6 +198,10 @@ extern void fixc_del_fld(fixc_msg_t, size_t n);
  * FIXC_TYP_OFF, or NULL if the index IDX is out of bounds..
  * This is somewhat the inverse of fixc_add_tag(). */
 extern const char *fixc_get_tag(fixc_msg_t, size_t idx);
+
+/**
+ * Like `fixc_get_tag()' but also return the size of the string. */
+extern struct fixc_tag_data_s fixc_get_tag_data(fixc_msg_t, size_t idx);
 
 /**
  * Extract the N-th occurrence of context CTX in MSG. */

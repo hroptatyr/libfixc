@@ -703,6 +703,39 @@ fixc_get_tag(fixc_msg_t msg, size_t idx)
 	return msg->pr + msg->flds[idx].off;
 }
 
+struct fixc_tag_data_s
+fixc_get_tag_data(fixc_msg_t msg, size_t idx)
+{
+	static const struct fixc_tag_data_s nul = {
+		.s = NULL,
+		.z = 0UL,
+	};
+
+	if (UNLIKELY(idx >= msg->nflds)) {
+		return nul;
+	} else if (UNLIKELY(msg->flds[idx].typ != FIXC_TYP_OFF)) {
+		return nul;
+	}
+	/* otherwise go ahead */
+	{
+		size_t off = msg->flds[idx].off;
+		struct fixc_tag_data_s res = {
+			.s = msg->pr + off,
+		};
+
+		/* SLIGHT optimisation of just pulling off strlen() */
+		if (idx + 1 == msg->nflds) {
+			res.z = msg->pz - off - 1;
+		} else if (msg->flds[idx + 1].typ == FIXC_TYP_OFF) {
+			/* let's hope they're consecutive */
+			res.z = msg->flds[idx + 1].off - off - 1;
+		} else {
+			res.z = strlen(res.s);
+		}
+		return res;
+	}
+}
+
 
 /* extraction */
 static size_t
