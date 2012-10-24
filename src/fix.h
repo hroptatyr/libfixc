@@ -174,14 +174,14 @@ extern int fixc_add_fld_at(fixc_msg_t, struct fixc_fld_s fld, size_t idx);
 /**
  * Add TAG to MSG copying VAL (of size VSZ) to representation space.
  * Upon failure a value <0 is returned. */
-extern int fixc_add_tag(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz);
+extern int
+fixc_add_tag(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz);
 
 /**
- * Like `fixc_add_tag()' but insert VAL (VSZ) before field IDX. */
+ * Like `fixc_add_tag()' but insert VAL (VSZ) before field I.
+ * Upon failure a value <0 is returned. */
 extern int
-fixc_add_tag_at(
-	fixc_msg_t, fixc_attr_t,
-	const char *val, size_t vsz, size_t idx);
+fixc_add_tag_at(fixc_msg_t, fixc_attr_t, const char *val, size_t vsz, size_t i);
 
 /**
  * Delete field N in MSG.*/

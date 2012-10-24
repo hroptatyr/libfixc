@@ -623,7 +623,7 @@ fixc_add_tag(fixc_msg_t msg, fixc_attr_t tag, const char *val, size_t vsz)
 		memcpy(msg->pr + msg->pz, val, vsz);
 		msg->pr[msg->pz += vsz] = '\0';
 		msg->pz++;
-		return (int)cur;
+		return 0;
 	}
 }
 
