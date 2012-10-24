@@ -748,7 +748,12 @@ __cpy_fld(fixc_msg_t tgt, fixc_msg_t src, size_t idx)
 
 	if (fld.typ == FIXC_TYP_OFF) {
 		struct fixc_tag_data_s d = fixc_get_tag_data(src, idx);
+		size_t jdx = tgt->nflds;
+
 		fixc_add_tag(tgt, (fixc_attr_t)fld.tag, d.s, d.z);
+		/* copy them .tpc and .cnt slots if possible */
+		tgt->flds[jdx].tpc = fld.tpc;
+		tgt->flds[jdx].cnt = fld.cnt;
 	} else {
 		fixc_add_fld(tgt, fld);
 	}
