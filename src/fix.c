@@ -36,10 +36,13 @@
  **/
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 #include <inttypes.h>
 
 #include "fix.h"
+#include "fix-private.h"
+#include "fixml-comp-sub.h"
 #include "nifty.h"
 
 #include "fixml-canon-attr.h"
@@ -738,17 +741,23 @@ fixc_get_tag_data(fixc_msg_t msg, size_t idx)
 
 
 /* extraction */
-static size_t
-__extr_off(const char *tgt[static 1], fixc_msg_t msg, struct fixc_fld_s fld)
+static void
+__cpy_fld(fixc_msg_t tgt, fixc_msg_t src, size_t idx)
 {
-/* for fields of type OFF put a usable pointer into TGT and return its length */
-	if (LIKELY(fld.typ == FIXC_TYP_OFF)) {
-		*tgt = msg->pr + fld.off;
-		return strlen(*tgt);
+	struct fixc_fld_s fld = src->flds[idx];
+
+	if (fld.typ == FIXC_TYP_OFF) {
+		struct fixc_tag_data_s d = fixc_get_tag_data(src, idx);
+		size_t jdx = tgt->nflds;
+
+		fixc_add_tag(tgt, (fixc_attr_t)fld.tag, d.s, d.z);
+		/* copy them .tpc and .cnt slots if possible */
+		tgt->flds[jdx].tpc = fld.tpc;
+		tgt->flds[jdx].cnt = fld.cnt;
+	} else {
+		fixc_add_fld(tgt, fld);
 	}
-	/* otherwise it would be fair to crash but we're too nice *sigh* ... */
-	*tgt = NULL;
-	return 0UL;
+	return;
 }
 
 fixc_msg_t
@@ -757,7 +766,7 @@ fixc_extr_ctxt(fixc_msg_t msg, fixc_ctxt_t ctx, int n)
 	fixc_msg_t res = make_fixc_msg(ctx);
 
 	/* check if we've got tpcs and cnts */
-	if (msg->nflds && !msg->flds[0].tpc) {
+	if (fixc_msg_needs_fixup_p(msg)) {
 		fixc_fixup(msg);
 	}
 
@@ -782,15 +791,79 @@ fixc_extr_ctxt(fixc_msg_t msg, fixc_ctxt_t ctx, int n)
 			}
 
 			/* oh yes we are, snarf it */
-			if (fld.typ == FIXC_TYP_OFF) {
-				const char *p;
-				fixc_attr_t a = (fixc_attr_t)fld.tag;
-				size_t z = __extr_off(&p, msg, fld);
+			__cpy_fld(res, msg, i);
+		}
+	}
+	return res;
+}
 
-				fixc_add_tag(res, a, p, z);
-			} else {
-				fixc_add_fld(res, fld);
+static bool
+__ancestp(fixc_comp_sub_t ancest, fixc_ctxt_t desc)
+{
+	if (ancest->ctx == desc.ui16) {
+		return true;
+	}
+	for (size_t i = 0; i < ancest->nsubs; i++) {
+		if (ancest->subs[i] == desc.ui16) {
+			return true;
+		}
+	}
+	return false;
+}
+
+fixc_msg_t
+fixc_extr_ctxt_deep(fixc_msg_t msg, fixc_ctxt_t ctx, int n)
+{
+	fixc_msg_t res = make_fixc_msg(ctx);
+	fixc_comp_sub_t chld = fixc_get_comp_sub(ctx);
+	int just_been_in = 0;
+
+	/* check if we've got tpcs and cnts */
+	if (fixc_msg_needs_fixup_p(msg)) {
+		fixc_fixup(msg);
+	}
+
+	/* all them attrs belonging in context CID */
+	for (size_t i = 0, cnt = 0, last = 0; i < msg->nflds; i++) {
+		struct fixc_fld_s fld = msg->flds[i];
+
+		if (fld.tpc == ctx.ui16) {
+			if (fld.cnt < last) {
+				cnt++;
 			}
+			/* keep track of consecutive counter */
+			last = fld.cnt;
+
+			/* check if we're the N-th occurrence really */
+			if (n >= 0) {
+				if (cnt > (size_t)n) {
+					break;
+				} else if (cnt < (size_t)n) {
+					continue;
+				}
+			}
+
+			/* oh yes we are, snarf it */
+			__cpy_fld(res, msg, i);
+
+			/* set the just_been_in yield */
+			just_been_in = 1;
+
+		} else if (just_been_in) {
+			while (fld.tpc != ctx.ui16 &&
+			       __ancestp(chld, (fixc_comp_t)fld.tpc)) {
+				/* splendid! */
+				uint16_t chctx = fld.tpc;
+
+				while (fld.tpc == chctx) {
+					__cpy_fld(res, msg, i);
+					fld = msg->flds[++i];
+				}
+			}
+			/* reset the yield */
+			just_been_in = 0;
+			/* rewind */
+			i--;
 		}
 	}
 	return res;
