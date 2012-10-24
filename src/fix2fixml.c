@@ -47,6 +47,7 @@
 #include <errno.h>
 
 #include "fix.h"
+#include "fix-private.h"
 #include "nifty.h"
 
 #if defined DEBUG_FLAG
