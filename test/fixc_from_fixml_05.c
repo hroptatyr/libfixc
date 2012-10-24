@@ -75,10 +75,15 @@ MinPxIncr=\"0.000050\">\
 
 	for (size_t i = 0; i < cpy->nflds; i++) {
 		if (i == 0 || i == msg->nflds + 1) {
+			/* them 35-tags */
+			;
+		} else if (i == 9 || i == msg->nflds + 1 + 9) {
+			/* them AID rptb tags */
 			;
 		} else if (cpy->flds[i].typ != FIXC_TYP_OFF) {
-			fprintf(stderr, "typ buggered, expected _OFF v %hu\n",
-				cpy->flds[i].typ);
+			fprintf(stderr, "typ @%zu buggered, "
+				"expected _OFF, got %hu\n",
+				i, cpy->flds[i].typ);
 			res = 1;
 		}
 	}
@@ -88,6 +93,9 @@ MinPxIncr=\"0.000050\">\
 
 		if (i == 0 || i == msg->nflds + 1) {
 			/* them 35-tags */
+			;
+		} else if (i == 9 || i == msg->nflds + 1 + 9) {
+			/* them AID rptb tags */
 			;
 		} else if ((v = fixc_get_tag(cpy, i)) == NULL) {
 			fprintf(stderr, "uh oh, "
