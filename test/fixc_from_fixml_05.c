@@ -31,6 +31,7 @@ MinPxIncr=\"0.000050\">\
 	};
 	fixc_msg_t msg = make_fixc_from_fixml(sdx, sizeof(sdx) - 1);
 	fixc_msg_t cpy = make_fixc_msg(FIXC_MSGT_BATCH);
+	size_t nflds;
 	int res = 0;
 
 	/* the message type */
@@ -67,17 +68,23 @@ MinPxIncr=\"0.000050\">\
 		}
 	}
 
-	if (cpy->nflds != msg->nflds * 2 + 2) {
+	/* just to have a reference */
+	nflds = msg->nflds;
+
+	/* cpy is filled, we don't need msg anymore */
+	free_fixc(msg);
+
+	if (cpy->nflds != nflds * 2 + 2) {
 		fprintf(stderr, "nfld mismatch, %zu v %zu\n",
-			cpy->nflds, msg->nflds * 2 + 2);
+			cpy->nflds, nflds * 2 + 2);
 		res = 1;
 	}
 
-	for (size_t i = 0; i < cpy->nflds; i++) {
-		if (i == 0 || i == msg->nflds + 1) {
+	for (size_t i = 0; i < nflds; i++) {
+		if (i == 0 || i == nflds + 1) {
 			/* them 35-tags */
 			;
-		} else if (i == 9 || i == msg->nflds + 1 + 9) {
+		} else if (i == 9 || i == nflds + 1 + 9) {
 			/* them AID rptb tags */
 			;
 		} else if (cpy->flds[i].typ != FIXC_TYP_OFF) {
@@ -91,10 +98,10 @@ MinPxIncr=\"0.000050\">\
 	for (size_t i = 0; i < cpy->nflds; i++) {
 		const char *v;
 
-		if (i == 0 || i == msg->nflds + 1) {
+		if (i == 0 || i == nflds + 1) {
 			/* them 35-tags */
 			;
-		} else if (i == 9 || i == msg->nflds + 1 + 9) {
+		} else if (i == 9 || i == nflds + 1 + 9) {
 			/* them AID rptb tags */
 			;
 		} else if ((v = fixc_get_tag(cpy, i)) == NULL) {
@@ -108,7 +115,6 @@ MinPxIncr=\"0.000050\">\
 		}
 	}
 
-	free_fixc(msg);
 	free_fixc(cpy);
 	return res;
 }
