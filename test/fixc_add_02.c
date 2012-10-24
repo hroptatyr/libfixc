@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "fix.h"
+#include "fix-private.h"
 #include "fixml-msg.h"
 
 #define countof(x)	(sizeof(x) / sizeof(*x))

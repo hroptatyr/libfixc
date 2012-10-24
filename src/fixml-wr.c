@@ -40,6 +40,7 @@
 #include <inttypes.h>
 
 #include "fix.h"
+#include "fix-private.h"
 #include "nifty.h"
 
 #include "fixml-comp-sub.h"
@@ -648,7 +649,7 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	struct __ctx_s ctx = {0};
 	fixc_ctxt_t otpc = {0};
 
-	if (msg->nflds && msg->flds[0].tpc == 0U) {
+	if (fixc_msg_needs_fixup_p(msg)) {
 		/* just in case the reader hasn't given us contexts */
 		fixc_fixup(msg);
 	}
