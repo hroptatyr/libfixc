@@ -366,21 +366,48 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 
 
 /* adding stuff */
+static inline size_t
+__next_2power(size_t v)
+{
+/* round N to the next 2-power */
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v |= v >> 32;
+	return ++v;
+}
+
+static inline size_t
+__allocd_vspc(fixc_msg_t msg)
+{
+/* return space allocated for values (in bytes) */
+	return __next_2power(msg->pz + 1);
+}
+
+static inline size_t
+__allocd_fspc(fixc_msg_t msg)
+{
+/* return space allocated for fields (in numbers) */
+	return (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
+}
+
 static void
 check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 {
 /* check if MSG can hold ADD_FLDS additional fields and ADD_VSPC
  * additional pr size, if not, resize */
-	size_t fspc;
-	size_t vspc;
-	size_t old_sz;
-	size_t add_sz;
+	size_t fspc, fspc_nu;
+	size_t vspc, vspc_nu;
+	size_t UNUSED(old_sz);
 	size_t new_sz;
 
 	/* let's hope msg->pr is aligned, fingers crossed */
-	fspc = (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
+	fspc = __allocd_fspc(msg);
 	/* determine the size of the pr section, multiple of VSPC_RND */
-	vspc = ROUND(msg->pz + 1, VSPC_RND);
+	vspc = __allocd_vspc(msg);
 
 	if (add_flds + msg->nflds < fspc &&
 	    add_vspc + msg->pz < vspc) {
@@ -390,16 +417,14 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 
 	/* find out how big the whole dynamic room was */
 	old_sz = vspc + fspc * sizeof(*msg->flds);
-	/* leave room for FSPC_RND new fields and VSPC_RND bytes msg */
-	add_sz = ROUND(add_vspc, VSPC_RND) +
-		ROUND(add_flds, FSPC_RND) * sizeof(*msg->flds);
 	/* just to make sure we're talking the same sizes */
-	new_sz = ROUNDv(old_sz + add_sz);
+	vspc_nu = __next_2power(vspc + add_vspc + 1);
+	fspc_nu = __next_2power(msg->nflds + add_flds);
+	new_sz = vspc_nu + fspc_nu * sizeof(*msg->flds);
 
 	/* grrr, otherwise there's lots of work to do :/ */
 	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu  i.e. %zub -> %zub\n",
-		       fspc, vspc, fspc + add_flds, vspc + add_vspc,
-		       old_sz, new_sz);
+		       fspc, vspc, fspc_nu, vspc_nu, old_sz, new_sz);
 
 	{
 		/* malloc them guys */
@@ -411,7 +436,7 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		memcpy(new_flds, msg->flds, mvz);
 
 		/* also move the pr stuff a bit */
-		new_pr = new_flds + ROUND(fspc + add_flds, FSPC_RND);
+		new_pr = new_flds + fspc_nu;
 		memcpy(new_pr, msg->pr, msg->pz);
 
 		/* make sure not to free the flexible array */
@@ -536,8 +561,8 @@ fixc_add_fld_at(fixc_msg_t msg, struct fixc_fld_s fld, size_t idx)
 			msg->f35.mtyp = FIXC_MSGT_BATCH;
 		}
 	default:
-		/* check if there's enough room for another 4 msgs */
-		check_size(msg, /*aribtrary hard-coded value*/4, 0);
+		/* check if there's enough for one more field */
+		check_size(msg, 1UL, 0UL);
 
 		/* move all fields from idx to nflds out of the way */
 		if (LIKELY(idx < msg->nflds)) {
@@ -597,8 +622,8 @@ fixc_add_tag_at(
 			msg->f35.mtyp = FIXC_MSGT_BATCH;
 		}
 	default:
-		/* check if there's enough room for another 4 msgs */
-		check_size(msg, /*aribtrary hard-coded value*/4, vsz + 1);
+		/* check if there's enough for one more field and vsz bytes */
+		check_size(msg, 1UL, vsz + 1UL);
 
 		/* move all fields from idx to nflds out of the way */
 		if (LIKELY(idx < msg->nflds)) {
