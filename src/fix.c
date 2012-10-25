@@ -513,44 +513,7 @@ fixc_msg_cpy(void *restrict tgt, size_t tsz, fixc_msg_t msg)
 int
 fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 {
-	/* see if someone wants us to add offset fields */
-	if (fld.typ == FIXC_TYP_OFF) {
-		return -1;
-	}
-
-	/* see if someone tricks us into adding the special fields */
-	switch (fld.tag) {
-	case FIXC_TAG_UNK:
-		return -1;
-	default:
-	bang:
-		/* check if there's enough room for another 4 msgs */
-		check_size(msg, /*aribtrary hard-coded value*/4, 0);
-
-		/* finally time to adopt this fld */
-		msg->flds[msg->nflds++] = fld;
-		break;
-	case FIXC_BEGIN_STRING:
-		/* don't bother checking the actual field */
-		msg->f8 = fld;
-		break;
-	case FIXC_BODY_LENGTH:
-		/* again, don't bother checking */
-		msg->f9 = fld;
-		break;
-	case FIXC_CHECK_SUM:
-		/* will be computed anyway */
-		msg->f10 = fld;
-		break;
-	case FIXC_MSG_TYPE:
-		if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
-			goto bang;
-		}
-		/* otherwise it's the main message type */
-		msg->f35 = fld;
-		break;
-	}
-	return 0;
+	return fixc_add_fld_at(msg, fld, msg->nflds);
 }
 
 int
@@ -608,31 +571,7 @@ fixc_add_fld_at(fixc_msg_t msg, struct fixc_fld_s fld, size_t idx)
 int
 fixc_add_tag(fixc_msg_t msg, fixc_attr_t tag, const char *val, size_t vsz)
 {
-	/* see if someone tricks us into adding the special fields */
-	switch ((unsigned int)tag) {
-		size_t cur;
-	case FIXC_TAG_UNK:
-	case FIXC_BEGIN_STRING:
-	case FIXC_BODY_LENGTH:
-	case FIXC_CHECK_SUM:
-	case FIXC_MSG_TYPE:
-		return -1;
-	default:
-		/* check if there's enough room for another 4 msgs */
-		check_size(msg, /*aribtrary hard-coded value*/4, vsz + 1);
-
-		/* finally time to adopt this fld */
-		cur = msg->nflds++;
-		msg->flds[cur].tag = (uint16_t)tag;
-		msg->flds[cur].typ = FIXC_TYP_OFF;
-		msg->flds[cur].off = msg->pz;
-		msg->flds[cur].tpc = 0;
-		msg->flds[cur].cnt = 0;
-		memcpy(msg->pr + msg->pz, val, vsz);
-		msg->pr[msg->pz += vsz] = '\0';
-		msg->pz++;
-		return 0;
-	}
+	return fixc_add_tag_at(msg, tag, val, vsz, msg->nflds);
 }
 
 int
