@@ -556,9 +556,22 @@ fixc_add_fld_at(fixc_msg_t msg, struct fixc_fld_s fld, size_t idx)
 	case FIXC_TAG_UNK:
 		return -1;
 	case FIXC_MSG_TYPE:
-		if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
-			/* make sure the static f35 is a batch */
+		if (msg->f35.mtyp == FIXC_MSGT_UNK) {
+			/* if f35 isn't batch, just overwrite the f35 slot */
+			msg->f35 = fld;
+			break;
+		} else if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
+			/* nice one */
+			struct fixc_fld_s f35 = msg->f35;
+
+			/* firstly reassign f35 slot in msg so
+			 * the recursion downstairs can succeed */
+			msg->f35.tpc = msg->f35.cnt = 0;
 			msg->f35.mtyp = FIXC_MSGT_BATCH;
+
+			f35.cnt = 0;
+			f35.tpc = FIXC_MSGT_BATCH;
+			fixc_add_fld_at(msg, f35, 0);
 		}
 	default:
 		/* check if there's enough for one more field */
@@ -617,9 +630,35 @@ fixc_add_tag_at(
 	case FIXC_CHECK_SUM:
 		return -1;
 	case FIXC_MSG_TYPE:
-		if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
-			/* make sure the static f35 is a batch */
+		if (msg->f35.mtyp == FIXC_MSGT_UNK) {
+			/* if f35 isn't batch, just overwrite the f35 slot */
+			msg->f35.tag = FIXC_MSG_TYPE;
+			msg->f35.typ = FIXC_TYP_MSGTYP;
+			msg->f35.tpc = 0;
+			msg->f35.cnt = 0;
+#define _(x, y)		((fixc_msgt_t)((x) * 256U + (y) * 1U))
+			if (vsz == 1) {
+				msg->f35.mtyp = _(val[0], 0);
+			} else if (vsz == 2) {
+				msg->f35.mtyp = _(val[0], val[1]);
+			} else {
+				/* um, we should die really */
+				;
+			}
+#undef _
+			break;
+		} else if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
+			/* fuck */
+			struct fixc_fld_s f35 = msg->f35;
+
+			/* firstly reassign f35 slot in msg so
+			 * the recursion downstairs can succeed */
+			msg->f35.tpc = msg->f35.cnt = 0;
 			msg->f35.mtyp = FIXC_MSGT_BATCH;
+
+			f35.cnt = 0;
+			f35.tpc = FIXC_MSGT_BATCH;
+			fixc_add_fld_at(msg, f35, 0);
 		}
 	default:
 		/* check if there's enough for one more field and vsz bytes */
@@ -642,8 +681,9 @@ fixc_add_tag_at(
 		memcpy(msg->pr + msg->pz, val, vsz);
 		msg->pr[msg->pz += vsz] = '\0';
 		msg->pz++;
-		return 0;
+		break;
 	}
+	return 0;
 }
 
 void
