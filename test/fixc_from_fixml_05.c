@@ -1,3 +1,6 @@
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stddef.h>
 #include <string.h>
 #include <stdint.h>
@@ -12,6 +15,7 @@ main(void)
 {
 /* create a secdef message from FIXML (including .cnt and .tpc info), then
  * copy the whole shebang and see if the .tpc and .cnt info is still there */
+#if defined HAVE_ANON_STRUCTS_INIT
 	static const char sdx[] = "\
 <?xml version=\"1.0\"?>\n\
 <FIXML xmlns=\"http://www.fixprotocol.org/FIXML-5-0-SP2\" v=\"5.0 SP2\">\
@@ -117,6 +121,9 @@ MinPxIncr=\"0.000050\">\
 
 	free_fixc(cpy);
 	return res;
+#else	/* !HAVE_ANON_STRUCTS_INIT */
+	return 0;
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
 /* fixc_from_fixml_05.c ends here */

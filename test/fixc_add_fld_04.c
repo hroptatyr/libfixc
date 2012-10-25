@@ -1,3 +1,6 @@
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stddef.h>
 #include <string.h>
 #include <stdint.h>
@@ -12,6 +15,7 @@ int
 main(void)
 {
 /* starting out with an empty message, add 2 Quot's */
+#if defined HAVE_ANON_STRUCTS_INIT
 	static const struct fixc_fld_s f_qid = {
 		.tag = FIXML_ATTR_QuoteID,
 		.typ = FIXC_TYP_INT,
@@ -51,6 +55,9 @@ main(void)
 
 	free_fixc(msg);
 	return res;
+#else  /* !HAVE_ANON_STRUCTS_INIT */
+	return 0;
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
 /* fixc_add_fld_04.c ends here */
