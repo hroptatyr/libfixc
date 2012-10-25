@@ -34,6 +34,9 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -366,21 +369,53 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 
 
 /* adding stuff */
+static inline size_t
+__next_2power(size_t v)
+{
+/* round N to the next 2-power */
+	v--;
+	v |= v >> 1U;
+	v |= v >> 2U;
+	v |= v >> 4U;
+	v |= v >> 8U;
+	v |= v >> 16U;
+#if SIZEOF_SIZE_T >= 8
+	v |= v >> 32U;
+#endif	/* SIZEOF_SIZE_T >= 8 */
+#if SIZEOF_SIZE_T >= 16
+	v |= v >> 64U;
+#endif	/* SIZEOF_SIZE_T >= 16 */
+	return ++v;
+}
+
+static inline size_t
+__allocd_vspc(fixc_msg_t msg)
+{
+/* return space allocated for values (in bytes) */
+	return __next_2power(msg->pz + 1);
+}
+
+static inline size_t
+__allocd_fspc(fixc_msg_t msg)
+{
+/* return space allocated for fields (in numbers) */
+	return (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
+}
+
 static void
 check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 {
 /* check if MSG can hold ADD_FLDS additional fields and ADD_VSPC
  * additional pr size, if not, resize */
-	size_t fspc;
-	size_t vspc;
-	size_t old_sz;
-	size_t add_sz;
+	size_t fspc, fspc_nu;
+	size_t vspc, vspc_nu;
+	size_t UNUSED(old_sz);
 	size_t new_sz;
 
 	/* let's hope msg->pr is aligned, fingers crossed */
-	fspc = (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
+	fspc = __allocd_fspc(msg);
 	/* determine the size of the pr section, multiple of VSPC_RND */
-	vspc = ROUND(msg->pz + 1, VSPC_RND);
+	vspc = __allocd_vspc(msg);
 
 	if (add_flds + msg->nflds < fspc &&
 	    add_vspc + msg->pz < vspc) {
@@ -390,16 +425,14 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 
 	/* find out how big the whole dynamic room was */
 	old_sz = vspc + fspc * sizeof(*msg->flds);
-	/* leave room for FSPC_RND new fields and VSPC_RND bytes msg */
-	add_sz = ROUND(add_vspc, VSPC_RND) +
-		ROUND(add_flds, FSPC_RND) * sizeof(*msg->flds);
 	/* just to make sure we're talking the same sizes */
-	new_sz = ROUNDv(old_sz + add_sz);
+	vspc_nu = __next_2power(vspc + add_vspc + 1);
+	fspc_nu = __next_2power(msg->nflds + add_flds);
+	new_sz = vspc_nu + fspc_nu * sizeof(*msg->flds);
 
 	/* grrr, otherwise there's lots of work to do :/ */
 	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu  i.e. %zub -> %zub\n",
-		       fspc, vspc, fspc + add_flds, vspc + add_vspc,
-		       old_sz, new_sz);
+		       fspc, vspc, fspc_nu, vspc_nu, old_sz, new_sz);
 
 	{
 		/* malloc them guys */
@@ -411,7 +444,7 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		memcpy(new_flds, msg->flds, mvz);
 
 		/* also move the pr stuff a bit */
-		new_pr = new_flds + ROUND(fspc + add_flds, FSPC_RND);
+		new_pr = new_flds + fspc_nu;
 		memcpy(new_pr, msg->pr, msg->pz);
 
 		/* make sure not to free the flexible array */
@@ -513,44 +546,7 @@ fixc_msg_cpy(void *restrict tgt, size_t tsz, fixc_msg_t msg)
 int
 fixc_add_fld(fixc_msg_t msg, struct fixc_fld_s fld)
 {
-	/* see if someone wants us to add offset fields */
-	if (fld.typ == FIXC_TYP_OFF) {
-		return -1;
-	}
-
-	/* see if someone tricks us into adding the special fields */
-	switch (fld.tag) {
-	case FIXC_TAG_UNK:
-		return -1;
-	default:
-	bang:
-		/* check if there's enough room for another 4 msgs */
-		check_size(msg, /*aribtrary hard-coded value*/4, 0);
-
-		/* finally time to adopt this fld */
-		msg->flds[msg->nflds++] = fld;
-		break;
-	case FIXC_BEGIN_STRING:
-		/* don't bother checking the actual field */
-		msg->f8 = fld;
-		break;
-	case FIXC_BODY_LENGTH:
-		/* again, don't bother checking */
-		msg->f9 = fld;
-		break;
-	case FIXC_CHECK_SUM:
-		/* will be computed anyway */
-		msg->f10 = fld;
-		break;
-	case FIXC_MSG_TYPE:
-		if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
-			goto bang;
-		}
-		/* otherwise it's the main message type */
-		msg->f35 = fld;
-		break;
-	}
-	return 0;
+	return fixc_add_fld_at(msg, fld, msg->nflds);
 }
 
 int
@@ -568,13 +564,26 @@ fixc_add_fld_at(fixc_msg_t msg, struct fixc_fld_s fld, size_t idx)
 	case FIXC_TAG_UNK:
 		return -1;
 	case FIXC_MSG_TYPE:
-		if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
-			/* make sure the static f35 is a batch */
+		if (msg->f35.mtyp == FIXC_MSGT_UNK) {
+			/* if f35 isn't batch, just overwrite the f35 slot */
+			msg->f35 = fld;
+			break;
+		} else if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
+			/* nice one */
+			struct fixc_fld_s f35 = msg->f35;
+
+			/* firstly reassign f35 slot in msg so
+			 * the recursion downstairs can succeed */
+			msg->f35.tpc = msg->f35.cnt = 0;
 			msg->f35.mtyp = FIXC_MSGT_BATCH;
+
+			f35.cnt = 0;
+			f35.tpc = FIXC_MSGT_BATCH;
+			fixc_add_fld_at(msg, f35, 0);
 		}
 	default:
-		/* check if there's enough room for another 4 msgs */
-		check_size(msg, /*aribtrary hard-coded value*/4, 0);
+		/* check if there's enough for one more field */
+		check_size(msg, 1UL, 0UL);
 
 		/* move all fields from idx to nflds out of the way */
 		if (LIKELY(idx < msg->nflds)) {
@@ -608,31 +617,7 @@ fixc_add_fld_at(fixc_msg_t msg, struct fixc_fld_s fld, size_t idx)
 int
 fixc_add_tag(fixc_msg_t msg, fixc_attr_t tag, const char *val, size_t vsz)
 {
-	/* see if someone tricks us into adding the special fields */
-	switch ((unsigned int)tag) {
-		size_t cur;
-	case FIXC_TAG_UNK:
-	case FIXC_BEGIN_STRING:
-	case FIXC_BODY_LENGTH:
-	case FIXC_CHECK_SUM:
-	case FIXC_MSG_TYPE:
-		return -1;
-	default:
-		/* check if there's enough room for another 4 msgs */
-		check_size(msg, /*aribtrary hard-coded value*/4, vsz + 1);
-
-		/* finally time to adopt this fld */
-		cur = msg->nflds++;
-		msg->flds[cur].tag = (uint16_t)tag;
-		msg->flds[cur].typ = FIXC_TYP_OFF;
-		msg->flds[cur].off = msg->pz;
-		msg->flds[cur].tpc = 0;
-		msg->flds[cur].cnt = 0;
-		memcpy(msg->pr + msg->pz, val, vsz);
-		msg->pr[msg->pz += vsz] = '\0';
-		msg->pz++;
-		return 0;
-	}
+	return fixc_add_tag_at(msg, tag, val, vsz, msg->nflds);
 }
 
 int
@@ -653,13 +638,39 @@ fixc_add_tag_at(
 	case FIXC_CHECK_SUM:
 		return -1;
 	case FIXC_MSG_TYPE:
-		if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
-			/* make sure the static f35 is a batch */
+		if (msg->f35.mtyp == FIXC_MSGT_UNK) {
+			/* if f35 isn't batch, just overwrite the f35 slot */
+			msg->f35.tag = FIXC_MSG_TYPE;
+			msg->f35.typ = FIXC_TYP_MSGTYP;
+			msg->f35.tpc = 0;
+			msg->f35.cnt = 0;
+#define _(x, y)		((fixc_msgt_t)((x) * 256U + (y) * 1U))
+			if (vsz == 1) {
+				msg->f35.mtyp = _(val[0], 0);
+			} else if (vsz == 2) {
+				msg->f35.mtyp = _(val[0], val[1]);
+			} else {
+				/* um, we should die really */
+				;
+			}
+#undef _
+			break;
+		} else if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
+			/* fuck */
+			struct fixc_fld_s f35 = msg->f35;
+
+			/* firstly reassign f35 slot in msg so
+			 * the recursion downstairs can succeed */
+			msg->f35.tpc = msg->f35.cnt = 0;
 			msg->f35.mtyp = FIXC_MSGT_BATCH;
+
+			f35.cnt = 0;
+			f35.tpc = FIXC_MSGT_BATCH;
+			fixc_add_fld_at(msg, f35, 0);
 		}
 	default:
-		/* check if there's enough room for another 4 msgs */
-		check_size(msg, /*aribtrary hard-coded value*/4, vsz + 1);
+		/* check if there's enough for one more field and vsz bytes */
+		check_size(msg, 1UL, vsz + 1UL);
 
 		/* move all fields from idx to nflds out of the way */
 		if (LIKELY(idx < msg->nflds)) {
@@ -675,11 +686,13 @@ fixc_add_tag_at(
 		msg->flds[idx].tag = (uint16_t)tag;
 		msg->flds[idx].typ = FIXC_TYP_OFF;
 		msg->flds[idx].off = msg->pz;
+		msg->flds[idx].tpc = msg->flds[idx].cnt = 0U;
 		memcpy(msg->pr + msg->pz, val, vsz);
 		msg->pr[msg->pz += vsz] = '\0';
 		msg->pz++;
-		return 0;
+		break;
 	}
+	return 0;
 }
 
 void

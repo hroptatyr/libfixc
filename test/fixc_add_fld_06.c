@@ -21,20 +21,27 @@ main(void)
 		.typ = FIXC_TYP_MSGTYP,
 		.mtyp = (fixc_msgt_t)FIXML_MSG_Quote,
 	};
-	fixc_msg_t msg = make_fixc_msg((fixc_msgt_t)FIXC_MSGT_UNK);
+	fixc_msg_t msg = make_fixc_msg((fixc_msgt_t)FIXC_MSGT_BATCH);
 	int res = 0;
 
 	/* now adding a tag 35 should result in occupying slot f35 */
-	fixc_add_fld(msg, f_quot);
+	fixc_add_fld_at(msg, f_quot, 0);
 
-	if (msg->nflds > 0) {
-		fprintf(stderr, "expected 0 fields, got %zu\n", msg->nflds);
+	if (msg->nflds != 1) {
+		fprintf(stderr, "expected 1 fields, got %zu\n", msg->nflds);
 		res = 1;
 	}
 
-	if (msg->f35.mtyp != FIXML_MSG_Quote) {
-		fprintf(stderr, "expected static f35 to be Quot, got %u\n",
+	if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
+		fprintf(stderr, "expected static f35 to be Batch, got %u\n",
 			(unsigned int)msg->f35.mtyp);
+		res = 1;
+	}
+
+	if (msg->flds[0].tag != FIXC_MSG_TYPE ||
+	    msg->flds[0].mtyp != FIXML_MSG_Quote) {
+		fprintf(stderr, "expected fld[0] to be Quot, got %hu (%u)\n",
+			msg->flds[0].tag, (unsigned int)msg->flds[0].mtyp);
 		res = 1;
 	}
 
@@ -45,4 +52,4 @@ main(void)
 #endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
-/* fixc_add_fld_01.c ends here */
+/* fixc_add_fld_03.c ends here */
