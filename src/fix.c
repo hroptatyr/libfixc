@@ -34,6 +34,9 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -371,12 +374,17 @@ __next_2power(size_t v)
 {
 /* round N to the next 2-power */
 	v--;
-	v |= v >> 1;
-	v |= v >> 2;
-	v |= v >> 4;
-	v |= v >> 8;
-	v |= v >> 16;
-	v |= v >> 32;
+	v |= v >> 1U;
+	v |= v >> 2U;
+	v |= v >> 4U;
+	v |= v >> 8U;
+	v |= v >> 16U;
+#if SIZEOF_SIZE_T >= 8
+	v |= v >> 32U;
+#endif	/* SIZEOF_SIZE_T >= 8 */
+#if SIZEOF_SIZE_T >= 16
+	v |= v >> 64U;
+#endif	/* SIZEOF_SIZE_T >= 16 */
 	return ++v;
 }
 
