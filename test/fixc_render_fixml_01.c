@@ -1,3 +1,6 @@
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stddef.h>
 #include <string.h>
 #include <stdint.h>
@@ -8,15 +11,15 @@
 
 #define countof(x)	(sizeof(x) / sizeof(*x))
 
-static char proto[] = "\
-<?xml version=\"1.0\"?>\n\
-<FIXML xmlns=\"http://www.fixprotocol.org/FIXML-5-0-SP2\" v=\"5.0 SP2\">\
-<Batch><Quot QID=\"1117\"/><Quot QID=\"1117\"/></Batch></FIXML>\n";
-
 int
 main(void)
 {
 /* starting out with an empty message, add 2 Quot's */
+#if defined HAVE_ANON_STRUCTS_INIT
+	static char proto[] = "\
+<?xml version=\"1.0\"?>\n\
+<FIXML xmlns=\"http://www.fixprotocol.org/FIXML-5-0-SP2\" v=\"5.0 SP2\">\
+<Batch><Quot QID=\"1117\"/><Quot QID=\"1117\"/></Batch></FIXML>\n";
 	static const struct fixc_fld_s f_quot = {
 		.tag = FIXC_MSG_TYPE,
 		.typ = FIXC_TYP_MSGTYP,
@@ -52,6 +55,9 @@ main(void)
 
 	free_fixc(msg);
 	return res;
+#else  /* !HAVE_ANON_STRUCTS_INIT */
+	return 0;
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
 /* fixc_render_fixml_01.c ends here */

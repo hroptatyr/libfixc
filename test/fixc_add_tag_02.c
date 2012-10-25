@@ -1,3 +1,6 @@
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stddef.h>
 #include <string.h>
 #include <stdint.h>
@@ -12,6 +15,7 @@ main(void)
 {
 /* create a secdef message, then create an empty message and add all fields
  * of the secdef message */
+#if defined HAVE_ANON_STRUCTS_INIT
 	static char buf[4096];
 	static const char sd[] = "\
 8=FIX.5.0.SP2" SOH "9=96" SOH "35=d" SOH
@@ -62,6 +66,9 @@ MinPxIncr=\"0.000050\"/>\
 	free_fixc(sdm);
 	free_fixc(msg);
 	return res;
+#else  /* !HAVE_ANON_STRUCTS_INIT */
+	return 0;
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 }
 
 /* fixc_add_tag_02.c ends here */
