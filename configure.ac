@@ -44,6 +44,7 @@ AC_CHECK_HEADERS([endian.h sys/endian.h byteorder.h byteswap.h])
 ## some sizes we need
 AC_CHECK_SIZEOF([long])
 AC_CHECK_SIZEOF([int])
+AC_CHECK_SIZEOF([size_t])
 
 ## libtool goddess^Wgoodness
 SXE_CHECK_LIBTOOL
