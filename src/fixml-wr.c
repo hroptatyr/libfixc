@@ -38,6 +38,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <inttypes.h>
+/* check for me? */
+#include <sys/mman.h>
 
 #include "fix.h"
 #include "fix-private.h"
@@ -721,6 +723,167 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	p = sputc(p, ep, '\n');
 	*p = '\0';
 	return p - buf;
+}
+
+#define MMAP_THRESH	(65536UL)
+
+static inline size_t
+__round_to_mmap_thresh(size_t x)
+{
+	return ((x + MMAP_THRESH - 1UL) / MMAP_THRESH) * MMAP_THRESH;
+}
+
+static void
+resz_rndr(char **buf, size_t *bsz)
+{
+	/* just double the whole thing */
+	if (2 * *bsz < MMAP_THRESH) {
+		/* just use realloc */
+		*buf = realloc(*buf, 2 * *bsz);
+		*bsz *= 2;
+	} else if (*bsz < MMAP_THRESH) {
+		/* start mmap page */
+		size_t naz = __round_to_mmap_thresh(2 * *bsz);
+		char *nu = mmap(NULL, naz, PROT_MEM, MAP_MEM, -1, 0);
+		memcpy(nu, *buf, *bsz);
+		free(*buf);
+		*buf = nu;
+		*bsz = naz;
+	} else {
+		/* simples */
+		size_t oaz = __round_to_mmap_thresh(*bsz);
+		size_t naz = __round_to_mmap_thresh(2 * *bsz);
+
+#if defined MREMAP_MAYMOVE
+		*buf = mremap(*buf, oaz, naz, MREMAP_MAYMOVE);
+#else  /* !MREMAP_MAYMOVE */
+		char *nu = mmap(NULL, naz, PROT_MEM, MAP_MEM, -1, 0);
+		memcpy(nu, *buf, *bsz);
+		munmap(*buf, oaz);
+		*buf = nu;
+		*bsz = naz;
+#endif	/* MREMAP_MAYMOVE */
+	}
+	return;
+}
+
+struct fixc_rndr_s
+fixc_render_fixml_rndr(fixc_msg_t msg)
+{
+	static const char xml_pre[] = "\
+<?xml version=\"1.0\"?>";
+	static const char fixml[] = "FIXML";
+	const char *ep;
+	char *restrict p;
+	struct __ctx_s ctx = {0};
+	fixc_ctxt_t otpc = {0};
+	char *buf;
+	size_t bsz;
+
+	if (fixc_msg_needs_fixup_p(msg)) {
+		/* just in case the reader hasn't given us contexts */
+		fixc_fixup(msg);
+	}
+
+	/* get some initial space, average tag length of sp2ep104 is
+	 * 2586 / 261, average attr length is 11245 / 1119 and
+	 * typically it's 1 context per 4 attrs */
+#define ATTR_LEN	(11245U / 1119U + 1U)
+#define COMP_LEN	(2586U / 261U + 1U)
+	bsz = (4 + msg->nflds) * (ATTR_LEN + 3/*SPC before and quotes*/) +
+		(4 + msg->nflds) / 4 * (2 * COMP_LEN + 2 + 3/*<> and </>*/) +
+		/* try and be helpful if there's pr space */
+		msg->pz + 16;
+	if (bsz < MMAP_THRESH) {
+		/* malloc must do */
+		buf = malloc(bsz);
+	} else {
+		/* aaah, prefer mmap() */
+		bsz = __round_to_mmap_thresh(bsz);
+		buf = mmap(NULL, bsz, PROT_MEM, MAP_MEM, -1, 0);
+	}
+
+	/* assign boundary helper vars */
+	ep = buf + bsz;
+	p = buf;
+
+	/* the usual stuff upfront, xml PI */
+	p = sncpy(p, ep, xml_pre, sizeof(xml_pre) - 1);
+	/* newline this one, all other tags will have no indentation */
+	*p++ = '\n';
+	/* ... and open our tag */
+	p = sputc(p, ep, '<');
+	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
+
+	/* fill in xmlns uri */
+	p += __render_xmlns(p, ep - p, msg);
+
+	/* fill in v attr */
+	p += __render_v(p, ep - p, msg);
+
+	/* eo FIXML tag start */
+	p = sputc(p, ep, '>');
+
+	/* see if we need to produce the Batch tag */
+	if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
+		p = sputc(p, ep, '<');
+		p = __fixmlify(p, ep, FIXC_MSGT_BATCH);
+		p = sputc(p, ep, '>');
+	}
+	/* set up our stack */
+	ptx_init(&ctx, p, ep);
+	/* traverse the message only once */
+	for (size_t i = 0; i < msg->nflds; i++) {
+		fixc_ctxt_t ictx = {(unsigned int)msg->flds[i].tpc};
+
+		/* check if the buffer needs resizing */
+		if (UNLIKELY((ep - p) * 10UL / bsz < 1)) {
+			/* oh fuck, we're in the last 10% */
+			off_t off = p - buf;
+
+			resz_rndr(&buf, &bsz);
+			p = buf + off;
+			ep = buf + bsz;
+		}
+
+		/* several edge triggers here:
+		 * - whenever the .tpc (parent ctx) changes
+		 * - whenever the .cnt (field counter) goes back to 0 */
+		if (UNLIKELY(msg->flds[i].tag == fixc_comp_rptb(ictx))) {
+			/* don't even render this guy */
+			continue;
+		} else if (msg->flds[i].tpc != otpc.ui16) {
+			/* let's see what to do to our stack */
+			__change_ctx(&ctx, ictx);
+			otpc.ui16 = msg->flds[i].tpc;
+		} else if (msg->flds[i].cnt == 0) {
+			/* consecutive counter reset */
+			ictx = pop_rndr_state(&ctx);
+			push_rndr_state(&ctx, ictx);
+		}
+		/* of course the attr needs rendering */
+		__render_attr(&ctx, ictx, msg->pr, msg->flds[i]);
+	}
+
+	while (pop_rndr_state(&ctx).i);
+
+	/* copy the context pointer back */
+	p = ctx.p;
+	/* see if we need to close the Batch tag */
+	if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
+		p = sputc(p, ep, '<');
+		p = sputc(p, ep, '/');
+		p = __fixmlify(p, ep, FIXC_MSGT_BATCH);
+		p = sputc(p, ep, '>');
+	}
+	/* final verdict */
+	p = sputc(p, ep, '<');
+	p = sputc(p, ep, '/');
+	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
+	p = sputc(p, ep, '>');
+	p = sputc(p, ep, '\n');
+	*p = '\0';
+	return (struct fixc_rndr_s){.str = buf, .len = p - buf};
 }
 
 /* fixml-wr.c ends here */
