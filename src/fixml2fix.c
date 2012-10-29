@@ -92,7 +92,6 @@ pr_fld(int num, struct fixc_fld_s fld)
 static int
 proc1(const char *file)
 {
-	static char buf[8192];
 	struct stat st;
 	int fd;
 	void *p;
@@ -130,11 +129,8 @@ proc1(const char *file)
 	/* render the result */
 	if (!fixmlp) {
 		rbuf = fixc_render_fix_rndr(msg);
-
 	} else {
-		size_t z = fixc_render_fixml(buf, sizeof(buf), msg);
-		rbuf.str = buf;
-		rbuf.len = z;
+		rbuf = fixc_render_fixml_rndr(msg);
 	}
 
 	/* actually print the whole shebang, escape stuff on ttys */
@@ -148,10 +144,7 @@ proc1(const char *file)
 	write(STDOUT_FILENO, "\n", 1);
 
 	/* free our resources */
-	if (!fixmlp) {
-		/* at least until we migrated to fixc_render_fixml_rndr() */
-		fixc_free_rndr(rbuf);
-	}
+	fixc_free_rndr(rbuf);
 	free_fixc(msg);
 munm_out:
 	munmap(p, st.st_size);
