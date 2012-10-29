@@ -42,6 +42,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <inttypes.h>
+/* check for me? */
+#include <sys/mman.h>
 
 #include "fix.h"
 #include "fix-private.h"
@@ -365,6 +367,112 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 
 	buf[totz] = '\0';
 	return totz;
+}
+
+#define MMAP_THRESH	(65536UL)
+
+static inline size_t
+__round_to_mmap_thresh(size_t x)
+{
+	return ((x + MMAP_THRESH - 1) / MMAP_THRESH) * MMAP_THRESH;
+}
+
+struct fixc_rndr_s
+fixc_render_fix_rndr(fixc_msg_t msg)
+{
+	char *buf;
+	size_t bsz;
+	size_t hdrz;
+	size_t lenz;
+	size_t totz;
+	size_t blen = 0;
+
+	/* try and estimate the size of the buffer
+	 * each field will have a SOH, a `=' and some tag number */
+	bsz = msg->nflds * (5/*tag number*/ + 1/*=*/ + 1/*SOH*/ + 1) + msg->pz;
+	if (bsz < MMAP_THRESH) {
+		/* malloc must do */
+		buf = malloc(bsz);
+	} else {
+		/* aaah, prefer mmap() */
+		bsz = __round_to_mmap_thresh(bsz);
+		buf = mmap(NULL, bsz, PROT_MEM, MAP_MEM, -1, 0);
+	}
+
+	/* first 2 fields are unrolled */
+	msg->f8.tag = FIXC_BEGIN_STRING;
+	hdrz = fixc_render_fld(buf, bsz, msg->pr, msg->f8);
+	msg->f9.tag = FIXC_BODY_LENGTH;
+	lenz = fixc_render_fld(buf + hdrz, bsz - hdrz, msg->pr, msg->f9);
+	/* just leave some room for this */
+	totz = ROUND(hdrz + (lenz = ROUND(lenz, 8)), sizeof(void*));
+	bsz -= totz;
+
+	/* render message type */
+	blen = fixc_render_fld(buf + totz, bsz, msg->pr, msg->f35);
+
+	for (size_t i = 0; i < msg->nflds && blen < bsz; i++) {
+		blen += fixc_render_fld(
+			buf + totz + blen, bsz - blen, msg->pr, msg->flds[i]);
+	}
+	/* undo room leaving */
+	bsz += totz;
+
+	/* go back to fld #9 and paste the right length
+	 * instead of moving the whole shebang, just move the beginning
+	 * of the buffer */
+	lenz = snprintf(buf + hdrz + 2/*for 9=*/, lenz - 1, "%zu", blen - 1);
+	buf[hdrz += 2 + lenz] = SOHC;
+	memmove(buf + totz - hdrz - 1, buf, hdrz + 1);
+	buf += totz - hdrz - 1;
+
+	/* compute totz now */
+	totz = hdrz + 1 + blen;
+
+	/* compute and paste checksum */
+	if (totz + 5/*10=x\nul*/ < bsz) {
+		msg->f10 = (struct fixc_fld_s){
+			.tag = FIXC_CHECK_SUM,
+			.typ = FIXC_TYP_UCHAR,
+#if defined HAVE_ANON_STRUCTS_INIT
+			.u8 = fixc_chksum(buf, totz),
+#endif	/* HAVE_ANON_STRUCTS_INIT */
+		};
+#if !defined HAVE_ANON_STRUCTS_INIT
+/* thanks gcc */
+		msg->f10.u8 = fixc_chksum(buf, totz);
+#endif	/* !HAVE_ANON_STRUCTS_INIT */
+		totz += fixc_render_fld(
+			buf + totz, bsz - totz, msg->pr, msg->f10);
+		/* no final SOH here */
+		totz--;
+	}
+
+	buf[totz] = '\0';
+	return (struct fixc_rndr_s){.str = buf, .len = totz};
+}
+
+void
+fixc_free_rndr(struct fixc_rndr_s rbuf)
+{
+	/* compute the right rbuf */
+	intptr_t x = (intptr_t)rbuf.str;
+	size_t off;
+
+	if ((off = x % (2 * sizeof(void*)))) {
+		rbuf.str = (char*)(x - off);
+		rbuf.len += off;
+	}
+
+	if (rbuf.len < MMAP_THRESH) {
+		/* we know we malloc'd the whole shebang */
+		free(rbuf.str);
+	} else {
+		/* we mmapped it */
+		size_t alloc_z = __round_to_mmap_thresh(rbuf.len);
+		munmap(rbuf.str, alloc_z);
+	}
+	return;
 }
 
 
