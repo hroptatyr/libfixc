@@ -377,6 +377,40 @@ __round_to_mmap_thresh(size_t x)
 	return ((x + MMAP_THRESH - 1) / MMAP_THRESH) * MMAP_THRESH;
 }
 
+static void
+resz_rndr(char **buf, size_t *bsz)
+{
+	/* just double the whole thing */
+	if (2 * *bsz < MMAP_THRESH) {
+		/* just use realloc */
+		*buf = realloc(*buf, 2 * *bsz);
+		*bsz *= 2;
+	} else if (*bsz < MMAP_THRESH) {
+		/* start mmap page */
+		size_t naz = __round_to_mmap_thresh(2 * *bsz);
+		char *nu = mmap(NULL, naz, PROT_MEM, MAP_MEM, -1, 0);
+		memcpy(nu, *buf, *bsz);
+		free(*buf);
+		*buf = nu;
+		*bsz = naz;
+	} else {
+		/* simples */
+		size_t oaz = __round_to_mmap_thresh(*bsz);
+		size_t naz = __round_to_mmap_thresh(2 * *bsz);
+
+#if defined MREMAP_MAYMOVE
+		*buf = mremap(*buf, oaz, naz, MREMAP_MAYMOVE);
+#else  /* !MREMAP_MAYMOVE */
+		char *nu = mmap(NULL, naz, PROT_MEM, MAP_MEM, -1, 0);
+		memcpy(nu, *buf, *bsz);
+		munmap(*buf, oaz);
+		*buf = nu;
+		*bsz = naz;
+#endif	/* MREMAP_MAYMOVE */
+	}
+	return;
+}
+
 struct fixc_rndr_s
 fixc_render_fix_rndr(fixc_msg_t msg)
 {
@@ -414,6 +448,12 @@ fixc_render_fix_rndr(fixc_msg_t msg)
 	blen = fixc_render_fld(buf + totz, bsz, msg->pr, msg->f35);
 
 	for (size_t i = 0; i < msg->nflds && blen < bsz; i++) {
+		/* need resize? */
+		if (UNLIKELY((bsz - blen) * 10UL / bsz < 1)) {
+			/* oh fuck, we're in the last 10% */
+			resz_rndr(&buf, &bsz);
+		}
+
 		blen += fixc_render_fld(
 			buf + totz + blen, bsz - blen, msg->pr, msg->flds[i]);
 	}
