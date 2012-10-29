@@ -377,6 +377,19 @@ __round_to_mmap_thresh(size_t x)
 	return ((x + MMAP_THRESH - 1UL) / MMAP_THRESH) * MMAP_THRESH;
 }
 
+static inline struct fixc_rndr_s
+__round_to_align(struct fixc_rndr_s rbuf)
+{
+	intptr_t x = (intptr_t)rbuf.str;
+	size_t off;
+
+	if ((off = x % (2 * sizeof(void*)))) {
+		rbuf.str = (char*)(x - off);
+		rbuf.len += off;
+	}
+	return rbuf;
+}
+
 static void
 resz_rndr(char **buf, size_t *bsz)
 {
@@ -500,13 +513,7 @@ void
 fixc_free_rndr(struct fixc_rndr_s rbuf)
 {
 	/* compute the right rbuf */
-	intptr_t x = (intptr_t)rbuf.str;
-	size_t off;
-
-	if ((off = x % (2 * sizeof(void*)))) {
-		rbuf.str = (char*)(x - off);
-		rbuf.len += off;
-	}
+	rbuf = __round_to_align(rbuf);
 
 	if (rbuf.len < MMAP_THRESH) {
 		/* we know we malloc'd the whole shebang */
