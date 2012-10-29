@@ -389,7 +389,9 @@ fixc_render_fix_rndr(fixc_msg_t msg)
 
 	/* try and estimate the size of the buffer
 	 * each field will have a SOH, a `=' and some tag number */
-	bsz = msg->nflds * (5/*tag number*/ + 1/*=*/ + 1/*SOH*/ + 1) + msg->pz;
+	bsz = (4 + msg->nflds) * (5/*tag number*/ + 1/*=*/ + 1/*SOH*/ + 1) +
+		/* slight optimisation for msgs spanning the pr space already */
+		msg->pz;
 	if (bsz < MMAP_THRESH) {
 		/* malloc must do */
 		buf = malloc(bsz);
