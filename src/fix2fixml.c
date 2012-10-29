@@ -91,11 +91,11 @@ pr_fld(int num, struct fixc_fld_s fld)
 static int
 proc1(const char *file)
 {
-	static char buf[65536];
 	struct stat st;
 	int fd;
 	void *p;
 	fixc_msg_t msg;
+	struct fixc_rndr_s rbuf;
 	int res = 0;
 
 	if (stat(file, &st) < 0) {
@@ -129,13 +129,13 @@ proc1(const char *file)
 		pr_fld(-1, msg->f10);
 	}
 	/* render the result */
-	{
-		size_t nwr = fixc_render_fixml(buf, sizeof(buf), msg);
-		fwrite(buf, 1, nwr, stdout);
-		fputc('\n', stdout);
-	}
+	rbuf = fixc_render_fixml_rndr(msg);
+	/* no tty specific code */
+	write(STDOUT_FILENO, rbuf.str, rbuf.len);
+	write(STDOUT_FILENO, "\n", 1);
 
 	/* free our resources */
+	fixc_free_rndr(rbuf);
 	free_fixc(msg);
 munm_out:
 	munmap(p, st.st_size);
