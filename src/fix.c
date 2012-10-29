@@ -374,7 +374,7 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 static inline size_t
 __round_to_mmap_thresh(size_t x)
 {
-	return ((x + MMAP_THRESH - 1) / MMAP_THRESH) * MMAP_THRESH;
+	return ((x + MMAP_THRESH - 1UL) / MMAP_THRESH) * MMAP_THRESH;
 }
 
 static void
