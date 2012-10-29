@@ -480,11 +480,27 @@ fixc_render_fix_rndr(fixc_msg_t msg)
 	 * of the buffer */
 	lenz = snprintf(buf + hdrz + 2/*for 9=*/, lenz - 1, "%zu", blen - 1);
 	buf[hdrz += 2 + lenz] = SOHC;
-	memmove(buf + totz - hdrz - 1, buf, hdrz + 1);
-	buf += totz - hdrz - 1;
+	{
+		size_t off = totz - hdrz - 1;
 
-	/* compute totz now */
-	totz = hdrz + 1 + blen;
+		/* compute new totz now */
+		totz = hdrz + 1 + blen;
+
+		/* if mmap is in place, downsize to multiple of totz */
+		if (bsz >= MMAP_THRESH) {
+#if defined MREMAP_MAYMOVE
+			size_t naz = __round_to_mmap_thresh(blen);
+			buf = mremap(buf, bsz, naz, MREMAP_MAYMOVE);
+#else  /* !MREMAP_MAYMOVE */
+			/* um, good question, another mmap? :O */
+			;
+#endif	/* MREMAP_MAYMOVE */
+		}
+
+		/* memmove the buffer so it conincides with the start */
+		memmove(buf + off, buf, hdrz + 1);
+		buf += off;
+	}
 
 	/* compute and paste checksum */
 	if (totz + 5/*10=x\nul*/ < bsz) {
