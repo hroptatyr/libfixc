@@ -883,6 +883,17 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 	p = sputc(p, ep, '>');
 	p = sputc(p, ep, '\n');
 	*p = '\0';
+
+	/* if mmap is in place, downsize to multiple of totz */
+	if (bsz >= MMAP_THRESH) {
+#if defined MREMAP_MAYMOVE
+		size_t naz = __round_to_mmap_thresh(p - buf);
+		buf = mremap(buf, bsz, naz, MREMAP_MAYMOVE);
+#else  /* !MREMAP_MAYMOVE */
+		/* um, good question, another mmap? :O */
+		;
+#endif	/* MREMAP_MAYMOVE */
+	}
 	return (struct fixc_rndr_s){.str = buf, .len = p - buf};
 }
 
