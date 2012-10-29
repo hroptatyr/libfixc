@@ -425,7 +425,9 @@ fixc_render_fix_rndr(fixc_msg_t msg)
 	 * each field will have a SOH, a `=' and some tag number */
 	bsz = (4 + msg->nflds) * (5/*tag number*/ + 1/*=*/ + 1/*SOH*/ + 1) +
 		/* slight optimisation for msgs spanning the pr space already */
-		msg->pz;
+		msg->pz +
+		/* for the size (tag #9) and the checksum (tag #10) */
+		16 + 3;
 	if (bsz < MMAP_THRESH) {
 		/* malloc must do */
 		buf = malloc(bsz);
