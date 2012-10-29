@@ -98,7 +98,7 @@ proc1(const char *file)
 	void *p;
 	fixc_msg_t msg;
 	int res = 0;
-	size_t z;
+	struct fixc_rndr_s rbuf;
 
 	if (stat(file, &st) < 0) {
 		return error("cannot find file `%s'", file);
@@ -129,23 +129,29 @@ proc1(const char *file)
 	}
 	/* render the result */
 	if (!fixmlp) {
-		z = fixc_render_fix(buf, sizeof(buf), msg);
+		rbuf = fixc_render_fix_rndr(msg);
 
 	} else {
-		z = fixc_render_fixml(buf, sizeof(buf), msg);
+		size_t z = fixc_render_fixml(buf, sizeof(buf), msg);
+		rbuf.str = buf;
+		rbuf.len = z;
 	}
 
 	/* actually print the whole shebang, escape stuff on ttys */
 	if (isatty(STDOUT_FILENO)) {
-		for (char *q = buf; (q = strchr(q, '\001'));) {
+		for (char *q = rbuf.str; (q = strchr(q, '\001'));) {
 			/* the actual character could be configurable no? */
 			*q = tabc;
 		}
 	}
-	buf[z++] = '\n';
-	write(STDOUT_FILENO, buf, z);
+	write(STDOUT_FILENO, rbuf.str, rbuf.len);
+	write(STDOUT_FILENO, "\n", 1);
 
 	/* free our resources */
+	if (!fixmlp) {
+		/* at least until we migrated to fixc_render_fixml_rndr() */
+		fixc_free_rndr(rbuf);
+	}
 	free_fixc(msg);
 munm_out:
 	munmap(p, st.st_size);
