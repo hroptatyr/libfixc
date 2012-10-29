@@ -143,6 +143,12 @@ struct fixc_tag_data_s {
 	size_t z;
 };
 
+/** for rendering results */
+struct fixc_rndr_s {
+	char *str;
+	size_t len;
+};
+
 
 /**
  * Generate a fixc message from a FIX message string in MSG of length MSGLEN */
@@ -165,8 +171,24 @@ extern void free_fixc(fixc_msg_t);
 extern size_t fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg);
 
 /**
- * Render MSG into a fixml object in BUF (of size BSZ). */
+ * Render MSG into an (allocated) rndr buffer in fix notation.
+ * The struct object returned is later to be freed by `fixc_free_rndr()` */
+extern struct fixc_rndr_s fixc_render_fix_rndr(fixc_msg_t msg);
+
+/**
+ * Render MSG into a fixml string in BUF (of size BSZ) and return its size. */
 extern size_t fixc_render_fixml(char *restrict buf, size_t bsz, fixc_msg_t msg);
+
+/**
+ * Render MSG into an (allocated) rndr buffer in fixml notation.
+ * The struct object returned is later to be freed by `fixc_free_rndr()` */
+extern size_t fixc_render_fixml(char *restrict buf, size_t bsz, fixc_msg_t msg);
+
+/**
+ * For renderers with their own buffers (struct fixc_rndr_s objects) free
+ * the associated resources. */
+extern void fixc_free_rndr(struct fixc_rndr_s);
+
 
 /**
  * Add FLD to MSG.
