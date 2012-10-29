@@ -172,7 +172,7 @@ extern size_t fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg);
 
 /**
  * Render MSG into an (allocated) rndr buffer in fix notation.
- * The struct object returned is later to be freed by `fixc_free_rndr()` */
+ * The struct object returned is later to be freed by `fixc_free_rndr()`. */
 extern struct fixc_rndr_s fixc_render_fix_rndr(fixc_msg_t msg);
 
 /**
@@ -181,8 +181,8 @@ extern size_t fixc_render_fixml(char *restrict buf, size_t bsz, fixc_msg_t msg);
 
 /**
  * Render MSG into an (allocated) rndr buffer in fixml notation.
- * The struct object returned is later to be freed by `fixc_free_rndr()` */
-extern size_t fixc_render_fixml(char *restrict buf, size_t bsz, fixc_msg_t msg);
+ * The struct object returned is later to be freed by `fixc_free_rndr()`. */
+extern struct fixc_rndr_s fixc_render_fixml_rndr(fixc_msg_t msg);
 
 /**
  * For renderers with their own buffers (struct fixc_rndr_s objects) free
