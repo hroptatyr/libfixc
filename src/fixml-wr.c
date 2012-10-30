@@ -72,8 +72,10 @@
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
+# define FIXC_DEBUG_WR(args...)
 #else  /* !DEBUG_FLAG */
 # define FIXC_DEBUG(args...)
+# define FIXC_DEBUG_WR(args...)
 #endif	/* DEBUG_FLAG */
 
 #if !defined CHAR_BIT
@@ -389,6 +391,9 @@ push_rndr_state(__ctx_t ctx, fixc_ctxt_t otag)
 {
 	if (UNLIKELY(fixc_get_comp_orb(otag))) {
 		return;
+	} else if (otag.ui16 == FIXC_MSGT_BATCH) {
+		/* batch tags are inserted globally and once only */
+		return;
 	} else if (LIKELY(ctx->state != NULL)) {
 		if (ctx->state->cntc++ == 0) {
 			/* finish the parent's opening tag */
@@ -480,7 +485,7 @@ __change_ctx(__ctx_t ctx, fixc_ctxt_t new)
 		/* otherwise, must be a sibling or a cousin */
 		pop_rndr_state(ctx);
 	}
-	FIXC_DEBUG("completely unwound, probably buggered FIX message\n");
+	FIXC_DEBUG_WR("completely unwound, probably buggered FIX message\n");
 	goto new_chld;
 }
 
