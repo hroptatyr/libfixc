@@ -146,5 +146,7 @@ bin_tests += fixml2fix_01.sh
 bin_tests += fixml2fix_02.sh
 bin_tests += fix2fixml_01.sh
 bin_tests += fix2fixml_02.sh
+bin_tests += fixml2fix_03.sh
+EXTRA_DIST += fixml_ex_06.xml
 
 ## Makefile.am ends here

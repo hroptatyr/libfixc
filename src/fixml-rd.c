@@ -59,6 +59,7 @@
 #include "fixml-attr-by-ctx.h"
 
 #include "fixml-comp-rptb.h"
+#include "fixml-comp-orb.h"
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
@@ -424,6 +425,12 @@ bang_attr(__ctx_t ctx, fixc_attr_t tag, const char *val, size_t vsz)
 
 	/* just use fix.c's add_tag thingie for this */
 	if (LIKELY(fixc_add_tag(ctx->msg, tag, val, vsz) >= 0)) {
+		fixc_comp_t tmp;
+
+		if (UNLIKELY((tmp = fixc_get_comp_orb(ctx->state->otag)))) {
+			/* fixup optimised repeating blocks */
+			ctx->state->otag = tmp;
+		}
 		/* also set the field's parent context and whatnot */
 		fidx = ctx->msg->nflds - 1;
 		ctx->msg->flds[fidx].tpc = (uint16_t)ctx->state->otag;
@@ -533,14 +540,17 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 		} else if (ctxid == FIXC_MSGT_BATCH) {
 			/* don't store the message type again,
 			 * but store the field of course */
+#if defined HAVE_ANON_STRUCTS_INIT
+			const
+#endif	/* HAVE_ANON_STRUCTS_INIT */
 			struct fixc_fld_s fld = {
 				.tag = FIXC_MSG_TYPE,
 				.typ = FIXC_TYP_MSGTYP,
 				/* parent is the batch brace */
 				.tpc = FIXC_MSGT_BATCH,
-				/* this is the 1-th occurrence
+				/* this is the n-th occurrence
 				 * compute me actually! */
-				.cnt = 1,
+				.cnt = 1U,
 #if defined HAVE_ANON_STRUCTS_INIT
 				.mtyp = mty,
 #endif	/* HAVE_ANON_STRUCTS_INIT */
