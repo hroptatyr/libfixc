@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FIXML xmlns="http://www.fixprotocol.org/FIXML-5-0-SP2" v="5.0 SP2">
+  <Batch>
+    <MktDataFull BizDt="2012-10-23">
+      <Instrmt Exch="CME" ID="CB" Sym="CB" SecTyp="FUT" CFI="FCACSO" MMY="201210" Src="H" MatDt="2012-10-31">
+        <Evnt EventTyp="7" Dt="2012-10-30" Txt="20121030"/>
+      </Instrmt>
+      <Full Typ="6" Px="190.975" Mkt="CME" HighPx="195.975" LowPx="185.975"/>
+      <Full Typ="B" Sz="1" Mkt="CME" OpenClsSettlFlag="4"/>
+      <Full Typ="C" Sz="769" Mkt="CME" OpenClsSettlFlag="4"/>
+    </MktDataFull>
+    <MktDataFull BizDt="2012-10-23">
+      <Instrmt Exch="CME" ID="CB" Sym="CB" SecTyp="OOF" CFI="OCAAPS" StrkPx="130.0" MMY="201210" Src="H" MatDt="2012-10-31" PutCall="1">
+        <Evnt EventTyp="7" Dt="2012-10-30" Txt="20121030"/>
+      </Instrmt>
+      <Undly Exch="CME" ID="CB" SecTyp="FUT" CFI="FXXXXX" MMY="201210"/>
+      <Full Typ="6" Px="60.975" PxDelta="0.99752" Mkt="CME"/>
+      <Full Typ="B" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+      <Full Typ="C" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+    </MktDataFull>
+    <MktDataFull BizDt="2012-10-23">
+      <Instrmt Exch="CME" ID="CB" Sym="CB" SecTyp="OOF" CFI="OPAAPS" StrkPx="130.0" MMY="201210" Src="H" MatDt="2012-10-31" PutCall="0">
+        <Evnt EventTyp="7" Dt="2012-10-30" Txt="20121030"/>
+      </Instrmt>
+      <Undly Exch="CME" ID="CB" SecTyp="FUT" CFI="FXXXXX" MMY="201210"/>
+      <Full Typ="6" Px="9999999" PxTyp="10" PxDelta="-0.00248" Mkt="CME"/>
+      <Full Typ="B" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+      <Full Typ="C" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+    </MktDataFull>
+    <MktDataFull BizDt="2012-10-23">
+      <Instrmt Exch="CME" ID="CB" Sym="CB" SecTyp="OOF" CFI="OCAAPS" StrkPx="132.0" MMY="201210" Src="H" MatDt="2012-10-31" PutCall="1">
+        <Evnt EventTyp="7" Dt="2012-10-30" Txt="20121030"/>
+      </Instrmt>
+      <Undly Exch="CME" ID="CB" SecTyp="FUT" CFI="FXXXXX" MMY="201210"/>
+      <Full Typ="6" Px="58.975" PxDelta="0.99743" Mkt="CME"/>
+      <Full Typ="B" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+      <Full Typ="C" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+    </MktDataFull>
+    <MktDataFull BizDt="2012-10-23">
+      <Instrmt Exch="CME" ID="CB" Sym="CB" SecTyp="OOF" CFI="OPAAPS" StrkPx="132.0" MMY="201210" Src="H" MatDt="2012-10-31" PutCall="0">
+        <Evnt EventTyp="7" Dt="2012-10-30" Txt="20121030"/>
+      </Instrmt>
+      <Undly Exch="CME" ID="CB" SecTyp="FUT" CFI="FXXXXX" MMY="201210"/>
+      <Full Typ="6" Px="9999999" PxTyp="10" PxDelta="-0.00257" Mkt="CME"/>
+      <Full Typ="B" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+      <Full Typ="C" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+    </MktDataFull>
+    <MktDataFull BizDt="2012-10-23">
+      <Instrmt Exch="CME" ID="CB" Sym="CB" SecTyp="OOF" CFI="OCAAPS" StrkPx="134.0" MMY="201210" Src="H" MatDt="2012-10-31" PutCall="1">
+        <Evnt EventTyp="7" Dt="2012-10-30" Txt="20121030"/>
+      </Instrmt>
+      <Undly Exch="CME" ID="CB" SecTyp="FUT" CFI="FXXXXX" MMY="201210"/>
+      <Full Typ="6" Px="56.975" PxDelta="0.99734" Mkt="CME"/>
+      <Full Typ="B" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+      <Full Typ="C" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+    </MktDataFull>
+    <MktDataFull BizDt="2012-10-23">
+      <Instrmt Exch="CME" ID="CB" Sym="CB" SecTyp="OOF" CFI="OPAAPS" StrkPx="134.0" MMY="201210" Src="H" MatDt="2012-10-31" PutCall="0">
+        <Evnt EventTyp="7" Dt="2012-10-30" Txt="20121030"/>
+      </Instrmt>
+      <Undly Exch="CME" ID="CB" SecTyp="FUT" CFI="FXXXXX" MMY="201210"/>
+      <Full Typ="6" Px="9999999" PxTyp="10" PxDelta="-0.00266" Mkt="CME"/>
+      <Full Typ="B" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+      <Full Typ="C" Sz="2" Mkt="CME" OpenClsSettlFlag="4"/>
+    </MktDataFull>
+    <MktDataFull BizDt="2012-10-23">
+      <Instrmt Exch="CME" ID="CB" Sym="CB" SecTyp="OOF" CFI="OCAAPS" StrkPx="136.0" MMY="201210" Src="H" MatDt="2012-10-31" PutCall="1">
+        <Evnt EventTyp="7" Dt="2012-10-30" Txt="20121030"/>
+      </Instrmt>
+      <Undly Exch="CME" ID="CB" SecTyp="FUT" CFI="FXXXXX" MMY="201210"/>
+      <Full Typ="6" Px="54.975" PxDelta="0.99725" Mkt="CME"/>
+      <Full Typ="B" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+      <Full Typ="C" Sz="0" Mkt="CME" OpenClsSettlFlag="4"/>
+    </MktDataFull>
+  </Batch>
+</FIXML>
