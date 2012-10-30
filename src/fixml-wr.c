@@ -72,8 +72,10 @@
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
+# define FIXC_DEBUG_WR(args...)
 #else  /* !DEBUG_FLAG */
 # define FIXC_DEBUG(args...)
+# define FIXC_DEBUG_WR(args...)
 #endif	/* DEBUG_FLAG */
 
 #if !defined CHAR_BIT
@@ -483,7 +485,7 @@ __change_ctx(__ctx_t ctx, fixc_ctxt_t new)
 		/* otherwise, must be a sibling or a cousin */
 		pop_rndr_state(ctx);
 	}
-	FIXC_DEBUG("completely unwound, probably buggered FIX message\n");
+	FIXC_DEBUG_WR("completely unwound, probably buggered FIX message\n");
 	goto new_chld;
 }
 
