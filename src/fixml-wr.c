@@ -389,6 +389,9 @@ push_rndr_state(__ctx_t ctx, fixc_ctxt_t otag)
 {
 	if (UNLIKELY(fixc_get_comp_orb(otag))) {
 		return;
+	} else if (otag.ui16 == FIXC_MSGT_BATCH) {
+		/* batch tags are inserted globally and once only */
+		return;
 	} else if (LIKELY(ctx->state != NULL)) {
 		if (ctx->state->cntc++ == 0) {
 			/* finish the parent's opening tag */
