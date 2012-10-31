@@ -544,6 +544,28 @@ fu_ancest_p(fixc_fld_ctx_t fc, fixc_ctxt_t c)
 	return FIXC_COMP_UNK;
 }
 
+static void
+fixc_fixup_some(fixc_msg_t msg)
+{
+	fixc_ctxt_t last = {FIXC_MSGT_UNK};
+	unsigned int streak = 1U;
+
+	for (size_t i = 0; i < msg->nflds; i++, streak++) {
+		if (!msg->flds[i].tpc && !msg->flds[i].cnt) {
+			msg->flds[i].tpc = (uint16_t)last.ui16;
+			msg->flds[i].cnt = (uint16_t)streak;
+		} else if (!msg->flds[i].cnt && msg->flds[i].tpc == last.ui16) {
+			/* assume the unknown field disrupted our streak */
+			msg->flds[i].cnt = (uint16_t)streak;
+		} else if (!msg->flds[i].cnt) {
+			/* nah, complete reset now */
+			streak = 0;
+			last.ui16 = msg->flds[i].tpc;
+		}
+	}
+	return;
+}
+
 void
 fixc_fixup(fixc_msg_t msg)
 {
@@ -611,19 +633,7 @@ fixc_fixup(fixc_msg_t msg)
 
 	/* plain operation, but only if we encountered out_of_stack */
 	if (UNLIKELY(out_of_stack_p)) {
-		fixc_ctxt_t last = {FIXC_MSGT_UNK};
-
-		streak = 0;
-		for (size_t i = 0; i < msg->nflds; i++) {
-			streak++;
-			if (!msg->flds[i].tpc && !msg->flds[i].cnt) {
-				msg->flds[i].tpc = (uint16_t)last.ui16;
-				msg->flds[i].cnt = (uint16_t)streak;
-			} else if (!msg->flds[i].cnt) {
-				streak = 0;
-				last.ui16 = msg->flds[i].tpc;
-			}
-		}
+		fixc_fixup_some(msg);
 	}
 	return;
 }
