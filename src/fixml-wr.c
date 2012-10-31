@@ -544,6 +544,28 @@ fu_ancest_p(fixc_fld_ctx_t fc, fixc_ctxt_t c)
 	return FIXC_COMP_UNK;
 }
 
+static void
+fixc_fixup_some(fixc_msg_t msg)
+{
+	fixc_ctxt_t last = {FIXC_MSGT_UNK};
+	unsigned int streak = 1U;
+
+	for (size_t i = 0; i < msg->nflds; i++, streak++) {
+		if (!msg->flds[i].tpc && !msg->flds[i].cnt) {
+			msg->flds[i].tpc = (uint16_t)last.ui16;
+			msg->flds[i].cnt = (uint16_t)streak;
+		} else if (!msg->flds[i].cnt && msg->flds[i].tpc == last.ui16) {
+			/* assume the unknown field disrupted our streak */
+			msg->flds[i].cnt = (uint16_t)streak;
+		} else if (!msg->flds[i].cnt) {
+			/* nah, complete reset now */
+			streak = 0;
+			last.ui16 = msg->flds[i].tpc;
+		}
+	}
+	return;
+}
+
 void
 fixc_fixup(fixc_msg_t msg)
 {
@@ -554,6 +576,7 @@ fixc_fixup(fixc_msg_t msg)
 	} stk[16];
 	ssize_t nstk = -1;
 	unsigned int streak = 0;
+	int out_of_stack_p = 0;
 
 #define rset()		(streak = 0)
 #define push(x, i)	(rset(),				\
@@ -563,6 +586,7 @@ fixc_fixup(fixc_msg_t msg)
 #define peeki()		stk[nstk].idx
 #define peek()		stk[nstk].ctx
 #define pop()		(streak = 0, stk[nstk--].ctx)
+#define streak()	(streak++)
 
 	push(msg->f35.mtyp, 0);
 	for (size_t i = 0; i < msg->nflds; i++) {
@@ -596,6 +620,7 @@ fixc_fixup(fixc_msg_t msg)
 
 		FIXC_DEBUG("couldn't find context for %hu\n", msg->flds[i].tag);
 		push(msg->f35.mtyp, 0);
+		out_of_stack_p = 1;
 		continue;
 	succ:
 		msg->flds[i].tpc = (uint16_t)peek().ui16;
@@ -603,7 +628,12 @@ fixc_fixup(fixc_msg_t msg)
 		    msg->flds[peeki() + 1].tag == msg->flds[i].tag) {
 			rset();
 		}
-		msg->flds[i].cnt = (uint16_t)streak++;
+		msg->flds[i].cnt = (uint16_t)streak();
+	}
+
+	/* plain operation, but only if we encountered out_of_stack */
+	if (UNLIKELY(out_of_stack_p)) {
+		fixc_fixup_some(msg);
 	}
 	return;
 }
