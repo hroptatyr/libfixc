@@ -149,4 +149,7 @@ bin_tests += fix2fixml_02.sh
 bin_tests += fixml2fix_03.sh
 EXTRA_DIST += fixml_ex_06.xml
 
+## check behaviour with unkown/custom tags
+EXTRA_DIST += fix_ex_05.fix
+
 ## Makefile.am ends here
