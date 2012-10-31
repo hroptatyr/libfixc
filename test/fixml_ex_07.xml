@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<FIXML xmlns="" v="5.0 SP2">
+  <Hdr SeqNum="000770" PosDup="N" Snt="20121030-17:16:20"/>
+  <SecDef ReqID="FixSecDefReqBySymbol23796" RspID="*" RspTyp="4">
+    <Instrmt Sym="CL" SecTyp="FUT" Exch="NYMEX" Ccy="USD" Txt="CL" MatDt="20130320" MMY="201304" Mult="1000" NoReltdSym="1"/>
+    <Undly SecTyp="IND" Issr="Light Sweet Crude Oil"/>
+  </SecDef>
+</FIXML>

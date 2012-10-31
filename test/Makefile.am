@@ -151,5 +151,7 @@ EXTRA_DIST += fixml_ex_06.xml
 
 ## check behaviour with unkown/custom tags
 EXTRA_DIST += fix_ex_05.fix
+EXTRA_DIST += fixml_ex_07.xml
+#bin_tests += fix2fixml_03.sh
 
 ## Makefile.am ends here
