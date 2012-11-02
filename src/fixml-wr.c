@@ -337,7 +337,9 @@ __fixmlify(char *restrict p, const char *ep, fixc_ctxt_t ctx)
 		tag = fixc_comp_fixmlify(ctx.comp);
 	}
 	if (UNLIKELY((tsz = strlen(tag)) == 0UL)) {
-		return p;
+		static char miss[8];
+		tsz = snprintf(miss, sizeof(miss), "g%u", ctx.i);
+		tag = miss;
 	}
 	/* render him */
 	return sncpy(p, ep, tag, tsz);
