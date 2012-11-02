@@ -118,6 +118,20 @@ AC_SUBST([fix_repo_dflt])
 AC_SUBST([fix_repo])
 
 
+PKG_CHECK_MODULES([zlib], [zlib], [have_zlib="yes"], [have_zlib="no"])
+if test "${have_zlib}" = "yes"; then
+	## check for that one header
+	SXE_DUMP_LIBS
+	CPPFLAGS="${CPPFLAGS} ${zlib_CFLAGS}"
+	AC_CHECK_HEADERS([zlib.h])
+	SXE_RESTORE_LIBS
+
+	if test "${ac_cv_header_zlib_h}" != "yes"; then
+		have_zlib="no"
+	fi
+fi
+AM_CONDITIONAL([HAVE_ZLIB], [test "${have_zlib}" = "yes"])
+
 dnl -------------------------------------------------------------------------
 dnl final output
 dnl -------------------------------------------------------------------------
