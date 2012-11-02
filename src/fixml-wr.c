@@ -323,6 +323,7 @@ static char*
 __fixmlify(char *restrict p, const char *ep, fixc_ctxt_t ctx)
 {
 	const char *tag;
+	size_t tsz;
 
 	if (UNLIKELY(ctx.i == FIXC_MSGT_BATCH)) {
 		tag = "Batch";
@@ -331,7 +332,11 @@ __fixmlify(char *restrict p, const char *ep, fixc_ctxt_t ctx)
 	} else {
 		tag = fixc_comp_fixmlify(ctx.comp);
 	}
-	return sncpy(p, ep, tag, strlen(tag));
+	if (UNLIKELY((tsz = strlen(tag)) == 0UL)) {
+		return p;
+	}
+	/* render him */
+	return sncpy(p, ep, tag, tsz);
 }
 
 static int
