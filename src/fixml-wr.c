@@ -169,13 +169,8 @@ sncpy(char *restrict buf, const char *eob, const char *s, size_t slen)
 static void
 __render_attr(__ctx_t ctx, fixc_ctxt_t t, const char *b, struct fixc_fld_s fld)
 {
-	const char *attr = fixc_attr_fixmlify(t, (fixc_attr_t)fld.tag);
-	size_t alen = strlen(attr);
-
-	if (!alen) {
-		/* probably fubar'd or an unknown attr */
-		return;
-	}
+	const char *attr;
+	size_t alen;
 
 	/* comb out everything that mustn't be rendered */
 	switch (fld.typ) {
@@ -185,6 +180,15 @@ __render_attr(__ctx_t ctx, fixc_ctxt_t t, const char *b, struct fixc_fld_s fld)
 		return;
 	default:
 		break;
+	}
+
+	/* otherwise, go along with the attr finding */
+	attr = fixc_attr_fixmlify(t, (fixc_attr_t)fld.tag);
+	if (UNLIKELY((alen = strlen(attr)) == 0UL)) {
+		/* probably fubar'd or an unknown attr */
+		static char miss[8];
+		alen = snprintf(miss, sizeof(miss), "f%hu", fld.tag);
+		attr = miss;
 	}
 
 	ctx->p = sputc(ctx->p, ctx->ep, ' ');
