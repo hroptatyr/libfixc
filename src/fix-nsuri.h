@@ -49,6 +49,7 @@ typedef enum {
 	FIXC_VER_50_SP1,
 	FIXC_VER_50_SP2,
 	FIXC_VER_T11,
+	FIXC_VER_COMP,
 } fixc_ver_t;
 
 #endif	/* INCLUDED_fix_nsuri_h_ */
