@@ -432,7 +432,8 @@ make_fixc_from_fix(const char *msg, size_t msglen)
 			if (res->f8.ver &&
 			    res->f8.ver != FIXC_VER_COMP) {
 				comp_handled_p = 1;
-			} else if (res->f9.i32 > 0) {
+			} else if (res->f8.ver && res->f9.i32 > 0) {
+				/* must be FIXC_VER_COMP then */
 #if defined HAVE_ZLIB_H
 				size_t rz = msglen - (q - res->pr);
 
