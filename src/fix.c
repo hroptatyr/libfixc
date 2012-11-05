@@ -79,6 +79,95 @@
 #define SOH	"\001"
 #define SOHC	(*SOH)
 
+static inline size_t
+__next_2power(size_t v)
+{
+/* round N to the next 2-power */
+	v--;
+	v |= v >> 1U;
+	v |= v >> 2U;
+	v |= v >> 4U;
+	v |= v >> 8U;
+	v |= v >> 16U;
+#if SIZEOF_SIZE_T >= 8
+	v |= v >> 32U;
+#endif	/* SIZEOF_SIZE_T >= 8 */
+#if SIZEOF_SIZE_T >= 16
+	v |= v >> 64U;
+#endif	/* SIZEOF_SIZE_T >= 16 */
+	return ++v;
+}
+
+static inline size_t
+__allocd_vspc(fixc_msg_t msg)
+{
+/* return space allocated for values (in bytes) */
+	return __next_2power(msg->pz + 1);
+}
+
+static inline size_t
+__allocd_fspc(fixc_msg_t msg)
+{
+/* return space allocated for fields (in numbers) */
+	return (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
+}
+
+static void
+check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
+{
+/* check if MSG can hold ADD_FLDS additional fields and ADD_VSPC
+ * additional pr size, if not, resize */
+	size_t fspc, fspc_nu;
+	size_t vspc, vspc_nu;
+	size_t UNUSED(old_sz);
+	size_t new_sz;
+
+	/* let's hope msg->pr is aligned, fingers crossed */
+	fspc = __allocd_fspc(msg);
+	/* determine the size of the pr section, multiple of VSPC_RND */
+	vspc = __allocd_vspc(msg);
+
+	if (add_flds + msg->nflds < fspc &&
+	    add_vspc + msg->pz < vspc) {
+		/* nothing to do, time for trip home */
+		return;
+	}
+
+	/* find out how big the whole dynamic room was */
+	old_sz = vspc + fspc * sizeof(*msg->flds);
+	/* just to make sure we're talking the same sizes */
+	vspc_nu = __next_2power(vspc + add_vspc + 1);
+	fspc_nu = __next_2power(msg->nflds + add_flds);
+	new_sz = vspc_nu + fspc_nu * sizeof(*msg->flds);
+
+	/* grrr, otherwise there's lots of work to do :/ */
+	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu  i.e. %zub -> %zub\n",
+		       fspc, vspc, fspc_nu, vspc_nu, old_sz, new_sz);
+
+	{
+		/* malloc them guys */
+		size_t mvz = msg->nflds * sizeof(*msg->flds);
+		fixc_fld_t new_flds;
+		void *new_pr;
+
+		new_flds = malloc(new_sz);
+		memcpy(new_flds, msg->flds, mvz);
+
+		/* also move the pr stuff a bit */
+		new_pr = new_flds + fspc_nu;
+		memcpy(new_pr, msg->pr, msg->pz);
+
+		/* make sure not to free the flexible array */
+		if (msg->flds != msg->these) {
+			free(msg->flds);
+		}
+		/* reass and out */
+		msg->flds = new_flds;
+		msg->pr = new_pr;
+	}
+	return;
+}
+
 static struct fixc_fld_s
 fixc_parse_tag(const char *str, size_t UNUSED(len))
 {
@@ -544,95 +633,6 @@ fixc_free_rndr(struct fixc_rndr_s rbuf)
 
 
 /* adding stuff */
-static inline size_t
-__next_2power(size_t v)
-{
-/* round N to the next 2-power */
-	v--;
-	v |= v >> 1U;
-	v |= v >> 2U;
-	v |= v >> 4U;
-	v |= v >> 8U;
-	v |= v >> 16U;
-#if SIZEOF_SIZE_T >= 8
-	v |= v >> 32U;
-#endif	/* SIZEOF_SIZE_T >= 8 */
-#if SIZEOF_SIZE_T >= 16
-	v |= v >> 64U;
-#endif	/* SIZEOF_SIZE_T >= 16 */
-	return ++v;
-}
-
-static inline size_t
-__allocd_vspc(fixc_msg_t msg)
-{
-/* return space allocated for values (in bytes) */
-	return __next_2power(msg->pz + 1);
-}
-
-static inline size_t
-__allocd_fspc(fixc_msg_t msg)
-{
-/* return space allocated for fields (in numbers) */
-	return (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
-}
-
-static void
-check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
-{
-/* check if MSG can hold ADD_FLDS additional fields and ADD_VSPC
- * additional pr size, if not, resize */
-	size_t fspc, fspc_nu;
-	size_t vspc, vspc_nu;
-	size_t UNUSED(old_sz);
-	size_t new_sz;
-
-	/* let's hope msg->pr is aligned, fingers crossed */
-	fspc = __allocd_fspc(msg);
-	/* determine the size of the pr section, multiple of VSPC_RND */
-	vspc = __allocd_vspc(msg);
-
-	if (add_flds + msg->nflds < fspc &&
-	    add_vspc + msg->pz < vspc) {
-		/* nothing to do, time for trip home */
-		return;
-	}
-
-	/* find out how big the whole dynamic room was */
-	old_sz = vspc + fspc * sizeof(*msg->flds);
-	/* just to make sure we're talking the same sizes */
-	vspc_nu = __next_2power(vspc + add_vspc + 1);
-	fspc_nu = __next_2power(msg->nflds + add_flds);
-	new_sz = vspc_nu + fspc_nu * sizeof(*msg->flds);
-
-	/* grrr, otherwise there's lots of work to do :/ */
-	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu  i.e. %zub -> %zub\n",
-		       fspc, vspc, fspc_nu, vspc_nu, old_sz, new_sz);
-
-	{
-		/* malloc them guys */
-		size_t mvz = msg->nflds * sizeof(*msg->flds);
-		fixc_fld_t new_flds;
-		void *new_pr;
-
-		new_flds = malloc(new_sz);
-		memcpy(new_flds, msg->flds, mvz);
-
-		/* also move the pr stuff a bit */
-		new_pr = new_flds + fspc_nu;
-		memcpy(new_pr, msg->pr, msg->pz);
-
-		/* make sure not to free the flexible array */
-		if (msg->flds != msg->these) {
-			free(msg->flds);
-		}
-		/* reass and out */
-		msg->flds = new_flds;
-		msg->pr = new_pr;
-	}
-	return;
-}
-
 size_t
 fixc_msg_z(fixc_msg_t msg)
 {
