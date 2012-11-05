@@ -45,6 +45,10 @@
 /* check for me? */
 #include <sys/mman.h>
 
+#if defined HAVE_ZLIB_H
+# include <zlib.h>
+#endif	/* HAVE_ZLIB_H */
+
 #include "fix.h"
 #include "fix-private.h"
 #include "fixml-comp-sub.h"
@@ -78,6 +82,95 @@
 /* fix guts */
 #define SOH	"\001"
 #define SOHC	(*SOH)
+
+static inline size_t
+__next_2power(size_t v)
+{
+/* round N to the next 2-power */
+	v--;
+	v |= v >> 1U;
+	v |= v >> 2U;
+	v |= v >> 4U;
+	v |= v >> 8U;
+	v |= v >> 16U;
+#if SIZEOF_SIZE_T >= 8
+	v |= v >> 32U;
+#endif	/* SIZEOF_SIZE_T >= 8 */
+#if SIZEOF_SIZE_T >= 16
+	v |= v >> 64U;
+#endif	/* SIZEOF_SIZE_T >= 16 */
+	return ++v;
+}
+
+static inline size_t
+__allocd_vspc(fixc_msg_t msg)
+{
+/* return space allocated for values (in bytes) */
+	return __next_2power(msg->pz + 1);
+}
+
+static inline size_t
+__allocd_fspc(fixc_msg_t msg)
+{
+/* return space allocated for fields (in numbers) */
+	return (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
+}
+
+static void
+check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
+{
+/* check if MSG can hold ADD_FLDS additional fields and ADD_VSPC
+ * additional pr size, if not, resize */
+	size_t fspc, fspc_nu;
+	size_t vspc, vspc_nu;
+	size_t UNUSED(old_sz);
+	size_t new_sz;
+
+	/* let's hope msg->pr is aligned, fingers crossed */
+	fspc = __allocd_fspc(msg);
+	/* determine the size of the pr section, multiple of VSPC_RND */
+	vspc = __allocd_vspc(msg);
+
+	if (add_flds + msg->nflds < fspc &&
+	    add_vspc + msg->pz < vspc) {
+		/* nothing to do, time for trip home */
+		return;
+	}
+
+	/* find out how big the whole dynamic room was */
+	old_sz = vspc + fspc * sizeof(*msg->flds);
+	/* just to make sure we're talking the same sizes */
+	vspc_nu = __next_2power(vspc + add_vspc + 1);
+	fspc_nu = __next_2power(msg->nflds + add_flds);
+	new_sz = vspc_nu + fspc_nu * sizeof(*msg->flds);
+
+	/* grrr, otherwise there's lots of work to do :/ */
+	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu  i.e. %zub -> %zub\n",
+		       fspc, vspc, fspc_nu, vspc_nu, old_sz, new_sz);
+
+	{
+		/* malloc them guys */
+		size_t mvz = msg->nflds * sizeof(*msg->flds);
+		fixc_fld_t new_flds;
+		void *new_pr;
+
+		new_flds = malloc(new_sz);
+		memcpy(new_flds, msg->flds, mvz);
+
+		/* also move the pr stuff a bit */
+		new_pr = new_flds + fspc_nu;
+		memcpy(new_pr, msg->pr, msg->pz);
+
+		/* make sure not to free the flexible array */
+		if (msg->flds != msg->these) {
+			free(msg->flds);
+		}
+		/* reass and out */
+		msg->flds = new_flds;
+		msg->pr = new_pr;
+	}
+	return;
+}
 
 static struct fixc_fld_s
 fixc_parse_tag(const char *str, size_t UNUSED(len))
@@ -169,6 +262,114 @@ make_fixc_msg(fixc_ctxt_t ctx)
 	return res;
 }
 
+#if defined HAVE_ZLIB_H
+static int
+__fixc_from_fixz(fixc_msg_t res, char *msg, size_t msglen)
+{
+	enum {
+		KEY,
+		VALUE,
+	} kv_state = KEY;
+	/* if msg was completely of the form N=V\1 we'd have 4 chars per fld */
+	struct z_stream_s st[1];
+	static char tb[1024];
+	size_t nproc;
+	size_t prevproc = 0UL;
+	size_t inproc = 0UL;
+	int finp = 0;
+
+	/* reset fields */
+	res->f8.ver = FIXC_VER_UNK;
+	res->f9.i32 = 0;
+
+	/* initialise the zlib stuff */
+	st->zalloc = NULL;
+	st->zfree = NULL;
+	st->opaque = NULL;
+
+	if (inflateInit(st) != Z_OK) {
+		return -1;
+	}
+
+	do {
+		st->next_in = (Bytef*)msg + inproc;
+		st->avail_in = msglen - inproc;
+
+		st->next_out = (Bytef*)tb;
+		st->avail_out = sizeof(tb);
+
+		switch (inflate(st, Z_SYNC_FLUSH)) {
+		case Z_OK:
+			/* yay */
+			FIXC_DEBUG("partial\n");
+			break;
+		case Z_STREAM_END:
+			if (inflateEnd(st) == Z_OK) {
+				FIXC_DEBUG("complete\n");
+				finp = 1;
+				break;
+			}
+		default:
+			return -1;
+		}
+
+		/* reset them fields */
+		nproc = sizeof(tb) - st->avail_out;
+		inproc = msglen - st->avail_in;
+		res->f8.ver = FIXC_VER_UNK;
+		res->f9.i32 = 0;
+
+		FIXC_DEBUG("run +%zu  <-%zu  ->%zu\n", prevproc, inproc, nproc);
+
+		/* check i/o sizes */
+		check_size(res, nproc / 8, nproc);
+
+		/* generate the husk */
+		memcpy(res->pr + prevproc, tb, nproc);
+		res->pr[prevproc + nproc] = '\0';
+
+		for (char *p = res->pr + prevproc,
+			     *ep = res->pr + prevproc + nproc,
+			     *q = p; p <= ep; p++) {
+			switch (kv_state) {
+			case KEY:
+				if (*p == '=') {
+					size_t i = res->nflds;
+
+					/* finish string q */
+					*p = '\0';
+					res->flds[i] = fixc_parse_tag(q, p - q);
+
+					/* switch to value state */
+					kv_state = VALUE;
+					q = p + 1;
+				}
+				break;
+			case VALUE:
+				if (*p == SOHC || *p == '\0') {
+					/* finish string q */
+					*p = '\0';
+
+					/* add this field */
+					fixc_parse_fld(res, q, p - q);
+
+					/* switch to key state */
+					kv_state = KEY;
+					q = p + 1;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+
+		/* update prevproc */
+		prevproc += nproc;
+	} while (!finp);
+	return 0;
+}
+#endif	/* HAVE_ZLIB_H */
+
 fixc_msg_t
 make_fixc_from_fix(const char *msg, size_t msglen)
 {
@@ -183,6 +384,7 @@ make_fixc_from_fix(const char *msg, size_t msglen)
 	size_t fspc = ROUND(msglen / 4, FSPC_RND);
 	size_t vspc = ROUND(msglen + 1, VSPC_RND);
 	size_t totz = ROUNDv(base + fspc * sizeof(*res->flds) + vspc);
+	int comp_handled_p = 0;
 
 	/* generate the husk */
 	res = malloc(totz);
@@ -224,8 +426,36 @@ make_fixc_from_fix(const char *msg, size_t msglen)
 		default:
 			break;
 		}
+
+		/* check for compressed message */
+		if (!comp_handled_p) {
+			if (res->f8.ver &&
+			    res->f8.ver != FIXC_VER_COMP) {
+				comp_handled_p = 1;
+			} else if (res->f9.i32 > 0) {
+#if defined HAVE_ZLIB_H
+				size_t rz = msglen - (q - res->pr);
+
+				FIXC_DEBUG("\
+compressed message (of size %db v %zu) detected\n", res->f9.i32, rz);
+				if (__fixc_from_fixz(res, q, rz) < 0) {
+					goto err;
+				}
+				break;
+#else  /* HAVE_ZLIB_H */
+				FIXC_DEBUG("\
+compressed message (of size %db) detected but no zlib support\n", res->f9.i32);
+				goto err;
+#endif	/* HAVE_ZLIB_H */
+			}
+		}
 	}
 	return res;
+
+err:
+	/* error case, only entered upon zlib handling */
+	free_fixc(res);
+	return NULL;
 }
 
 void
@@ -544,95 +774,6 @@ fixc_free_rndr(struct fixc_rndr_s rbuf)
 
 
 /* adding stuff */
-static inline size_t
-__next_2power(size_t v)
-{
-/* round N to the next 2-power */
-	v--;
-	v |= v >> 1U;
-	v |= v >> 2U;
-	v |= v >> 4U;
-	v |= v >> 8U;
-	v |= v >> 16U;
-#if SIZEOF_SIZE_T >= 8
-	v |= v >> 32U;
-#endif	/* SIZEOF_SIZE_T >= 8 */
-#if SIZEOF_SIZE_T >= 16
-	v |= v >> 64U;
-#endif	/* SIZEOF_SIZE_T >= 16 */
-	return ++v;
-}
-
-static inline size_t
-__allocd_vspc(fixc_msg_t msg)
-{
-/* return space allocated for values (in bytes) */
-	return __next_2power(msg->pz + 1);
-}
-
-static inline size_t
-__allocd_fspc(fixc_msg_t msg)
-{
-/* return space allocated for fields (in numbers) */
-	return (msg->pr - (char*)msg->flds) / sizeof(*msg->flds);
-}
-
-static void
-check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
-{
-/* check if MSG can hold ADD_FLDS additional fields and ADD_VSPC
- * additional pr size, if not, resize */
-	size_t fspc, fspc_nu;
-	size_t vspc, vspc_nu;
-	size_t UNUSED(old_sz);
-	size_t new_sz;
-
-	/* let's hope msg->pr is aligned, fingers crossed */
-	fspc = __allocd_fspc(msg);
-	/* determine the size of the pr section, multiple of VSPC_RND */
-	vspc = __allocd_vspc(msg);
-
-	if (add_flds + msg->nflds < fspc &&
-	    add_vspc + msg->pz < vspc) {
-		/* nothing to do, time for trip home */
-		return;
-	}
-
-	/* find out how big the whole dynamic room was */
-	old_sz = vspc + fspc * sizeof(*msg->flds);
-	/* just to make sure we're talking the same sizes */
-	vspc_nu = __next_2power(vspc + add_vspc + 1);
-	fspc_nu = __next_2power(msg->nflds + add_flds);
-	new_sz = vspc_nu + fspc_nu * sizeof(*msg->flds);
-
-	/* grrr, otherwise there's lots of work to do :/ */
-	FIXC_DEBUG_MEM("resz %zu %zu -> ~%zu ~%zu  i.e. %zub -> %zub\n",
-		       fspc, vspc, fspc_nu, vspc_nu, old_sz, new_sz);
-
-	{
-		/* malloc them guys */
-		size_t mvz = msg->nflds * sizeof(*msg->flds);
-		fixc_fld_t new_flds;
-		void *new_pr;
-
-		new_flds = malloc(new_sz);
-		memcpy(new_flds, msg->flds, mvz);
-
-		/* also move the pr stuff a bit */
-		new_pr = new_flds + fspc_nu;
-		memcpy(new_pr, msg->pr, msg->pz);
-
-		/* make sure not to free the flexible array */
-		if (msg->flds != msg->these) {
-			free(msg->flds);
-		}
-		/* reass and out */
-		msg->flds = new_flds;
-		msg->pr = new_pr;
-	}
-	return;
-}
-
 size_t
 fixc_msg_z(fixc_msg_t msg)
 {
