@@ -528,6 +528,21 @@ __ui16tostr(char *const buf, size_t bsz, uint16_t v)
 }
 
 static size_t
+__ui8tostr(char *const buf, size_t bsz, uint16_t v)
+{
+	char *restrict p = buf;
+
+	if (bsz < 3U) {
+		return 0UL;
+	}
+
+	*p++ = (char)((v / 100U % 10U) + '0');
+	*p++ = (char)((v / 10U % 10U) + '0');
+	*p++ = (char)((v / 1U % 10U) + '0');
+	return 3UL;
+}
+
+static size_t
 fixc_render_fld(
 	char *restrict buf, size_t bsz, const char *b, struct fixc_fld_s fld)
 {
@@ -551,9 +566,7 @@ fixc_render_fld(
 		break;
 	}
 	case FIXC_TYP_UCHAR:
-		res += snprintf(
-			buf + res, bsz - res,
-			"%03u", (unsigned int)fld.u8);
+		res += __ui8tostr(buf + res, bsz - res, fld.u8);
 		break;
 	case FIXC_TYP_CHAR:
 		buf[res++] = fld.c;
