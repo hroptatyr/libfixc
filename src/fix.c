@@ -172,16 +172,24 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 	return;
 }
 
-static struct fixc_fld_s
-fixc_parse_tag(const char *str, size_t UNUSED(len))
+static uint16_t
+__strtoui16(const char *s, size_t z)
 {
-	long unsigned int tmp;
+	unsigned int res = 0U;
+
+	for (size_t i = 0; i < z; i++) {
+		res *= 10U;
+		res += *s++ - '0';
+	}
+	return (uint16_t)(res < 65536U ? res : 0U);
+}
+
+static struct fixc_fld_s
+fixc_parse_tag(const char *str, size_t len)
+{
 	struct fixc_fld_s res = {0};
 
-	/* will be replace with our own reader */
-	if ((tmp = strtoul(str, NULL, 10)) < 65536) {
-		res.tag = tmp;
-	}
+	res.tag = __strtoui16(str, len);
 	return res;
 }
 
@@ -481,13 +489,67 @@ fixc_chksum(const char *str, size_t len)
 }
 
 static size_t
+__ui16tostr(char *const buf, size_t bsz, uint16_t v)
+{
+	char *restrict p = buf;
+	unsigned int log = 0U;
+
+	if (UNLIKELY(v >= 10000)) {
+		log = bsz >= 6U ? 5U : 0U;
+	} else if (v >= 1000 && bsz >= 5U) {
+		log = bsz >= 5U ? 4U : 0U;
+	} else if (v >= 100) {
+		log = bsz >= 4U ? 3U : 0U;
+	} else if (v >= 10) {
+		log = bsz >= 3U ? 2U : 0U;
+	} else {
+		log = bsz >= 2U ? 1U : 0U;
+	}
+
+	switch (log) {
+	case 5:
+		*p++ = (char)((v / 10000U % 10U) + '0');
+	case 4:
+		*p++ = (char)((v / 1000U % 10U) + '0');
+	case 3:
+		*p++ = (char)((v / 100U % 10U) + '0');
+	case 2:
+		*p++ = (char)((v / 10U % 10U) + '0');
+	case 1:
+		*p++ = (char)((v / 1U % 10U) + '0');
+		*p++ = '=';
+		break;
+	case 0:
+	default:
+		*p = '\0';
+		break;
+	}
+	return p - buf;
+}
+
+static size_t
+__ui8tostr(char *const buf, size_t bsz, uint16_t v)
+{
+	char *restrict p = buf;
+
+	if (bsz < 3U) {
+		return 0UL;
+	}
+
+	*p++ = (char)((v / 100U % 10U) + '0');
+	*p++ = (char)((v / 10U % 10U) + '0');
+	*p++ = (char)((v / 1U % 10U) + '0');
+	return 3UL;
+}
+
+static size_t
 fixc_render_fld(
 	char *restrict buf, size_t bsz, const char *b, struct fixc_fld_s fld)
 {
 	size_t stz;
 	size_t res = 0;
 
-	res = snprintf(buf, bsz, "%hu=", fld.tag);
+	res = __ui16tostr(buf, bsz, fld.tag);;
 	switch (fld.typ) {
 	case FIXC_TYP_OFF:
 		if ((stz = strlen(b + fld.off)) + 1 > bsz - res) {
@@ -504,9 +566,7 @@ fixc_render_fld(
 		break;
 	}
 	case FIXC_TYP_UCHAR:
-		res += snprintf(
-			buf + res, bsz - res,
-			"%03u", (unsigned int)fld.u8);
+		res += __ui8tostr(buf + res, bsz - res, fld.u8);
 		break;
 	case FIXC_TYP_CHAR:
 		buf[res++] = fld.c;
