@@ -172,16 +172,24 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 	return;
 }
 
-static struct fixc_fld_s
-fixc_parse_tag(const char *str, size_t UNUSED(len))
+static uint16_t
+__strtoui16(const char *s, size_t z)
 {
-	long unsigned int tmp;
+	unsigned int res = 0U;
+
+	for (size_t i = 0; i < z; i++) {
+		res *= 10U;
+		res += *s++ - '0';
+	}
+	return (uint16_t)(res < 65536U ? res : 0U);
+}
+
+static struct fixc_fld_s
+fixc_parse_tag(const char *str, size_t len)
+{
 	struct fixc_fld_s res = {0};
 
-	/* will be replace with our own reader */
-	if ((tmp = strtoul(str, NULL, 10)) < 65536) {
-		res.tag = tmp;
-	}
+	res.tag = __strtoui16(str, len);
 	return res;
 }
 
