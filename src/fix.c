@@ -488,28 +488,25 @@ fixc_chksum(const char *str, size_t len)
         return (uint8_t)(res & 0xff);
 }
 
-static unsigned int
-__ui16log(uint16_t v, size_t bsz)
-{
-	if (UNLIKELY(v >= 10000)) {
-		return bsz >= 6U ? 5U : 0U;
-	} else if (v >= 1000) {
-		return bsz >= 5U ? 4U : 0U;
-	} else if (v >= 100) {
-		return bsz >= 4U ? 3U : 0U;
-	} else if (v >= 10) {
-		return bsz >= 3U ? 2U : 0U;
-	} else {
-		return bsz >= 2U ? 1U : 0U;
-	}
-}
-
 static size_t
 __ui16tostr(char *const buf, size_t bsz, uint16_t v)
 {
 	char *restrict p = buf;
+	unsigned int log = 0U;
 
-	switch (__ui16log(v, bsz)) {
+	if (UNLIKELY(v >= 10000)) {
+		log = bsz >= 6U ? 5U : 0U;
+	} else if (v >= 1000 && bsz >= 5U) {
+		log = bsz >= 5U ? 4U : 0U;
+	} else if (v >= 100) {
+		log = bsz >= 4U ? 3U : 0U;
+	} else if (v >= 10) {
+		log = bsz >= 3U ? 2U : 0U;
+	} else {
+		log = bsz >= 2U ? 1U : 0U;
+	}
+
+	switch (log) {
 	case 5:
 		*p++ = (char)((v / 10000U % 10U) + '0');
 	case 4:
