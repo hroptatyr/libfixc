@@ -73,14 +73,14 @@ header_HEADERS += fixml-canon-ctxt.h
 EXTRA_DIST += fix-msg-type.h
 
 ## just for debugging and fun
-noinst_PROGRAMS += fixml2fix
+bin_PROGRAMS += fixml2fix
 fixml2fix_CPPFLAGS = $(AM_CPPFLAGS)
 fixml2fix_CPPFLAGS += -DSTANDALONE
 fixml2fix_LDFLAGS = $(AM_LDFLAGS)
 fixml2fix_LDFLAGS += -static
 fixml2fix_LDADD = libfixc.la
 
-noinst_PROGRAMS += fix2fixml
+bin_PROGRAMS += fix2fixml
 fix2fixml_CPPFLAGS = $(AM_CPPFLAGS)
 fix2fixml_CPPFLAGS += -DSTANDALONE
 fix2fixml_LDFLAGS = $(AM_LDFLAGS)
