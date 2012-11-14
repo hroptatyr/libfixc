@@ -329,16 +329,9 @@ Sym=%s ID=%s Exch=%s CFI=%s SecTyp=%s MMY=%s MatDt=%s",
 	return 0;
 }
 
-static ssize_t
-__meta(fixc_msg_t msg, size_t idx)
+static int
+meta(struct snarf_s *snf)
 {
-	struct snarf_s snf[1];
-	ssize_t res;
-
-	if ((res = __snarf(snf, msg, idx)) < 0) {
-		return -1;
-	}
-
 	if (pr_sym(snf) < 0) {
 		return -1;
 	}
@@ -346,34 +339,17 @@ __meta(fixc_msg_t msg, size_t idx)
 	(void)pr_ins(snf);
 	/* finalise the line */
 	fputc('\n', stdout);
-	return res;
-}
-
-static int
-meta(fixc_msg_t msg)
-{
-#define FIXML_MSG_MKTSNAP	(FIXML_MSG_MarketDataSnapshotFullRefresh)
-	if (msg->f35.mtyp == FIXML_MSG_MKTSNAP) {
-		return __meta(msg, 0) < 0 ? -1 : 0;
-	} else if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
-		/* something weird */
-		return -1;
-	}
-	/* otherwise loop over all f35s */
-	for (size_t i = 0; i < msg->nflds; i++) {
-		if (msg->flds[i].tag == FIXML_ATTR_MsgType &&
-		    msg->flds[i].typ == FIXC_TYP_MSGTYP &&
-		    msg->flds[i].mtyp == FIXML_MSG_MKTSNAP) {
-			/* lovely */
-			i = __meta(msg, i + 1);
-		}
-	}
 	return 0;
 }
 
 static int
-rinse(fixc_msg_t msg)
+rinse(struct snarf_s *snf)
 {
+	if (pr_sym(snf) < 0) {
+		return -1;
+	}
+	/* finalise the line */
+	fputc('\n', stdout);
 	return 0;
 }
 
@@ -413,6 +389,46 @@ clos_out:
 	return res;
 }
 
+static int
+work(fixc_msg_t msg, unsigned int mode)
+{
+#define OPT_RINSE		('r' + 0x100)
+#define OPT_META		('m' + 0x100)
+#define FIXML_MSG_MKTSNAP	(FIXML_MSG_MarketDataSnapshotFullRefresh)
+	struct snarf_s snf[1];
+	size_t i = 0;
+
+	if (msg->f35.mtyp == FIXML_MSG_MKTSNAP) {
+		i = -1UL;
+		goto snarf;
+	} else if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
+		/* something weird */
+		return -1;
+	}
+	/* otherwise loop over all f35s */
+	do {
+		if (msg->flds[i].tag == FIXML_ATTR_MsgType &&
+		    msg->flds[i].typ == FIXC_TYP_MSGTYP &&
+		    msg->flds[i].mtyp == FIXML_MSG_MKTSNAP) {
+			/* lovely */
+		snarf:
+			i = __snarf(snf, msg, i + 1);
+
+			switch (mode) {
+			case OPT_RINSE:
+				rinse(snf);
+				break;
+			case OPT_META:
+				meta(snf);
+				break;
+			default:
+				break;
+			}
+		}
+	} while (++i < msg->nflds);
+	return 0;
+}
+
 
 const char *argp_program_version = "cme-settle v0.1";
 const char *argp_program_bug_address = "\
@@ -435,8 +451,6 @@ parse_opt(int key, char *arg, struct argp_state *state)
 #if !defined OPT_USAGE
 # define OPT_USAGE	('u' + 0x100)
 #endif	/* OPT_USAGE */
-#define OPT_RINSE	('r' + 0x100)
-#define OPT_META	('m' + 0x100)
 	static unsigned int help = ARGP_HELP_USAGE;
 	static unsigned int mode = 0U;
 
@@ -471,16 +485,8 @@ parse_opt(int key, char *arg, struct argp_state *state)
 				/* next file please */
 				break;
 			}
-			switch (mode) {
-			case OPT_RINSE:
-				rinse(msg);
-				break;
-			case OPT_META:
-				meta(msg);
-				break;
-			default:
-				abort();
-			}
+			/* the actual work */
+			work(msg, mode);
 			/* make sure we leave no stains */
 			free_fixc(msg);
 			break;
