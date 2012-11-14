@@ -38,25 +38,208 @@
 # include "config.h"
 #endif	/* HAVE_CONFIG_H */
 #undef __STRICT_ANSI__
+#include <unistd.h>
 #include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
 #include <stdio.h>
 #include <argp.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
 #include "fix.h"
+#include "fixml-msg.h"
+#include "fixml-attr.h"
 
-#if !defined UNUSED
-# define UNUSED(_x)	_x __attribute__((unused))
-#endif	/* !UNUSED */
+/* won't exist out of our package */
+#include "nifty.h"
 
 static int
-meta(const char *UNUSED(fn))
+__attribute__((format(printf, 1, 2)))
+error(const char *fmt, ...)
 {
+	va_list vap;
+	va_start(vap, fmt);
+	vfprintf(stderr, fmt, vap);
+	va_end(vap);
+	if (errno) {
+		fputc(':', stderr);
+		fputc(' ', stderr);
+		fputs(strerror(errno), stderr);
+	}
+	fputc('\n', stderr);
+	return errno;
+}
+
+
+static void
+__massage_mdt(char *restrict tgt, const char *src)
+{
+	while ((*tgt = *src++)) {
+		if (*tgt >= '0' && *tgt <= '9') {
+			tgt++;
+		}
+	}
+	return;
+}
+
+static ssize_t
+__meta(fixc_msg_t msg, size_t idx)
+{
+	struct sym_s {
+		const char *xch;
+		const char *sym;
+		const char *mdt;
+		const char *spx;
+		const char *mmy;
+		const char *sty;
+		char poc;
+	};
+	struct sym_s res = {};
+
+	for (; idx < msg->nflds; idx++) {
+		struct fixc_fld_s fld = msg->flds[idx];
+
+		switch (fld.tag) {
+			const char *tmp;
+		case FIXML_ATTR_MsgType:
+			/* that's it, no more to be parsed */
+			goto out;
+		case FIXML_ATTR_SecurityExchange:
+		case FIXML_ATTR_Symbol:
+		case FIXML_ATTR_MaturityDate:
+		case FIXML_ATTR_MaturityMonthYear:
+		case FIXML_ATTR_PutOrCall:
+		case FIXML_ATTR_StrikePrice:
+		case FIXML_ATTR_SecurityType:
+			if (UNLIKELY((tmp = fixc_get_tag(msg, idx)) == NULL)) {
+				break;
+			}
+			switch (fld.tag) {
+			case FIXML_ATTR_SecurityExchange:
+				res.xch = tmp;
+				break;
+			case FIXML_ATTR_Symbol:
+				res.sym = tmp;
+				break;
+			case FIXML_ATTR_MaturityDate:
+				res.mdt = tmp;
+				break;
+			case FIXML_ATTR_MaturityMonthYear:
+				res.mmy = tmp;
+				break;
+			case FIXML_ATTR_PutOrCall:
+				switch (*tmp) {
+				case '0':
+					res.poc = 'P';
+					break;
+				case '1':
+					res.poc = 'C';
+					break;
+				default:
+					break;
+				}
+				break;
+			case FIXML_ATTR_StrikePrice:
+				res.spx = tmp;
+				break;
+			case FIXML_ATTR_SecurityType:
+				res.sty = tmp;
+				break;
+			}
+			break;
+		default:
+			/* just overread them */
+			break;
+		}
+	}
+out:
+	if (res.sym == NULL) {
+		;
+	} else if (strchr(res.sym, ' ') != NULL) {
+		/* fuck!!! */
+		fprintf(stderr, "symbol `%s' invalid\n", res.sym);
+	} else if (res.sty == NULL) {
+		;
+	} else if (!strcmp(res.sty, "FUT") || !strcmp(res.sty, "FWD")) {
+		fprintf(stdout, "%s_%s_%s\n", res.xch, res.sym, res.mmy);
+	} else if (!strcmp(res.sty, "OOC") || !strcmp(res.sty, "OOF")) {
+		/* we need to massage the strike price, and also the mdt */
+		double spx = strtod(res.spx, NULL);
+		static char mdt[9];
+
+		__massage_mdt(mdt, res.mdt);
+		fprintf(stdout, "%s_%s_%s%c%012.6f\n",
+			res.xch, res.sym, mdt, res.poc, spx);
+	} else {
+		fprintf(stderr, "don't know how to print sectyp %s\n", res.sty);
+	}
+	return idx - 1;
+}
+
+static int
+meta(fixc_msg_t msg)
+{
+#define FIXML_MSG_MKTSNAP	(FIXML_MSG_MarketDataSnapshotFullRefresh)
+	if (msg->f35.mtyp == FIXML_MSG_MKTSNAP) {
+		return __meta(msg, 0) < 0 ? -1 : 0;
+	} else if (msg->f35.mtyp != FIXC_MSGT_BATCH) {
+		/* something weird */
+		return -1;
+	}
+	/* otherwise loop over all f35s */
+	for (size_t i = 0; i < msg->nflds; i++) {
+		if (msg->flds[i].tag == FIXML_ATTR_MsgType &&
+		    msg->flds[i].typ == FIXC_TYP_MSGTYP &&
+		    msg->flds[i].mtyp == FIXML_MSG_MKTSNAP) {
+			/* lovely */
+			i = __meta(msg, i + 1);
+		}
+	}
 	return 0;
 }
 
 static int
-rinse(const char *UNUSED(fn))
+rinse(fixc_msg_t msg)
 {
 	return 0;
+}
+
+static fixc_msg_t
+file2msg(const char *fn)
+{
+	struct stat st;
+	fixc_msg_t res = NULL;
+	void *p;
+	int fd;
+
+	/* first off, do we actually talk about a file? */
+	if (stat(fn, &st) < 0) {
+		error("cannot find file `%s'", fn);
+		return NULL;
+	}
+	/* otherwise open the file ... */
+	if ((fd = open(fn, O_RDONLY)) < 0) {
+		error("cannot open file `%s'", fn);
+		return NULL;
+	}
+	/* ... and mmap the file ... */
+	p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	if (p == MAP_FAILED) {
+		error("cannot read file `%s'", fn);
+		goto clos_out;
+	}
+	/* ... and call the reader */
+	if ((res = make_fixc_from_fixml(p, st.st_size)) == NULL) {
+		error("cannot parse file `%s'", fn);
+		goto munm_out;
+	}
+munm_out:
+	munmap(p, st.st_size);
+clos_out:
+	close(fd);
+	return res;
 }
 
 
@@ -110,11 +293,25 @@ parse_opt(int key, char *arg, struct argp_state *state)
 
 	case ARGP_KEY_ARG:
 		switch (mode) {
+			fixc_msg_t msg;
 		case OPT_RINSE:
-			rinse(arg);
-			break;
 		case OPT_META:
-			meta(arg);
+			if ((msg = file2msg(arg)) == NULL) {
+				/* next file please */
+				break;
+			}
+			switch (mode) {
+			case OPT_RINSE:
+				rinse(msg);
+				break;
+			case OPT_META:
+				meta(msg);
+				break;
+			default:
+				abort();
+			}
+			/* make sure we leave no stains */
+			free_fixc(msg);
 			break;
 		default:
 		mode_conflict:
