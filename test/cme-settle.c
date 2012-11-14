@@ -332,24 +332,14 @@ Sym=%s ID=%s Exch=%s CFI=%s SecTyp=%s MMY=%s MatDt=%s",
 static int
 meta(struct snarf_s *snf)
 {
-	if (pr_sym(snf) < 0) {
-		return -1;
-	}
 	fputc('\t', stdout);
 	(void)pr_ins(snf);
-	/* finalise the line */
-	fputc('\n', stdout);
 	return 0;
 }
 
 static int
 rinse(struct snarf_s *snf)
 {
-	if (pr_sym(snf) < 0) {
-		return -1;
-	}
-	/* finalise the line */
-	fputc('\n', stdout);
 	return 0;
 }
 
@@ -392,6 +382,7 @@ clos_out:
 static int
 work(fixc_msg_t msg, unsigned int mode)
 {
+#define OPT_SYMS		(0x0)
 #define OPT_RINSE		('r' + 0x100)
 #define OPT_META		('m' + 0x100)
 #define FIXML_MSG_MKTSNAP	(FIXML_MSG_MarketDataSnapshotFullRefresh)
@@ -414,6 +405,10 @@ work(fixc_msg_t msg, unsigned int mode)
 		snarf:
 			i = __snarf(snf, msg, i + 1);
 
+			if (pr_sym(snf) < 0) {
+				continue;
+			}
+
 			switch (mode) {
 			case OPT_RINSE:
 				rinse(snf);
@@ -421,9 +416,13 @@ work(fixc_msg_t msg, unsigned int mode)
 			case OPT_META:
 				meta(snf);
 				break;
+			case OPT_SYMS:
 			default:
 				break;
 			}
+
+			/* conclude the line */
+			fputc('\n', stdout);
 		}
 	} while (++i < msg->nflds);
 	return 0;
@@ -479,6 +478,7 @@ parse_opt(int key, char *arg, struct argp_state *state)
 	case ARGP_KEY_ARG:
 		switch (mode) {
 			fixc_msg_t msg;
+		case OPT_SYMS:
 		case OPT_RINSE:
 		case OPT_META:
 			if ((msg = file2msg(arg)) == NULL) {
@@ -493,7 +493,7 @@ parse_opt(int key, char *arg, struct argp_state *state)
 		default:
 		mode_conflict:
 			fputs("\
-Exactly one of --rinse and --meta must be specified.\n", stderr);
+Only one of --rinse and --meta must be specified.\n", stderr);
 			help |= ARGP_HELP_EXIT_ERR;
 			argp_state_help(state, stderr, help);
 			break;
