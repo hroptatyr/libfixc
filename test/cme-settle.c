@@ -73,6 +73,145 @@ error(const char *fmt, ...)
 }
 
 
+struct sym_s {
+	const char *xch;
+	const char *sym;
+	const char *mdt;
+	const char *spx;
+	const char *mmy;
+	const char *sty;
+	char poc;
+};
+
+struct ins_s {
+	const char *id;
+	const char *cfi;
+	struct sym_s undly;
+};
+
+struct snarf_s {
+	struct sym_s s;
+	struct ins_s i;
+};
+
+static void
+__snarf_fld(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
+{
+	const char *tmp;
+
+	if (UNLIKELY((tmp = fixc_get_tag(msg, idx)) == NULL)) {
+		return;
+	}
+	switch (msg->flds[idx].tag) {
+	case FIXML_ATTR_SecurityExchange:
+		tgt->s.xch = tmp;
+		break;
+	case FIXML_ATTR_Symbol:
+		tgt->s.sym = tmp;
+		break;
+	case FIXML_ATTR_MaturityDate:
+		tgt->s.mdt = tmp;
+		break;
+	case FIXML_ATTR_MaturityMonthYear:
+		tgt->s.mmy = tmp;
+		break;
+	case FIXML_ATTR_PutOrCall:
+		switch (*tmp) {
+		case '0':
+			tgt->s.poc = 'P';
+			break;
+		case '1':
+			tgt->s.poc = 'C';
+			break;
+		default:
+			break;
+		}
+		break;
+	case FIXML_ATTR_StrikePrice:
+		tgt->s.spx = tmp;
+		break;
+	case FIXML_ATTR_SecurityType:
+		tgt->s.sty = tmp;
+		break;
+	case FIXML_ATTR_SecurityID:
+		tgt->i.id = tmp;
+		break;
+	case FIXML_ATTR_CFICode:
+		tgt->i.cfi = tmp;
+		break;
+
+	case FIXML_ATTR_UnderlyingSecurityExchange:
+		tgt->i.undly.xch = tmp;
+		break;
+	case FIXML_ATTR_UnderlyingSecurityID:
+		tgt->i.undly.sym = tmp;
+		break;
+	case FIXML_ATTR_UnderlyingSecurityType:
+		tgt->i.undly.sty = tmp;
+		break;
+	case FIXML_ATTR_UnderlyingMaturityMonthYear:
+		tgt->i.undly.mmy = tmp;
+		break;
+	case FIXML_ATTR_UnderlyingPutOrCall:
+		switch (*tmp) {
+		case '0':
+			tgt->i.undly.poc = 'P';
+			break;
+		case '1':
+			tgt->i.undly.poc = 'C';
+			break;
+		default:
+			break;
+		}
+		break;
+	case FIXML_ATTR_UnderlyingStrikePrice:
+		tgt->i.undly.spx = tmp;
+		break;
+	default:
+		break;
+	}
+	return;
+}
+
+static ssize_t
+__snarf(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
+{
+	struct snarf_s res = {};
+
+	for (; idx < msg->nflds; idx++) {
+		switch (msg->flds[idx].tag) {
+		case FIXML_ATTR_MsgType:
+			/* that's it, no more to be parsed */
+			goto out;
+		case FIXML_ATTR_SecurityExchange:
+		case FIXML_ATTR_Symbol:
+		case FIXML_ATTR_MaturityDate:
+		case FIXML_ATTR_MaturityMonthYear:
+		case FIXML_ATTR_PutOrCall:
+		case FIXML_ATTR_StrikePrice:
+		case FIXML_ATTR_SecurityType:
+		case FIXML_ATTR_SecurityID:
+		case FIXML_ATTR_CFICode:
+
+		case FIXML_ATTR_UnderlyingSecurityExchange:
+		case FIXML_ATTR_UnderlyingSecurityID:
+		case FIXML_ATTR_UnderlyingSecurityType:
+		case FIXML_ATTR_UnderlyingMaturityMonthYear:
+		case FIXML_ATTR_UnderlyingStrikePrice:
+		case FIXML_ATTR_UnderlyingPutOrCall:
+			__snarf_fld(&res, msg, idx);
+			break;
+		default:
+			/* just overread them */
+			break;
+		}
+	}
+out:
+	*tgt = res;
+	return idx - 1;
+}
+
+
 static void
 __massage_mdt(char *restrict tgt, const char *src)
 {
@@ -84,98 +223,130 @@ __massage_mdt(char *restrict tgt, const char *src)
 	return;
 }
 
+static void
+__massage_spx(char *restrict tgt, const char *src)
+{
+	size_t poff;
+	size_t ndgt;
+
+	if (*src == '-') {
+		*tgt++ = *src++;
+	}
+	/* try and find the decimal point */
+	for (poff = 0; poff < 10 && *src != '\0' && *src != '.'; src++, poff++);
+	/* fill up tgt with 0 */
+	for (size_t i = 0; i + poff < 5; i++) {
+		*tgt++ = '0';
+	}
+	/* rewind src and tgt */
+	src -= poff;
+	for (ndgt = 0; ndgt <= poff + 6 && *src; ndgt++) {
+		*tgt++ = *src++;
+	}
+	/* and fill up with 0 */
+	for (; ndgt <= poff + 6; ndgt++) {
+		*tgt++ = '0';
+	}
+	*tgt = '\0';
+	return;
+}
+
+static int
+pr_sym(struct snarf_s *snf)
+{
+	if (snf->s.sym == NULL) {
+		return -1;
+	} else if (strchr(snf->s.sym, ' ') != NULL) {
+		/* fuck!!! */
+		fprintf(stderr, "symbol `%s' invalid\n", snf->s.sym);
+		return -1;
+	} else if (snf->s.sty == NULL) {
+		return -1;
+	} else if (!strcmp(snf->s.sty, "FUT") || !strcmp(snf->s.sty, "FWD")) {
+		fprintf(stdout, "%s_%s_%s",
+			snf->s.xch, snf->s.sym, snf->s.mmy);
+	} else if (!strcmp(snf->s.sty, "OOC") || !strcmp(snf->s.sty, "OOF")) {
+		/* we need to massage the strike price, and also the mdt */
+		static char mdt[9];
+		static char spx[14];
+
+		__massage_mdt(mdt, snf->s.mdt);
+		__massage_spx(spx, snf->s.spx);
+		fprintf(stdout, "%s_%s_%s%c%s",
+			snf->s.xch, snf->s.sym, mdt, snf->s.poc, spx);
+	} else {
+		fprintf(stderr, "don't know how to print sectyp %s\n",
+			snf->s.sty);
+		return -1;
+	}
+	return 0;
+}
+
+static int
+pr_ins(struct snarf_s *snf)
+{
+	if (snf->s.sym == NULL) {
+		return -1;
+	} else if (strchr(snf->s.sym, ' ') != NULL) {
+		/* fuck!!! */
+		fprintf(stderr, "symbol `%s' invalid\n", snf->s.sym);
+		return -1;
+	} else if (!strcmp(snf->s.sym, snf->i.id)) {
+		fprintf(stdout, "\
+Sym=%s Exch=%s CFI=%s SecTyp=%s MMY=%s MatDt=%s",
+			snf->s.sym, snf->s.xch, snf->i.cfi,
+			snf->s.sty, snf->s.mmy, snf->s.mdt);
+	} else {
+		fprintf(stdout, "\
+Sym=%s ID=%s Exch=%s CFI=%s SecTyp=%s MMY=%s MatDt=%s",
+			snf->s.sym, snf->i.id, snf->s.xch, snf->i.cfi,
+			snf->s.sty, snf->s.mmy, snf->s.mdt);
+	}
+	if (!strcmp(snf->s.sty, "OOC") || !strcmp(snf->s.sty, "OOF")) {
+		static const char c[] = "Call";
+		static const char p[] = "Put";
+		const char *pc = NULL;
+
+		switch (snf->s.poc) {
+		case 'C':
+			pc = c;
+			break;
+		case 'P':
+			pc = p;
+			break;
+		default:
+			break;
+		}
+		fprintf(stdout, " StrkPx=%s %s  over: ", snf->s.spx, pc);
+	}
+	if (snf->i.undly.sty) {
+		fprintf(stdout, "%s %s %s %s",
+			snf->i.undly.sym,
+			snf->i.undly.xch,
+			snf->i.undly.sty,
+			snf->i.undly.mmy);
+	}
+	return 0;
+}
+
 static ssize_t
 __meta(fixc_msg_t msg, size_t idx)
 {
-	struct sym_s {
-		const char *xch;
-		const char *sym;
-		const char *mdt;
-		const char *spx;
-		const char *mmy;
-		const char *sty;
-		char poc;
-	};
-	struct sym_s res = {};
+	struct snarf_s snf[1];
+	ssize_t res;
 
-	for (; idx < msg->nflds; idx++) {
-		struct fixc_fld_s fld = msg->flds[idx];
-
-		switch (fld.tag) {
-			const char *tmp;
-		case FIXML_ATTR_MsgType:
-			/* that's it, no more to be parsed */
-			goto out;
-		case FIXML_ATTR_SecurityExchange:
-		case FIXML_ATTR_Symbol:
-		case FIXML_ATTR_MaturityDate:
-		case FIXML_ATTR_MaturityMonthYear:
-		case FIXML_ATTR_PutOrCall:
-		case FIXML_ATTR_StrikePrice:
-		case FIXML_ATTR_SecurityType:
-			if (UNLIKELY((tmp = fixc_get_tag(msg, idx)) == NULL)) {
-				break;
-			}
-			switch (fld.tag) {
-			case FIXML_ATTR_SecurityExchange:
-				res.xch = tmp;
-				break;
-			case FIXML_ATTR_Symbol:
-				res.sym = tmp;
-				break;
-			case FIXML_ATTR_MaturityDate:
-				res.mdt = tmp;
-				break;
-			case FIXML_ATTR_MaturityMonthYear:
-				res.mmy = tmp;
-				break;
-			case FIXML_ATTR_PutOrCall:
-				switch (*tmp) {
-				case '0':
-					res.poc = 'P';
-					break;
-				case '1':
-					res.poc = 'C';
-					break;
-				default:
-					break;
-				}
-				break;
-			case FIXML_ATTR_StrikePrice:
-				res.spx = tmp;
-				break;
-			case FIXML_ATTR_SecurityType:
-				res.sty = tmp;
-				break;
-			}
-			break;
-		default:
-			/* just overread them */
-			break;
-		}
+	if ((res = __snarf(snf, msg, idx)) < 0) {
+		return -1;
 	}
-out:
-	if (res.sym == NULL) {
-		;
-	} else if (strchr(res.sym, ' ') != NULL) {
-		/* fuck!!! */
-		fprintf(stderr, "symbol `%s' invalid\n", res.sym);
-	} else if (res.sty == NULL) {
-		;
-	} else if (!strcmp(res.sty, "FUT") || !strcmp(res.sty, "FWD")) {
-		fprintf(stdout, "%s_%s_%s\n", res.xch, res.sym, res.mmy);
-	} else if (!strcmp(res.sty, "OOC") || !strcmp(res.sty, "OOF")) {
-		/* we need to massage the strike price, and also the mdt */
-		double spx = strtod(res.spx, NULL);
-		static char mdt[9];
 
-		__massage_mdt(mdt, res.mdt);
-		fprintf(stdout, "%s_%s_%s%c%012.6f\n",
-			res.xch, res.sym, mdt, res.poc, spx);
-	} else {
-		fprintf(stderr, "don't know how to print sectyp %s\n", res.sty);
+	if (pr_sym(snf) < 0) {
+		return -1;
 	}
-	return idx - 1;
+	fputc('\t', stdout);
+	(void)pr_ins(snf);
+	/* finalise the line */
+	fputc('\n', stdout);
+	return res;
 }
 
 static int
