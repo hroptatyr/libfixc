@@ -391,6 +391,23 @@ meta(struct snarf_s *snf)
 static int
 rinse(struct snarf_s *snf)
 {
+	for (size_t i = 0; i < snf->pxi.nentries; i++) {
+		if (pr_sym(snf) < 0) {
+			return -1;
+		}
+		fputc('\t', stdout);
+		switch (snf->pxi.entries[i].ent_typ) {
+		case '6':
+			fputs("stl", stdout);
+			break;
+		default:
+			break;
+		}
+		fputc('\t', stdout);
+		fputs(snf->pxi.entries[i].px, stdout);
+		/* conclude the line */
+		fputc('\n', stdout);
+	}
 	return 0;
 }
 
