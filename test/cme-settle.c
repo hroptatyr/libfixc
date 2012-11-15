@@ -378,8 +378,13 @@ Sym=%s ID=%s Exch=%s CFI=%s SecTyp=%s MMY=%s MatDt=%s",
 static int
 meta(struct snarf_s *snf)
 {
+	if (pr_sym(snf) < 0) {
+		return -1;
+	}
 	fputc('\t', stdout);
 	(void)pr_ins(snf);
+	/* conclude the line */
+	fputc('\n', stdout);
 	return 0;
 }
 
@@ -451,10 +456,6 @@ work(fixc_msg_t msg, unsigned int mode)
 		snarf:
 			i = __snarf(snf, msg, i + 1);
 
-			if (pr_sym(snf) < 0) {
-				continue;
-			}
-
 			switch (mode) {
 			case OPT_RINSE:
 				rinse(snf);
@@ -463,12 +464,12 @@ work(fixc_msg_t msg, unsigned int mode)
 				meta(snf);
 				break;
 			case OPT_SYMS:
+				if (pr_sym(snf) >= 0) {
+					fputc('\n', stdout);
+				}
 			default:
 				break;
 			}
-
-			/* conclude the line */
-			fputc('\n', stdout);
 		}
 	} while (++i < msg->nflds);
 	return 0;
