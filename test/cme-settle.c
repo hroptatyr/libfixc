@@ -1,6 +1,6 @@
-/*** fix.c -- guts for fix fields and messages
+/*** cme-settle.c -- dealing with them files in settle/
  *
- * Copyright (C) 2010-2012 Sebastian Freundt
+ * Copyright (C) 2012 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
