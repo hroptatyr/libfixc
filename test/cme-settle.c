@@ -89,9 +89,20 @@ struct ins_s {
 	struct sym_s undly;
 };
 
+struct pxnfo_s {
+	/* tag 268 */
+	size_t nentries;
+	/* that's stl, close, high, low, high_b, low_a, vol, oi, pai */
+	struct {
+		char ent_typ;
+		const char *px;
+	} entries[9];
+};
+
 struct snarf_s {
 	struct sym_s s;
 	struct ins_s i;
+	struct pxnfo_s pxi;
 };
 
 static void
@@ -164,13 +175,37 @@ __snarf_fld(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 			break;
 		}
 		break;
-	case FIXML_ATTR_UnderlyingStrikePrice:
-		tgt->i.undly.spx = tmp;
-		break;
+
 	default:
 		break;
 	}
 	return;
+}
+
+static ssize_t
+__snarf_mdent(struct snarf_s *tgt, fixc_msg_t msg, size_t idx, size_t nent)
+{
+	for (ssize_t j = -1; idx < msg->nflds; idx++) {
+		const char *tmp;
+
+		if (UNLIKELY((tmp = fixc_get_tag(msg, idx)) == NULL)) {
+			continue;
+		}
+		switch (msg->flds[idx].tag) {
+		case FIXML_ATTR_MDEntryType:
+			if (j++ >= (ssize_t)nent) {
+				return idx;
+			}
+			tgt->pxi.entries[j].ent_typ = *tmp;
+			break;
+		case FIXML_ATTR_MDEntryPx:
+			tgt->pxi.entries[j].px = tmp;
+			break;
+		default:
+			break;
+		}
+	}
+	return idx;
 }
 
 static ssize_t
@@ -201,6 +236,17 @@ __snarf(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 		case FIXML_ATTR_UnderlyingPutOrCall:
 			__snarf_fld(&res, msg, idx);
 			break;
+
+		case FIXML_ATTR_NoMDEntries: {
+			/* field type should be INT already */
+			size_t nent;
+
+			if ((nent = msg->flds[idx].i32)) {
+				res.pxi.nentries = nent;
+				idx = __snarf_mdent(&res, msg, idx + 1, nent);
+			}
+			break;
+		}
 		default:
 			/* just overread them */
 			break;
