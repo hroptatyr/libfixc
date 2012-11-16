@@ -1882,6 +1882,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="263"/>
     <field aid="571"/>
     <field aid="818"/>
+    <field aid="527"/>
     <field aid="17"/>
     <field aid="150"/>
     <field aid="37"/>
@@ -1959,10 +1960,14 @@ The Quote Cancel message supports cancellation of:
     <field aid="378"/>
     <field aid="570"/>
     <field aid="423"/>
+    <field aid="549"/>
     <component name="RootParties"/>
     <field aid="1015"/>
     <field aid="716"/>
     <field aid="717"/>
+    <field aid="1430"/>
+    <field aid="1300"/>
+    <field aid="1301"/>
     <component name="Instrument"/>
     <component name="FinancingDetails"/>
     <field aid="854"/>
@@ -1972,6 +1977,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="823"/>
     <field aid="32"/>
     <field aid="31"/>
+    <field aid="1522"/>
     <field aid="1056"/>
     <field aid="15"/>
     <field aid="120"/>
@@ -2013,13 +2019,10 @@ The Quote Cancel message supports cancellation of:
     <field aid="1132"/>
     <field aid="1134"/>
     <field aid="381"/>
+    <field aid="751"/>
     <field aid="1328"/>
     <field aid="1329"/>
     <component name="StandardTrailer"/>
-    <field aid="1430"/>
-    <field aid="1300"/>
-    <field aid="1301"/>
-    <field aid="549"/>
   </message>
   <message fix="AF" fixml="OrdMassStatReq" name="OrderMassStatusRequest" cat="OrderMassHandling" sec="Trade" not_req_xml="0">
     <description>The order mass status request message requests the status for orders matching criteria specified within the request.</description>
@@ -2508,11 +2511,13 @@ The Quote Cancel message supports cancellation of:
     <field aid="1126"/>
     <field aid="1127"/>
     <field aid="830"/>
+    <field aid="549"/>
     <component name="RootParties"/>
     <field aid="150"/>
     <field aid="572"/>
     <field aid="881"/>
     <field aid="939"/>
+    <field aid="1523"/>
     <field aid="751"/>
     <field aid="818"/>
     <field aid="263"/>
@@ -2530,6 +2535,9 @@ The Quote Cancel message supports cancellation of:
     <field aid="854"/>
     <field aid="32"/>
     <field aid="31"/>
+    <field aid="1430"/>
+    <field aid="1300"/>
+    <field aid="1301"/>
     <component name="Instrument"/>
     <field aid="669"/>
     <field aid="1056"/>
@@ -2575,10 +2583,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="64"/>
     <field aid="1329"/>
     <component name="StandardTrailer"/>
-    <field aid="1430"/>
-    <field aid="1300"/>
-    <field aid="1301"/>
-    <field aid="549"/>
   </message>
   <message fix="AS" fixml="AllocRpt" name="AllocationReport" cat="Allocation" sec="Post Trade" not_req_xml="0">
     <description>Sent from sell-side to buy-side, sell-side to 3rd-party or 3rd-party to buy-side, the Allocation Report (Claim) provides account breakdown of an order or set of orders plus any additional follow-up front-office information developed post-trade during the trade allocation, matching and calculation phase. In versions of FIX prior to version 4.4, this functionality was provided through the Allocation message. Depending on the needs of the market and the timing of "confirmed" status, the role of Allocation Report can be taken over in whole or in part by the Confirmation message.</description>
@@ -5208,6 +5212,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="661"/>
     <field aid="736"/>
     <field aid="467"/>
+    <field aid="1593"/>
     <component name="NestedParties2"/>
     <field aid="80"/>
     <field aid="993"/>
@@ -5221,6 +5226,8 @@ The Quote Cancel message supports cancellation of:
     <field aid="54"/>
     <field aid="1009"/>
     <field aid="1005"/>
+    <field aid="1506"/>
+    <field aid="1507"/>
     <field aid="1006"/>
     <field aid="1007"/>
     <field aid="83"/>
@@ -5294,6 +5301,7 @@ The Quote Cancel message supports cancellation of:
     <description/>
     <field aid="555"/>
     <component name="InstrumentLeg"/>
+    <component name="LegPositionAmountData"/>
     <field aid="687"/>
     <field aid="690"/>
     <field aid="990"/>
@@ -5306,6 +5314,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="587"/>
     <field aid="588"/>
     <field aid="637"/>
+    <field aid="686"/>
     <field aid="675"/>
     <field aid="1073"/>
     <field aid="1074"/>
@@ -5315,6 +5324,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="1383"/>
     <field aid="1384"/>
     <field aid="1418"/>
+    <field aid="1591"/>
     <component name="TradeCapLegUnderlyingsGrp"/>
   </component>
   <component fixml="TrdSes" name="TrdgSesGrp" cat="Common" type="ImplicitBlockRepeating" not_req_xml="0">
@@ -5509,6 +5519,9 @@ The Quote Cancel message supports cancellation of:
     <description/>
     <field aid="552"/>
     <field aid="54"/>
+    <field aid="1427"/>
+    <field aid="1506"/>
+    <field aid="1507"/>
     <component name="Parties"/>
     <field aid="1"/>
     <field aid="660"/>
@@ -6099,6 +6112,14 @@ The Quote Cancel message supports cancellation of:
     <field aid="775"/>
     <field aid="1629"/>
     <field aid="1091"/>
+  </component>
+  <component fixml="TrdRptOrdDetl" name="LegPositionAmountData" cat="TradeCapture" type="BlockRepeating" not_req_xml="0">
+    <description/>
+    <field aid="1586"/>
+    <field aid="1587"/>
+    <field aid="1588"/>
+    <field aid="1589"/>
+    <field aid="1590"/>
   </component>
   <component fixml="RtSrc" name="RateSource" cat="Common" type="BlockRepeating" not_req_xml="0">
     <description/>
