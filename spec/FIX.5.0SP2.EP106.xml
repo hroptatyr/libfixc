@@ -11519,8 +11519,23 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <field aid="1677" fixml="" name="NoPartyRiskLimits" type="NumInGroup" not_req_xml="1">
     <description>Number of party risk limits.</description>
   </field>
+  <field aid="1679" fixml="TrdgStat" name="SecurityMassTradingStatus" type="int" not_req_xml="0" eid="326">
+    <description>Identifies the trading status applicable to a group of instruments.</description>
+  </field>
+  <field aid="1680" fixml="SecTrdEvnt" name="SecurityMassTradingEvent" type="int" not_req_xml="0" eid="1174">
+    <description>Identifies an event related to the mass trading status.</description>
+  </field>
+  <field aid="1681" fixml="HaltRsn" name="MassHaltReason" type="int" not_req_xml="0" eid="327">
+    <description>Denotes the reason for the Opening Delay or Trading halt of a group of securities.</description>
+  </field>
+  <field aid="1682" fixml="TrdgStat" name="MDSecurityTradingStatus" type="int" not_req_xml="0" eid="326">
+    <description>Identifies the trading status applicable to the instrument in the market data message.</description>
+  </field>
   <field aid="1683" fixml="MDSubFeedTyp" name="MDSubFeedType" type="String" not_req_xml="0">
     <description>Describes a sub-class for a given class of service defined by MDFeedType (1022)</description>
+  </field>
+  <field aid="1684" fixml="HaltRsn" name="MDHaltReason" type="int" not_req_xml="0" eid="327">
+    <description>Denotes the reason for the Opening Delay or Trading Halt.</description>
   </field>
   <field aid="1691" fixml="ID" name="PartyDetailID" type="String" not_req_xml="0">
     <description>Party identifier within Parties Reference Data messages.</description>
