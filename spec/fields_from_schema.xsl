@@ -22,7 +22,7 @@
         <xsl:value-of select="@Tag"/>
       </xsl:attribute>
       <xsl:attribute name="fixml">
-        <xsl:value-of select="@AbbrName[1]"/>
+        <xsl:value-of select="@AbbrName"/>
       </xsl:attribute>
       <xsl:attribute name="name">
         <xsl:value-of select="@name"/>
@@ -33,7 +33,22 @@
       <xsl:attribute name="not_req_xml">
         <xsl:text>0</xsl:text>
       </xsl:attribute>
+      <xsl:if test="@UsesEnumsFromTag">
+        <xsl:attribute name="eid">
+          <xsl:value-of select="@UsesEnumsFromTag"/>
+        </xsl:attribute>
+      </xsl:if>
       <xsl:apply-templates select="../../xs:documentation" mode="field"/>
+      <xsl:if test="@CategoryAbbrName">
+        <xsl:element name="alias">
+          <xsl:attribute name="cat">
+            <xsl:value-of select="@Category"/>
+          </xsl:attribute>
+          <xsl:attribute name="fixml">
+            <xsl:value-of select="@CategoryAbbrName"/>
+          </xsl:attribute>
+        </xsl:element>
+      </xsl:if>
     </xsl:element>
   </xsl:template>
 
