@@ -185,6 +185,9 @@ fix50sp2ep104.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP104.xml
 fix50sp2ep105.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP105.xml
 	$(LN_S) -f $< $@
 
+fix50sp2ep106.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP106.xml
+	$(LN_S) -f $< $@
+
 fix50sp1.xml: $(top_srcdir)/spec/FIX.5.0SP1.xml
 	$(LN_S) -f $< $@
 
