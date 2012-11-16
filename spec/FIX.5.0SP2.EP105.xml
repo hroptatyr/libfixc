@@ -11283,6 +11283,9 @@ See SettlType(63) field for description.</description>
   <field aid="1568" fixml="Typ" name="RelatedPartyDetailSubIDType" type="int" not_req_xml="0" eid="803">
     <description>Type of RelatedPartyDetailSubID(1567) value.</description>
   </field>
+  <field aid="1569" fixml="" name="NoRelatedPartyDetailAltID" type="NumInGroup" not_req_xml="1">
+    <description>Number of related party detail alternate identifiers.</description>
+  </field>
   <field aid="1570" fixml="ID" name="RelatedPartyDetailAltID" type="String" not_req_xml="0">
     <description>An alternate party identifier for the party specified in RelatedPartyID(1563).</description>
   </field>
