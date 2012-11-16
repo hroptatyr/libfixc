@@ -5571,7 +5571,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="83"/>
     <field aid="1008"/>
     <component name="SideTrdRegTS"/>
-    <field aid="1427"/>
     <field aid="1428"/>
     <field aid="1429"/>
     <field aid="1115"/>
