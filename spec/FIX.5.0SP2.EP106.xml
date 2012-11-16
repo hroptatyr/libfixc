@@ -5435,6 +5435,22 @@ The Quote Cancel message supports cancellation of:
     <component name="LegStipulations"/>
     <component name="LegBenchmarkCurveData"/>
   </component>
+  <component fixml="SecMassStat" name="SecMassStatGrp" cat="SecuritiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description/>
+    <field aid="146"/>
+    <component name="Instrument"/>
+    <component name="InstrumentExtension"/>
+    <component name="UndInstrmtGrp"/>
+    <component name="InstrmtLegGrp"/>
+    <field aid="326"/>
+    <field aid="1174"/>
+    <field aid="327"/>
+    <field aid="291"/>
+    <field aid="292"/>
+    <field aid="58"/>
+    <field aid="354"/>
+    <field aid="355"/>
+  </component>
   <component fixml="UndDlvAmt" name="UnderlyingAmount" cat="PositionMaintenance" type="BlockRepeating" not_req_xml="0">
     <description>The UnderlyingAmount component block is used to supply the underlying amounts, dates, settlement status and method for derivative positions.</description>
     <field aid="984"/>
