@@ -11464,6 +11464,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <cat name="MarketStructureReferenceData" fixml="marketstructure" not_req_xml="0"/>
   <cat name="SecuritiesReferenceData" fixml="securitiesreference" not_req_xml="0"/>
   <cat name="MarginRequirementManagement" fixml="marginrequirement" not_req_xml="0"/>
+  <cat name="PartiesReferenceData" fixml="partiesreferencedata" not_req_xml="0"/>
   <enum eid="4">
     <item value="B">Buy</item>
     <item value="S">Sell</item>
