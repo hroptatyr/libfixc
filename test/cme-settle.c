@@ -95,7 +95,11 @@ struct pxnfo_s {
 	/* that's stl, close, high, low, high_b, low_a, vol, oi, pai */
 	struct {
 		char ent_typ;
-		const char *px;
+		union {
+			const char *v;
+			const char *px;
+			const char *sz;
+		};
 	} entries[9];
 };
 
@@ -206,6 +210,9 @@ __snarf_mdent(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 	case FIXML_ATTR_MDEntryPx:
 		tgt->pxi.entries[j].px = tmp;
 		break;
+	case FIXML_ATTR_MDEntrySize:
+		tgt->pxi.entries[j].sz = tmp;
+		break;
 	default:
 		break;
 	}
@@ -244,6 +251,9 @@ __snarf(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 		case FIXML_ATTR_NoMDEntries:
 		case FIXML_ATTR_MDEntryType:
 		case FIXML_ATTR_MDEntryPx:
+		case FIXML_ATTR_MDEntrySize:
+		case FIXML_ATTR_MDEntryDate:
+		case FIXML_ATTR_MDEntryTime:
 			__snarf_mdent(&res, msg, idx);
 			break;
 
@@ -400,11 +410,39 @@ rinse(struct snarf_s *snf)
 		case '6':
 			fputs("stl", stdout);
 			break;
+		case '5':
+			fputs("close", stdout);
+			break;
+		case '7':
+			fputs("high", stdout);
+			break;
+		case '8':
+			fputs("low", stdout);
+			break;
+		case 'N':
+			fputs("high_b", stdout);
+			break;
+		case 'O':
+			fputs("low_a", stdout);
+			break;
+		case 'B':
+			fputs("vol", stdout);
+			break;
+		case 'C':
+			fputs("oi", stdout);
+			break;
+		case 'z':
+			fputs("PAI_rate", stdout);
+			break;
+
 		default:
+			fputs("unknown", stdout);
 			break;
 		}
 		fputc('\t', stdout);
-		fputs(snf->pxi.entries[i].px, stdout);
+		if (LIKELY(snf->pxi.entries[i].v != NULL)) {
+			fputs(snf->pxi.entries[i].v, stdout);
+		}
 		/* conclude the line */
 		fputc('\n', stdout);
 	}
