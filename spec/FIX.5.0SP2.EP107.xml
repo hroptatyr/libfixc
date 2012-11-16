@@ -5097,7 +5097,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="146"/>
     <component name="Instrument"/>
     <component name="InstrumentExtension"/>
-    <component name="SecClsfnGrp"/>
+    <component name="SecurityClassificationGrp"/>
     <component name="FinancingDetails"/>
     <component name="SecurityTradingRules"/>
     <component name="StrikeRules"/>
