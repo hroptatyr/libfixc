@@ -90,6 +90,7 @@ struct ins_s {
 };
 
 struct pxnfo_s {
+	const char *rptdt;
 	/* tag 268 */
 	size_t nentries;
 	/* that's stl, close, high, low, high_b, low_a, vol, oi, pai */
@@ -227,6 +228,9 @@ __snarf_mdent(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 		tgt->pxi.entries[i].px = tmp;
 		break;
 	}
+	case FIXML_ATTR_ClearingBusinessDate:
+		tgt->pxi.rptdt = tmp;
+		break;
 	default:
 		break;
 	}
@@ -270,6 +274,7 @@ __snarf(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 		case FIXML_ATTR_MDEntryTime:
 		case FIXML_ATTR_HighPx:
 		case FIXML_ATTR_LowPx:
+		case FIXML_ATTR_ClearingBusinessDate:
 			__snarf_mdent(&res, msg, idx);
 			break;
 
@@ -420,6 +425,10 @@ rinse(struct snarf_s *snf)
 	for (size_t i = 0; i < snf->pxi.nentries; i++) {
 		if (pr_sym(snf) < 0) {
 			return -1;
+		}
+		fputc('\t', stdout);
+		if (LIKELY(snf->pxi.rptdt != NULL)) {
+			fputs(snf->pxi.rptdt, stdout);
 		}
 		fputc('\t', stdout);
 		switch (snf->pxi.entries[i].ent_typ) {
