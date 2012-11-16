@@ -11103,6 +11103,9 @@ ComplexEventEndTime must always be greater than or equal to ComplexEventStartTim
   <field aid="1505" fixml="ReqID" name="PartyDetailsListRequestID" type="String" not_req_xml="0">
     <description>Unique identifier for PartyDetailsListRequest.</description>
   </field>
+  <field aid="1508" fixml="" name="NoRequestedPartyRoles" type="NumInGroup" not_req_xml="1">
+    <description>Number of requested party roles.</description>
+  </field>
   <field aid="1509" fixml="R" name="RequestedPartyRole" type="int" not_req_xml="0" eid="452">
     <description>Identifies the type or role of party that has been requested.</description>
   </field>
@@ -11115,20 +11118,32 @@ ComplexEventEndTime must always be greater than or equal to ComplexEventStartTim
   <field aid="1512" fixml="TotNoPtys" name="TotNoParties" type="int" not_req_xml="0">
     <description>Total number of PartyListGrp returned.</description>
   </field>
+  <field aid="1514" fixml="" name="NoPartyRelationships" type="NumInGroup" not_req_xml="1">
+    <description>Number of party relationships.</description>
+  </field>
   <field aid="1515" fixml="Rltnshp" name="PartyRelationship" type="int" not_req_xml="0">
     <description>Used to specify the type of the party relationship.</description>
   </field>
   <field aid="1517" fixml="ID" name="PartyDetailAltID" type="String" not_req_xml="0">
     <description>An alternate party identifier for the party specified in PartyDetailID(1691)</description>
   </field>
+  <field aid="1516" fixml="" name="NoPartyDetailAltID" type="NumInGroup" not_req_xml="1">
+    <description>Number of party alternative identifiers.</description>
+  </field>
   <field aid="1518" fixml="Src" name="PartyDetailAltIDSource" type="char" not_req_xml="0" eid="447">
     <description>Identifies the source of the PartyDetailAltID(1517) value.</description>
+  </field>
+  <field aid="1519" fixml="" name="NoPartyDetailAltSubIDs" type="NumInGroup" not_req_xml="1">
+    <description>Number of party detail alternate sub-identifiers.</description>
   </field>
   <field aid="1520" fixml="ID" name="PartyDetailAltSubID" type="String" not_req_xml="0">
     <description>Sub-identifier for the party specified in PartyDetailAltID(1517).</description>
   </field>
   <field aid="1521" fixml="Typ" name="PartyDetailAltSubIDType" type="int" not_req_xml="0" eid="803">
     <description>Type of PartyDetailAltSubID(1520) value.</description>
+  </field>
+  <field aid="1529" fixml="" name="NoRiskLimitTypes" type="NumInGroup" not_req_xml="1">
+    <description>Number of risk limits with associated warning levels.</description>
   </field>
   <field aid="1530" fixml="Typ" name="RiskLimitType" type="int" not_req_xml="0">
     <description>Used to specify the type of risk limit amount of position limit quantity.</description>
@@ -11141,6 +11156,9 @@ ComplexEventEndTime must always be greater than or equal to ComplexEventStartTim
   </field>
   <field aid="1533" fixml="Pltfm" name="RiskLimitPlatform" type="String" not_req_xml="0">
     <description>The area to which risk limit is applicable. This can be a trading platform or an offering.</description>
+  </field>
+  <field aid="1534" fixml="" name="NoRiskInstrumentScopes" type="NumInGroup" not_req_xml="1">
+    <description>Number of risk instrument scopes.</description>
   </field>
   <field aid="1535" fixml="Oper" name="InstrumentScopeOperator" type="int" not_req_xml="0">
     <description>Operator to perform on the instrument(s) specified</description>
@@ -11160,6 +11178,9 @@ See SecurityID(48) field for description.</description>
   <field aid="1539" fixml="Src" name="InstrumentScopeSecurityIDSource" type="String" not_req_xml="0" eid="22">
     <description>Used to limit instrument scope to specified security identifier source.
 See SecurityIDSource(22) field for description.</description>
+  </field>
+  <field aid="1540" fixml="" name="NoInstrumentScopeSecurityAltID" type="NumInGroup" not_req_xml="1">
+    <description>Number of alternate security identifier for the specified InstrumentScopeSecurityID(1538).</description>
   </field>
   <field aid="1541" fixml="AltID" name="InstrumentScopeSecurityAltID" type="String" not_req_xml="0">
     <description>Used to limit instrument scope to specified security alternate identifier.
@@ -11232,11 +11253,17 @@ See SettlType(63) field for description.</description>
   <field aid="1558" fixml="Mult" name="RiskInstrumentMultiplier" type="float" not_req_xml="0">
     <description>Multiplier applied to the transaction amount for comparison with risk limits. Default if not specified is 1.0.</description>
   </field>
+  <field aid="1559" fixml="" name="NoRiskWarningLevels" type="NumInGroup" not_req_xml="1">
+    <description>Number of risk warning levels.</description>
+  </field>
   <field aid="1560" fixml="Pct" name="RiskWarningLevelPercent" type="Percentage" not_req_xml="0">
     <description>Percent of risk limit at which a warning is issued.</description>
   </field>
   <field aid="1561" fixml="Nme" name="RiskWarningLevelName" type="String" not_req_xml="0">
     <description>Name or error message associated with the risk warning level.</description>
+  </field>
+  <field aid="1562" fixml="" name="NoRelatedPartyDetailID" type="NumInGroup" not_req_xml="1">
+    <description>Number of related party detail identifiers.</description>
   </field>
   <field aid="1563" fixml="ID" name="RelatedPartyDetailID" type="String" not_req_xml="0">
     <description>Party identifier for the party related to the party specified in PartyDetailID(1691).</description>
@@ -11246,6 +11273,9 @@ See SettlType(63) field for description.</description>
   </field>
   <field aid="1565" fixml="R" name="RelatedPartyDetailRole" type="int" not_req_xml="0" eid="452">
     <description>Identifies the type or role of the RelatedPartyDetailID(1563) specified.</description>
+  </field>
+  <field aid="1566" fixml="" name="NoRelatedPartyDetailSubIDs" type="NumInGroup" not_req_xml="1">
+    <description>Number of related party detail sub-identifiers.</description>
   </field>
   <field aid="1567" fixml="ID" name="RelatedPartyDetailSubID" type="String" not_req_xml="0">
     <description>Sub-identifier for the party specified in RelatedPartyID(1563).</description>
@@ -11259,6 +11289,9 @@ See SettlType(63) field for description.</description>
   <field aid="1571" fixml="Src" name="RelatedPartyDetailAltIDSource" type="char" not_req_xml="0" eid="447">
     <description>Identifies the source of the RelatedPartyDetailAltID(1570) value.</description>
   </field>
+  <field aid="1572" fixml="NoRelatedPartyDetailAltSubIDs" name="" type="NumInGroup" not_req_xml="1">
+    <description>Number of related party detail alternate sub-identifiers.</description>
+  </field>
   <field aid="1573" fixml="ID" name="RelatedPartyDetailAltSubID" type="String" not_req_xml="0">
     <description>Sub-identifier for the party specified in RelatedPartyDetailAltID(1570).</description>
   </field>
@@ -11271,6 +11304,12 @@ See SecurityExchange(207) field for description.</description>
   </field>
   <field aid="1617" fixml="AsgnTyp" name="StreamAsgnType" type="int" not_req_xml="0">
     <description>The type of assignment being affected in the Stream Assignment Report.</description>
+  </field>
+  <field aid="1620" fixml="" name="InstrumentScopeEncodedSecurityDescLen" type="Length" not_req_xml="1">
+    <description>Byte length of encoded (non-ASCII characters) InstrumentScopeEncodedSecurityDesc (1621) field</description>
+  </field>
+  <field aid="1621" fixml="" name="InstrumentScopeEncodedSecurityDesc" type="date" not_req_xml="1">
+    <description>Encoded (non-ASCII characters) representation of the InstrumentScopeSecurityDesc (1556) field in the encoded format specified via the MessageEncoding (347) field. If used, the ASCII (English) representation should also be specified in the InstrumentScopeSecurityDesc field.</description>
   </field>
   <field aid="1622" fixml="Typ" name="FillYieldType" type="String" not_req_xml="0">
     <description>Yield Type, using same values as YieldType (235)</description>
@@ -11379,6 +11418,12 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <field aid="1655" fixml="MktMkrActvty" name="MarketMakerActivity" type="int" not_req_xml="0">
     <description>Indicates market maker participation in security.</description>
   </field>
+  <field aid="1656" fixml="" name="NoInstrumentScopes" type="NumInGroup" not_req_xml="1">
+    <description>Number of instrument scopes.</description>
+  </field>
+  <field aid="1657" fixml="" name="NoRequestingPartyIDs" type="NumInGroup" not_req_xml="1">
+    <description>Number of requesting party identifiers.</description>
+  </field>
   <field aid="1658" fixml="ID" name="RequestingPartyID" type="String" not_req_xml="0">
     <description>Party identifier for the requesting party.</description>
   </field>
@@ -11388,11 +11433,20 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <field aid="1660" fixml="R" name="RequestingPartyRole" type="int" not_req_xml="0" eid="452">
     <description>Identifies the type or role of the RequestingPartyID(1658) specified.</description>
   </field>
+  <field aid="1661" fixml="" name="NoRequestingPartySubIDs" type="NumInGroup" not_req_xml="1">
+    <description>Number of requesting party sub-identifiers.</description>
+  </field>
   <field aid="1662" fixml="ID" name="RequestingPartySubID" type="String" not_req_xml="0">
     <description>Sub-identifier for the party specified in RequestingPartyID(1658).</description>
   </field>
   <field aid="1663" fixml="Typ" name="RequestingPartySubIDType" type="int" not_req_xml="0" eid="803">
     <description>Type of RequestingPartySubID(1662) value.</description>
+  </field>
+  <field aid="1664" fixml="" name="EncodedRejectTextLen" type="Length" not_req_xml="1">
+    <description>Byte length of encoded (non-ASCII characters) EncodedRejectText(1665) field.</description>
+  </field>
+  <field aid="1665" fixml="" name="EncodedRejectText" type="data" not_req_xml="1">
+    <description>Encoded (non-ASCII characters) representation of the RejectText(1328) field in the encoded format specified via the MessageEncoding(347) field. If used, the ASCII (English) representation should also be specified in the RejectText(1328) field.</description>
   </field>
   <field aid="1666" fixml="ReqID" name="RiskLimitRequestID" type="String" not_req_xml="0">
     <description>Unique identifier for the PartyRiskLimitsRequest</description>
@@ -11400,8 +11454,17 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <field aid="1667" fixml="RptID" name="RiskLimitReportID" type="String" not_req_xml="0">
     <description>Identifier for the PartyRiskLimitsReport</description>
   </field>
+  <field aid="1668" fixml="" name="NoRequestedRiskLimitType" type="NumInGroup" not_req_xml="1">
+    <description>Number of risk limit types requested.</description>
+  </field>
+  <field aid="1669" fixml="" name="NoRiskLimits" type="NumInGroup" not_req_xml="1">
+    <description>Number of risk limits for different instrument scopes.</description>
+  </field>
   <field aid="1670" fixml="ID" name="RiskLimitID" type="String" not_req_xml="0">
     <description>Unique identifier for a specific NoRiskLimits (1669) repeating group instance</description>
+  </field>
+  <field aid="1671" fixml="" name="NoPartyDetails" type="NumInGroup" not_req_xml="1">
+    <description>Number of party details.</description>
   </field>
   <field aid="1672" fixml="Stat" name="PartyDetailStatus" type="int" not_req_xml="0">
     <description>Indicates the status of the party identified with PartyDetailID(1691).</description>
@@ -11415,6 +11478,12 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <field aid="1675" fixml="Qual" name="RelatedPartyDetailRoleQualifier" type="String" not_req_xml="0" eid="1674">
     <description>Qualifies the value of RelatedPartyRole(1565)</description>
   </field>
+  <field aid="1676" fixml="" name="NoPartyUpdates" type="NumInGroup" not_req_xml="1">
+    <description>Number of party updates.</description>
+  </field>
+  <field aid="1677" fixml="" name="NoPartyRiskLimits" type="NumInGroup" not_req_xml="1">
+    <description>Number of party risk limits.</description>
+  </field>
   <field aid="1691" fixml="ID" name="PartyDetailID" type="String" not_req_xml="0">
     <description>Party identifier within Parties Reference Data messages.</description>
   </field>
@@ -11423,6 +11492,9 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   </field>
   <field aid="1693" fixml="R" name="PartyDetailRole" type="int" not_req_xml="0" eid="452">
     <description>Identifies the type or role of PartyDetailID(1691) specified.</description>
+  </field>
+  <field aid="1694" fixml="" name="NoPartyDetailSubIDs" type="NumInGroup" not_req_xml="1">
+    <description>Number of party detail sub-identifiers.</description>
   </field>
   <field aid="1695" fixml="ID" name="PartyDetailSubID" type="String" not_req_xml="0">
     <description>Sub-identifier for the party specified in PartyDetailID(1691).</description>
