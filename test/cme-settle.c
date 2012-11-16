@@ -96,6 +96,8 @@ struct pxnfo_s {
 	/* that's stl, close, high, low, high_b, low_a, vol, oi, pai */
 	struct {
 		char ent_typ;
+		const char *d;
+		const char *t;
 		union {
 			const char *v;
 			const char *px;
@@ -229,8 +231,18 @@ __snarf_mdent(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 		break;
 	}
 	case FIXML_ATTR_ClearingBusinessDate:
+		/* this one's actually defined a few levels upward*/
 		tgt->pxi.rptdt = tmp;
 		break;
+	case FIXML_ATTR_MDEntryDate:
+		/* if there's a specific date for an md entry it'd be in here */
+		tgt->pxi.entries[j].d = tmp;
+		break;
+	case FIXML_ATTR_MDEntryTime:
+		/* or a specific time */
+		tgt->pxi.entries[j].t = tmp;
+		break;
+
 	default:
 		break;
 	}
@@ -427,7 +439,13 @@ rinse(struct snarf_s *snf)
 			return -1;
 		}
 		fputc('\t', stdout);
-		if (LIKELY(snf->pxi.rptdt != NULL)) {
+		if (UNLIKELY(snf->pxi.entries[i].d != NULL)) {
+			/* specific to this entry date (and time)
+			 * we use this one in favour of the more generic
+			 * rpt bizdt in the next branch
+			 * the time will go unprinted though */
+			fputs(snf->pxi.entries[i].d, stdout);
+		} else if (LIKELY(snf->pxi.rptdt != NULL)) {
 			fputs(snf->pxi.rptdt, stdout);
 		}
 		fputc('\t', stdout);
