@@ -8784,7 +8784,7 @@ See Pool (691) for description and valid values.</description>
   </field>
   <field aid="751" fixml="RejRsn" name="TradeReportRejectReason" type="int" not_req_xml="0">
     <description>Reason Trade Capture Request was rejected.
-4000+ Reserved and available for bi-laterally agreed upon user-defined values</description>
+100+ Reserved and available for bi-laterally agreed upon user-defined values</description>
   </field>
   <field aid="752" fixml="MLegRptTyp" name="SideMultiLegReportingType" type="int" not_req_xml="0">
     <description>Used to indicate if the side being reported on Trade Capture Report represents a leg of a multileg instrument or a single security.</description>
@@ -10001,12 +10001,6 @@ Same values as PartySubIDType (803)</description>
   <field aid="1139" fixml="ExchSpeclInstr" name="ExchangeSpecialInstructions" type="String" not_req_xml="0">
     <description>Free format text string related to exchange.</description>
   </field>
-  <field aid="1213" fixml="MatTm" name="UnderlyingMaturityTime" type="TZTimeOnly" not_req_xml="0">
-    <description>Time of security's maturity expressed in local time with offset to UTC specified</description>
-  </field>
-  <field aid="1212" fixml="MatTm" name="LegMaturityTime" type="TZTimeOnly" not_req_xml="0">
-    <description>Time of security's maturity expressed in local time with offset to UTC specified</description>
-  </field>
   <field aid="1140" fixml="MaxTrdVol" name="MaxTradeVol" type="Qty" not_req_xml="0">
     <description>The maximum order quantity that can be submitted for a security.</description>
   </field>
@@ -10172,12 +10166,6 @@ Values are bilaterally agreed.</description>
   <field aid="1194" fixml="ExerStyle" name="ExerciseStyle" type="int" not_req_xml="0">
     <description>Type of exercise of a derivatives security</description>
   </field>
-  <field aid="1419" fixml="ExerStyle" name="UnderlyingExerciseStyle" type="int" not_req_xml="0" eid="1194">
-    <description>Type of exercise of a derivatives security</description>
-  </field>
-  <field aid="1420" fixml="ExerStyle" name="LegExerciseStyle" type="int" not_req_xml="0" eid="1194">
-    <description>Type of exercise of a derivatives security</description>
-  </field>
   <field aid="1195" fixml="OptPayAmt" name="OptPayoutAmount" type="Amt" not_req_xml="0">
     <description>Cash amount indicating the pay out associated with an option. For binary options this is a fixed amount. 
 Conditionally required if OptPayoutType(1482) is set to binary.</description>
@@ -10230,6 +10218,12 @@ Conditionally required if OptPayoutType(1482) is set to binary.</description>
   <field aid="1211" fixml="Val" name="NestedInstrAttribValue" type="String" not_req_xml="0">
     <description>Attribute value appropriate to the NestedInstrAttribType field</description>
   </field>
+  <field aid="1212" fixml="MatTm" name="LegMaturityTime" type="TZTimeOnly" not_req_xml="0">
+    <description>Time of security's maturity expressed in local time with offset to UTC specified</description>
+  </field>
+  <field aid="1213" fixml="MatTm" name="UnderlyingMaturityTime" type="TZTimeOnly" not_req_xml="0">
+    <description>Time of security's maturity expressed in local time with offset to UTC specified</description>
+  </field>
   <field aid="1214" fixml="Sym" name="DerivativeSymbol" type="String" not_req_xml="0">
     <description>Refer to definition for Symbol(55)</description>
   </field>
@@ -10254,14 +10248,14 @@ Conditionally required if OptPayoutType(1482) is set to binary.</description>
   <field aid="1221" fixml="LowLmtPx" name="SecondaryLowLimitPrice" type="Price" not_req_xml="0">
     <description>Refer to definition of LowLimitPrice(1148)</description>
   </field>
-  <field aid="1230" fixml="HiLmtPx" name="SecondaryHighLimitPrice" type="Price" not_req_xml="0">
-    <description>Refer to definition of HighLimitPrice(1149)</description>
-  </field>
   <field aid="1222" fixml="MatRuleID" name="MaturityRuleID" type="String" not_req_xml="0">
     <description>Allows maturity rule to be referenced via an identifier so that rules do not need to be explicitly enumerated</description>
   </field>
   <field aid="1223" fixml="StrkRule" name="StrikeRuleID" type="String" not_req_xml="0">
     <description>Allows strike rule to be referenced via an identifier so that rules do not need to be explicitly enumerated</description>
+  </field>
+  <field aid="1224" fixml="UOMQty" name="LegUnitOfMeasureQty" type="Qty" not_req_xml="0">
+    <description>Refer to definition of UnitOfMeasureQty(1147)</description>
   </field>
   <field aid="1225" fixml="OptPayAmt" name="DerivativeOptPayAmount" type="Amt" not_req_xml="0">
     <description>Cash amount indicating the pay out associated with an option. For binary options this is a fixed amount</description>
@@ -10277,6 +10271,9 @@ Conditionally required if OptPayoutType(1482) is set to binary.</description>
   </field>
   <field aid="1229" fixml="MMYIncr" name="MaturityMonthYearIncrement" type="int" not_req_xml="0">
     <description>Increment between successive maturities for an option class</description>
+  </field>
+  <field aid="1230" fixml="HiLmtPx" name="SecondaryHighLimitPrice" type="Price" not_req_xml="0">
+    <description>Refer to definition of HighLimitPrice(1149)</description>
   </field>
   <field aid="1231" fixml="MinLotSz" name="MinLotSize" type="Qty" not_req_xml="0">
     <description>Minimum lot size allowed based on lot type specified in LotType(1093)</description>
@@ -10554,9 +10551,6 @@ Conditionally required if OptPayoutType(1482) is set to binary.</description>
   <field aid="1358" fixml="PutCall" name="LegPutOrCall" type="int" not_req_xml="0">
     <description>Refer to definition of PutOrCall(201)</description>
   </field>
-  <field aid="1224" fixml="UOMQty" name="LegUnitOfMeasureQty" type="Qty" not_req_xml="0">
-    <description>Refer to definition of UnitOfMeasureQty(1147)</description>
-  </field>
   <field aid="1421" fixml="PxUOM" name="LegPriceUnitOfMeasure" type="String" not_req_xml="0" eid="996">
     <description>Refer to definition for PriceUnitOfMeasure(1191)</description>
   </field>
@@ -10635,9 +10629,6 @@ Conditionally required if OptPayoutType(1482) is set to binary.</description>
   <field aid="1339" fixml="MMY" name="UnderlyingLegMaturityMonthYear" type="MonthYear" not_req_xml="0">
     <description>Refer to definition for MaturityMonthYear(200)</description>
   </field>
-  <field aid="1343" fixml="PutCall" name="UnderlyingLegPutOrCall" type="int" not_req_xml="0">
-    <description>Refer to definition for PutOrCall(201)</description>
-  </field>
   <field aid="1340" fixml="StrkPx" name="UnderlyingLegStrikePrice" type="Price" not_req_xml="0">
     <description>Refer to definition for StrikePrice(202)</description>
   </field>
@@ -10646,6 +10637,9 @@ Conditionally required if OptPayoutType(1482) is set to binary.</description>
   </field>
   <field aid="1342" fixml="NoOfLegUnderlyings" name="NoOfLegUnderlyings" type="NumInGroup" not_req_xml="1">
     <description>Number of Underlyings, Identifies the Underlying of the Leg</description>
+  </field>
+  <field aid="1343" fixml="PutCall" name="UnderlyingLegPutOrCall" type="int" not_req_xml="0">
+    <description>Refer to definition for PutOrCall(201)</description>
   </field>
   <field aid="1344" fixml="CFI" name="UnderlyingLegCFICode" type="String" not_req_xml="0">
     <description>Refer to definition for CFICode(461)</description>
@@ -10856,6 +10850,12 @@ Same values as ExecInst(18)</description>
   </field>
   <field aid="1418" fixml="LastQty" name="LegLastQty" type="Qty" not_req_xml="0">
     <description>Fill quantity for the leg instrument</description>
+  </field>
+  <field aid="1419" fixml="ExerStyle" name="UnderlyingExerciseStyle" type="int" not_req_xml="0" eid="1194">
+    <description>Type of exercise of a derivatives security</description>
+  </field>
+  <field aid="1420" fixml="ExerStyle" name="LegExerciseStyle" type="int" not_req_xml="0" eid="1194">
+    <description>Type of exercise of a derivatives security</description>
   </field>
   <field aid="1427" fixml="SideExecID" name="SideExecID" type="String" not_req_xml="0">
     <description>When reporting trades, used to reference the identifier of the execution (ExecID) being reported if different ExecIDs were assigned to each side of the trade.</description>
