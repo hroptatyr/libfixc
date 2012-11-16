@@ -3647,7 +3647,6 @@ The Quote Cancel message supports cancellation of:
   <message fix="CL" fixml="PtyRiskLmtReq" name="PartyRiskLimitsRequest" cat="PartiesReferenceData" sec="Pre Trade" not_req_xml="0">
     <description>PartyRiskLimitsRequest can be found in Volume 3 of the specification</description>
     <field aid="1666"/>
-    <field aid="1760"/>
     <field aid="263"/>
     <component name="RequestingPartyGrp"/>
     <component name="Parties"/>
@@ -3664,7 +3663,6 @@ The Quote Cancel message supports cancellation of:
     <component name="ApplicationSequenceControl"/>
     <field aid="1667"/>
     <field aid="1666"/>
-    <field aid="1760"/>
     <field aid="1511"/>
     <field aid="1512"/>
     <field aid="893"/>
@@ -6167,9 +6165,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="1529"/>
     <field aid="1530"/>
     <field aid="1531"/>
-    <field aid="1767"/>
-    <field aid="1766"/>
-    <field aid="1765"/>
     <field aid="1532"/>
     <field aid="1533"/>
     <component name="RiskWarningLevelGrp"/>
@@ -6209,9 +6204,7 @@ The Quote Cancel message supports cancellation of:
   <component fixml="WarnLvl" name="RiskWarningLevelGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
     <description>Risk warning levels.</description>
     <field aid="1559"/>
-    <field aid="1769"/>
     <field aid="1560"/>
-    <field aid="1768"/>
     <field aid="1561"/>
   </component>
   <component fixml="ReltdPtyDetl" name="RelatedPartyDetailGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
