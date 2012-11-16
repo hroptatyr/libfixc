@@ -6127,6 +6127,179 @@ The Quote Cancel message supports cancellation of:
     <field aid="1652"/>
     <field aid="1653"/>
   </component>
+  <component fixml="ReqR" name="RequestedPartyRoleGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
+    <description>Scope of the query/request for specific party role(s)</description>
+    <field aid="1508"/>
+    <field aid="1509"/>
+  </component>
+  <component fixml="Rltnshp" name="PartyRelationshipGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
+    <description>Scope of the query/reqeust for specific party relationship(s)</description>
+    <field aid="1514"/>
+    <field aid="1515"/>
+  </component>
+  <component fixml="PtyDetl" name="PartyDetailGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description/>
+    <field aid="1671"/>
+    <field aid="1691"/>
+    <field aid="1692"/>
+    <field aid="1693"/>
+    <field aid="1674"/>
+    <component name="PartyDetailSubGrp"/>
+    <component name="PartyDetailAltIDGrp"/>
+    <component name="RelatedPartyDetailGrp"/>
+    <field aid="1672"/>
+  </component>
+  <component fixml="AltPty" name="PartyDetailAltIDGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
+    <description/>
+    <field aid="1516"/>
+    <field aid="1517"/>
+    <field aid="1518"/>
+    <component name="PartyDetailAltSubGrp"/>
+  </component>
+  <component fixml="Sub" name="PartyDetailAltSubGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
+    <description/>
+    <field aid="1519"/>
+    <field aid="1520"/>
+    <field aid="1521"/>
+  </component>
+  <component fixml="RiskLmtTyp" name="RiskLimitTypesGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
+    <description>Repeating group of risk limit types and values.</description>
+    <field aid="1529"/>
+    <field aid="1530"/>
+    <field aid="1531"/>
+    <field aid="1767"/>
+    <field aid="1766"/>
+    <field aid="1765"/>
+    <field aid="1532"/>
+    <field aid="1533"/>
+    <component name="RiskWarningLevelGrp"/>
+  </component>
+  <component fixml="InstrmtScope" name="InstrumentScope" cat="PartiesReferenceData" type="Block" not_req_xml="0">
+    <description>Used to specify the instrument</description>
+    <field aid="1536"/>
+    <field aid="1537"/>
+    <field aid="1538"/>
+    <field aid="1539"/>
+    <component name="InstrumentScopeSecurityAltIDGrp"/>
+    <field aid="1543"/>
+    <field aid="1544"/>
+    <field aid="1545"/>
+    <field aid="1546"/>
+    <field aid="1547"/>
+    <field aid="1548"/>
+    <field aid="1549"/>
+    <field aid="1550"/>
+    <field aid="1551"/>
+    <field aid="1552"/>
+    <field aid="1553"/>
+    <field aid="1554"/>
+    <field aid="1555"/>
+    <field aid="1616"/>
+    <field aid="1556"/>
+    <field aid="1620"/>
+    <field aid="1621"/>
+    <field aid="1557"/>
+  </component>
+  <component fixml="AID" name="InstrumentScopeSecurityAltIDGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
+    <description>Alternative SecurityIDs for an instrument specified in the InstrumentScope.</description>
+    <field aid="1540"/>
+    <field aid="1541"/>
+    <field aid="1542"/>
+  </component>
+  <component fixml="WarnLvl" name="RiskWarningLevelGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
+    <description>Risk warning levels.</description>
+    <field aid="1559"/>
+    <field aid="1769"/>
+    <field aid="1560"/>
+    <field aid="1768"/>
+    <field aid="1561"/>
+  </component>
+  <component fixml="ReltdPtyDetl" name="RelatedPartyDetailGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description>Party details for parties related to the Party specified in the PartyDetailGrp.</description>
+    <field aid="1562"/>
+    <field aid="1563"/>
+    <field aid="1564"/>
+    <field aid="1565"/>
+    <field aid="1675"/>
+    <component name="RelatedPartyDetailSubGrp"/>
+    <component name="RelatedPartyDetailAltIDGrp"/>
+    <component name="PartyRelationshipGrp"/>
+  </component>
+  <component fixml="Sub" name="RelatedPartyDetailSubGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
+    <field aid="1566"/>
+    <field aid="1567"/>
+    <field aid="1568"/>
+  </component>
+  <component fixml="AltPty" name="RelatedPartyDetailAltIDGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
+    <description>Alternative identifiers for parties related to the party specified in the PartyDetailGrp.</description>
+    <field aid="1569"/>
+    <field aid="1570"/>
+    <field aid="1571"/>
+    <component name="RelatedPartyDetailAltSubGrp"/>
+  </component>
+  <component fixml="Sub" name="RelatedPartyDetailAltSubGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
+    <description>Sub identifiers for related parties alternate identifiers.</description>
+    <field aid="1572"/>
+    <field aid="1573"/>
+    <field aid="1574"/>
+  </component>
+  <component fixml="InstrmtScope" name="InstrumentScopeGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description>Repeating group of InstrumentScope Components. Used to specify the instruments to which a request applies.</description>
+    <field aid="1656"/>
+    <field aid="1535"/>
+    <component name="InstrumentScope"/>
+  </component>
+  <component fixml="InstrmtScope" name="RiskInstrumentScopeGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description>Repeating group of InstrumentScope Components. Used to specify the instruments to which a request applies.</description>
+    <field aid="1534"/>
+    <field aid="1535"/>
+    <component name="InstrumentScope"/>
+    <field aid="1558"/>
+  </component>
+  <component fixml="ReqPty" name="RequestingPartyGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description>Identifies the party making the request.</description>
+    <field aid="1657"/>
+    <field aid="1658"/>
+    <field aid="1659"/>
+    <field aid="1660"/>
+    <component name="RequestingPartySubGrp"/>
+  </component>
+  <component fixml="Sub" name="RequestingPartySubGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description>Sub identifiers for the requesting party.</description>
+    <field aid="1661"/>
+    <field aid="1662"/>
+    <field aid="1663"/>
+  </component>
+  <component fixml="PtyDetlUpd" name="PartyDetailsUpdateGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description>Party details component that includes an update action.</description>
+    <field aid="1676"/>
+    <field aid="1324"/>
+    <component name="PartyDetailGrp"/>
+  </component>
+  <component fixml="ReqRiskLmtTyp" name="RequestedRiskLimitTypesGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description>List of risk limit types being requested.</description>
+    <field aid="1668"/>
+    <field aid="1530"/>
+  </component>
+  <component fixml="PtyRiskLmt" name="PartyRiskLimitsGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description>Repeating group of parties (specified using PartyDetails) and the risk limits for the party.</description>
+    <field aid="1677"/>
+    <component name="PartyDetailGrp"/>
+    <component name="RiskLimitsGrp"/>
+    <field aid="1670"/>
+  </component>
+  <component fixml="RiskLmt" name="RiskLimitsGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description>Repeating group of risk limits.</description>
+    <field aid="1669"/>
+    <component name="RiskLimitsTypesGrp"/>
+    <component name="RiskInstrumentScopeGrp"/>
+  </component>
+  <component fixml="Sub" name="PartyDetailSubGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
+    <description>Additional party sub-identifiers</description>
+    <field aid="1694"/>
+    <field aid="1695"/>
+    <field aid="1696"/>
+  </component>
   <field aid="1" fixml="Acct" name="Account" type="String" not_req_xml="0">
     <description>Account mnemonic as agreed between buy and sell sides, e.g. broker and institution or investor/intermediary and fund manager.</description>
   </field>
