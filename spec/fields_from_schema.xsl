@@ -54,7 +54,7 @@
 
   <xsl:template match="xs:documentation" mode="field">
     <xsl:element name="description">
-      <xsl:value-of select="text()"/>
+      <xsl:value-of select="normalize-space(text())"/>
     </xsl:element>
   </xsl:template>
 
