@@ -100,7 +100,7 @@ struct pxnfo_s {
 			const char *px;
 			const char *sz;
 		};
-	} entries[9];
+	} entries[11];
 };
 
 struct snarf_s {
@@ -213,6 +213,20 @@ __snarf_mdent(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 	case FIXML_ATTR_MDEntrySize:
 		tgt->pxi.entries[j].sz = tmp;
 		break;
+	case FIXML_ATTR_HighPx: {
+		/* append to after the nentries */
+		size_t i = tgt->pxi.nentries++;
+		tgt->pxi.entries[i].ent_typ = '6' + 7;
+		tgt->pxi.entries[i].px = tmp;
+		break;
+	}
+	case FIXML_ATTR_LowPx: {
+		/* append to after the nentries */
+		size_t i = tgt->pxi.nentries++;
+		tgt->pxi.entries[i].ent_typ = '6' + 8;
+		tgt->pxi.entries[i].px = tmp;
+		break;
+	}
 	default:
 		break;
 	}
@@ -254,6 +268,8 @@ __snarf(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 		case FIXML_ATTR_MDEntrySize:
 		case FIXML_ATTR_MDEntryDate:
 		case FIXML_ATTR_MDEntryTime:
+		case FIXML_ATTR_HighPx:
+		case FIXML_ATTR_LowPx:
 			__snarf_mdent(&res, msg, idx);
 			break;
 
@@ -409,6 +425,12 @@ rinse(struct snarf_s *snf)
 		switch (snf->pxi.entries[i].ent_typ) {
 		case '6':
 			fputs("stl", stdout);
+			break;
+		case '6' + 7:
+			fputs("stl_high", stdout);
+			break;
+		case '6' + 8:
+			fputs("stl_low", stdout);
 			break;
 		case '5':
 			fputs("close", stdout);
