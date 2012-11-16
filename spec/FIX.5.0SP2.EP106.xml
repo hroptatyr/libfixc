@@ -976,21 +976,26 @@ The Allocation Instruction Ack message is used to acknowledge the receipt of and
     <field aid="1173"/>
     <field aid="264"/>
     <field aid="1022"/>
+    <field aid="1683"/>
     <field aid="1187"/>
     <field aid="75"/>
     <field aid="262"/>
+    <field aid="1500"/>
+    <field aid="1301"/>
+    <field aid="1300"/>
     <component name="Instrument"/>
     <component name="UndInstrmtGrp"/>
     <component name="InstrmtLegGrp"/>
     <field aid="291"/>
     <field aid="292"/>
     <field aid="451"/>
+    <field aid="1682"/>
+    <field aid="1684"/>
     <component name="MDFullGrp"/>
     <field aid="813"/>
     <field aid="814"/>
     <component name="RoutingGrp"/>
     <component name="StandardTrailer"/>
-    <field aid="1500"/>
   </message>
   <message fix="X" fixml="MktDataInc" name="MarketDataIncrementalRefresh" cat="MarketData" sec="Pre Trade" not_req_xml="0">
     <description>The Market Data message for incremental updates may contain any combination of new, changed, or deleted Market Data Entries, for any combination of instruments, with any combination of trades, imbalances, quotes, index values, open, close, settlement, high, low, and VWAP prices, trade volume and open interest so long as the maximum FIX message size is not exceeded. All of these types of Market Data Entries can be changed and deleted.</description>
@@ -998,8 +1003,11 @@ The Allocation Instruction Ack message is used to acknowledge the receipt of and
     <component name="ApplicationSequenceControl"/>
     <field aid="1021"/>
     <field aid="1022"/>
+    <field aid="1683"/>
     <field aid="75"/>
     <field aid="262"/>
+    <field aid="1301"/>
+    <field aid="1300"/>
     <component name="MDIncGrp"/>
     <field aid="813"/>
     <field aid="814"/>
