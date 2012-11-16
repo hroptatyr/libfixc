@@ -3535,6 +3535,35 @@ The Quote Cancel message supports cancellation of:
     <field aid="355"/>
     <component name="StandardTrailer"/>
   </message>
+  <message fix="CF" fixml="PtyDetlListReq" name="PartyDetailsListRequest" cat="PartiesReferenceData" sec="Pre Trade" not_req_xml="0">
+    <description>PartyDetailsListRequest can be found in Volume 3 of the specification</description>
+    <field aid="1505"/>
+    <component name="RequestingPartyGrp"/>
+    <component name="Parties"/>
+    <component name="RequestedPartyRoleGrp"/>
+    <component name="PartiRelationshipGrp"/>
+    <field aid="263"/>
+    <field aid="58"/>
+    <field aid="354"/>
+    <field aid="355"/>
+  </message>
+  <message fix="CG" fixml="PtyDetlListRpt" name="PartyDetailsListReport" cat="" sec="Pre Trade" not_req_xml="0">
+    <description>PartyDetailsListReport can be found in Volume 3 of the specification</description>
+    <component name="ApplicationSequenceControl"/>
+    <field aid="1510"/>
+    <field aid="1505"/>
+    <field aid="1511"/>
+    <field aid="1512"/>
+    <field aid="893"/>
+    <component name="PartyDetailGrp"/>
+    <field aid="60"/>
+    <field aid="58"/>
+    <field aid="354"/>
+    <field aid="355"/>
+    <field aid="1328"/>
+    <field aid="1664"/>
+    <field aid="1665"/>
+  </message>
   <message fix="CH" fixml="MgnReqmtInq" name="MarginRequirementInquiry" cat="MarginRequirementManagement" sec="Post Trade" not_req_xml="0">
     <description/>
     <component name="StandardHeader"/>
@@ -3601,6 +3630,52 @@ The Quote Cancel message supports cancellation of:
     <field aid="354"/>
     <field aid="355"/>
     <component name="StandardTrailer"/>
+  </message>
+  <message fix="CK" fixml="PtyDetlListUpd" name="PartyDetailsListUpdateReport" cat="PartiesReferenceData" sec="Pre Trade" not_req_xml="0">
+    <description>PartyDetailsListUpdateReport can be found in Volume 3 of the specification</description>
+    <component name="ApplicationSequenceControl"/>
+    <field aid="1510"/>
+    <field aid="1505"/>
+    <field aid="1512"/>
+    <field aid="893"/>
+    <component name="PartyDetailsUpdateGrp"/>
+    <field aid="60"/>
+    <field aid="58"/>
+    <field aid="354"/>
+    <field aid="355"/>
+  </message>
+  <message fix="CL" fixml="PtyRiskLmtReq" name="PartyRiskLimitsRequest" cat="PartiesReferenceData" sec="Pre Trade" not_req_xml="0">
+    <description>PartyRiskLimitsRequest can be found in Volume 3 of the specification</description>
+    <field aid="1666"/>
+    <field aid="1760"/>
+    <field aid="263"/>
+    <component name="RequestingPartyGrp"/>
+    <component name="Parties"/>
+    <component name="RequestedPartyRoleGrp"/>
+    <component name="RequestedRiskLimitTypesGrp"/>
+    <field aid="1533"/>
+    <component name="RiskInstrumentScopeGrp"/>
+    <field aid="58"/>
+    <field aid="354"/>
+    <field aid="355"/>
+  </message>
+  <message fix="CM" fixml="PtyRiskLmtRpt" name="PartyRiskLimitsReport" cat="PartiesReferenceData" sec="Pre Trade" not_req_xml="0">
+    <description>PartyRiskLimitsReport can be found in Volume 3 of the specification</description>
+    <component name="ApplicationSequenceControl"/>
+    <field aid="1667"/>
+    <field aid="1666"/>
+    <field aid="1760"/>
+    <field aid="1511"/>
+    <field aid="1512"/>
+    <field aid="893"/>
+    <component name="PartyRiskLimitsGrp"/>
+    <field aid="60"/>
+    <field aid="58"/>
+    <field aid="354"/>
+    <field aid="355"/>
+    <field aid="1328"/>
+    <field aid="1664"/>
+    <field aid="1665"/>
   </message>
   <component fixml="Comm" name="CommissionData" cat="Common" type="Block" not_req_xml="0">
     <description>The CommissionDate component block is used to carry commission information such as the type of commission and the rate.</description>
