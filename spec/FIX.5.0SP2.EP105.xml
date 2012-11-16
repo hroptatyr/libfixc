@@ -6284,7 +6284,7 @@ The Quote Cancel message supports cancellation of:
   <component fixml="RiskLmt" name="RiskLimitsGrp" cat="PartiesReferenceData" type="BlockRepeating" not_req_xml="0">
     <description>Repeating group of risk limits.</description>
     <field aid="1669"/>
-    <component name="RiskLimitsTypesGrp"/>
+    <component name="RiskLimitTypesGrp"/>
     <component name="RiskInstrumentScopeGrp"/>
   </component>
   <component fixml="Sub" name="PartyDetailSubGrp" cat="PartiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
