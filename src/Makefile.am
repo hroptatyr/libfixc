@@ -73,14 +73,14 @@ header_HEADERS += fixml-canon-ctxt.h
 EXTRA_DIST += fix-msg-type.h
 
 ## just for debugging and fun
-noinst_PROGRAMS += fixml2fix
+bin_PROGRAMS += fixml2fix
 fixml2fix_CPPFLAGS = $(AM_CPPFLAGS)
 fixml2fix_CPPFLAGS += -DSTANDALONE
 fixml2fix_LDFLAGS = $(AM_LDFLAGS)
 fixml2fix_LDFLAGS += -static
 fixml2fix_LDADD = libfixc.la
 
-noinst_PROGRAMS += fix2fixml
+bin_PROGRAMS += fix2fixml
 fix2fixml_CPPFLAGS = $(AM_CPPFLAGS)
 fix2fixml_CPPFLAGS += -DSTANDALONE
 fix2fixml_LDFLAGS = $(AM_LDFLAGS)
@@ -180,6 +180,15 @@ fix50sp2ep103.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP103.xml
 	$(LN_S) -f $< $@
 
 fix50sp2ep104.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP104.xml
+	$(LN_S) -f $< $@
+
+fix50sp2ep105.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP105.xml
+	$(LN_S) -f $< $@
+
+fix50sp2ep106.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP106.xml
+	$(LN_S) -f $< $@
+
+fix50sp2ep107.xml: $(top_srcdir)/spec/FIX.5.0SP2.EP107.xml
 	$(LN_S) -f $< $@
 
 fix50sp1.xml: $(top_srcdir)/spec/FIX.5.0SP1.xml

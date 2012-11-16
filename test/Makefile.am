@@ -17,6 +17,8 @@ check_PROGRAMS =
 CLEANFILES = $(check_PROGRAMS)
 EXTRA_DIST =
 
+noinst_PROGRAMS =
+
 TESTS += $(struct_tests)
 check_PROGRAMS += $(struct_tests)
 struct_tests =
@@ -153,5 +155,13 @@ EXTRA_DIST += fixml_ex_06.xml
 EXTRA_DIST += fix_ex_05.fix
 EXTRA_DIST += fixml_ex_07.xml
 #bin_tests += fix2fixml_03.sh
+
+## testing them CME settlement files, requisites
+noinst_PROGRAMS += cme-settle
+cme_settle_SOURCES = cme-settle.c
+cme_settle_CPPFLAGS = $(AM_CPPFLAGS)
+cme_settle_CPPFLAGS += -D_GNU_SOURCE
+cme_settle_LDFLAGS = $(AM_LDFLAGS)
+cme_settle_LDADD = $(top_builddir)/src/libfixc.la
 
 ## Makefile.am ends here
