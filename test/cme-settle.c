@@ -184,30 +184,32 @@ __snarf_fld(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 	return;
 }
 
-static ssize_t
-__snarf_mdent(struct snarf_s *tgt, fixc_msg_t msg, size_t idx, size_t nent)
+static void
+__snarf_mdent(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 {
-	for (ssize_t j = -1; idx < msg->nflds; idx++) {
-		const char *tmp;
+	static size_t j;
+	const char *tmp;
 
-		if (UNLIKELY((tmp = fixc_get_tag(msg, idx)) == NULL)) {
-			continue;
-		}
-		switch (msg->flds[idx].tag) {
-		case FIXML_ATTR_MDEntryType:
-			if (j++ >= (ssize_t)nent) {
-				return idx;
-			}
-			tgt->pxi.entries[j].ent_typ = *tmp;
-			break;
-		case FIXML_ATTR_MDEntryPx:
-			tgt->pxi.entries[j].px = tmp;
-			break;
-		default:
-			break;
-		}
+	if (UNLIKELY((tmp = fixc_get_tag(msg, idx)) == NULL)) {
+		;
 	}
-	return idx;
+	switch (msg->flds[idx].tag) {
+	case FIXML_ATTR_NoMDEntries:
+		/* ah a new streak of those mdentry guys */
+		tgt->pxi.nentries = msg->flds[idx].i32;
+		j = -1UL;
+		break;
+	case FIXML_ATTR_MDEntryType:
+		j++;
+		tgt->pxi.entries[j].ent_typ = *tmp;
+		break;
+	case FIXML_ATTR_MDEntryPx:
+		tgt->pxi.entries[j].px = tmp;
+		break;
+	default:
+		break;
+	}
+	return;
 }
 
 static ssize_t
@@ -239,16 +241,12 @@ __snarf(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 			__snarf_fld(&res, msg, idx);
 			break;
 
-		case FIXML_ATTR_NoMDEntries: {
-			/* field type should be INT already */
-			size_t nent;
-
-			if ((nent = msg->flds[idx].i32)) {
-				res.pxi.nentries = nent;
-				idx = __snarf_mdent(&res, msg, idx + 1, nent);
-			}
+		case FIXML_ATTR_NoMDEntries:
+		case FIXML_ATTR_MDEntryType:
+		case FIXML_ATTR_MDEntryPx:
+			__snarf_mdent(&res, msg, idx);
 			break;
-		}
+
 		default:
 			/* just overread them */
 			break;
