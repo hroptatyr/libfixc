@@ -3675,6 +3675,37 @@ The Quote Cancel message supports cancellation of:
     <field aid="1664"/>
     <field aid="1665"/>
   </message>
+  <message fix="CN" fixml="SecMassStatReq" name="SecurityMassStatusRequest" cat="SecuritiesReferenceData" sec="Pre Trade" not_req_xml="0">
+    <description></description>
+    <field aid="324"/>
+    <component name="InstrumentScope"/>
+    <field aid="263"/>
+    <field aid="1465"/>
+    <field aid="1301"/>
+    <field aid="1300"/>
+    <field aid="336"/>
+    <field aid="625"/>
+  </message>
+  <message fix="CO" fixml="SecMassStat" name="SecurityMassStatus" cat="SecuritiesReferenceData" sec="Pre Trade" not_req_xml="0">
+    <description></description>
+    <component name="ApplicationSequenceControl"/>
+    <field aid="324"/>
+    <field aid="1465"/>
+    <field aid="1301"/>
+    <field aid="1300"/>
+    <field aid="336"/>
+    <field aid="625"/>
+    <component name="InstrumentScope"/>
+    <field aid="325"/>
+    <field aid="1679"/>
+    <field aid="1680"/>
+    <field aid="1681"/>
+    <field aid="1021"/>
+    <field aid="264"/>
+    <field aid="60"/>
+    <field aid="334"/>
+    <component name="SecMassStatGrp"/>
+  </message>
   <component fixml="Comm" name="CommissionData" cat="Common" type="Block" not_req_xml="0">
     <description>The CommissionDate component block is used to carry commission information such as the type of commission and the rate.</description>
     <field aid="12"/>
@@ -5672,6 +5703,7 @@ The Quote Cancel message supports cancellation of:
     <description/>
     <field aid="1141"/>
     <field aid="1022"/>
+    <field aid="1683"/>
     <field aid="264"/>
     <field aid="1021"/>
   </component>
@@ -7356,7 +7388,7 @@ See Currency (5) field for description and valid values</description>
     <description>Type of Security Definition message response.</description>
   </field>
   <field aid="324" fixml="StatReqID" name="SecurityStatusReqID" type="String" not_req_xml="0">
-    <description>Unique ID of a Security Status Request message.</description>
+    <description>Unique ID of a Security Status Request or a Security Mass Status Request message.</description>
   </field>
   <field aid="325" fixml="Unsol" name="UnsolicitedIndicator" type="Boolean" not_req_xml="0">
     <description>Indicates whether or not message is being sent as a result of a subscription request or not.</description>
@@ -11487,6 +11519,9 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <field aid="1677" fixml="" name="NoPartyRiskLimits" type="NumInGroup" not_req_xml="1">
     <description>Number of party risk limits.</description>
   </field>
+  <field aid="1683" fixml="MDSubFeedTyp" name="MDSubFeedType" type="String" not_req_xml="0">
+    <description>Describes a sub-class for a given class of service defined by MDFeedType (1022)</description>
+  </field>
   <field aid="1691" fixml="ID" name="PartyDetailID" type="String" not_req_xml="0">
     <description>Party identifier within Parties Reference Data messages.</description>
   </field>
@@ -11794,6 +11829,8 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="CK">PartyDetailsListUpdateReport</item>
     <item value="CL">PartyRiskLimitsRequest</item>
     <item value="CM">PartyRiskLimitsReport</item>
+    <item value="CN">SecurityMassStatusRequest</item>
+    <item value="CO">SecurityMassStatus</item>
   </enum>
   <enum eid="39">
     <item value="0">New</item>
@@ -12505,11 +12542,13 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="T">Cumulative Value Adjustment for long positions</item>
     <item value="U">Daily Value Adjustment for Short Positions</item>
     <item value="V">Cumulative Value Adjustment for Short Positions</item>
+    <item value="W">Fixing Price</item>
+    <item value="X">Cash Rate</item>
     <item value="Y">Recovery Rate</item>
     <item value="Z">Recovery Rate for Long</item>
     <item value="a">Recovery Rate for Short</item>
-    <item value="W">Fixing Price</item>
-    <item value="X">Cash Rate</item>
+    <item value="b">Market Bid</item>
+    <item value="c">Market Offer</item>
   </enum>
   <enum eid="274">
     <item value="0">Plus Tick</item>
@@ -13171,6 +13210,8 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="CK">PartyDetailsListUpdateReport</item>
     <item value="CL">PartyRiskLimitsRequest</item>
     <item value="CM">PartyRiskLimitsReport</item>
+    <item value="CN">SecurityMassStatusRequest</item>
+    <item value="CO">SecurityMassStatus</item>
   </enum>
   <enum eid="373">
     <item value="0">Invalid Tag Number</item>
