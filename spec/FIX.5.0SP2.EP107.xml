@@ -4672,8 +4672,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="120"/>
     <component name="RateSource"/>
     <field aid="828"/>
-    <field aid="1025"/>
-    <field aid="31"/>
     <field aid="1629"/>
   </component>
   <component fixml="Inc" name="MDIncGrp" cat="MarketData" type="ImplicitBlockRepeating" not_req_xml="0">
@@ -4758,8 +4756,6 @@ The Quote Cancel message supports cancellation of:
     <component name="Parties"/>
     <field aid="120"/>
     <component name="RateSource"/>
-    <field aid="1025"/>
-    <field aid="31"/>
     <field aid="1500"/>
     <field aid="1629"/>
   </component>
