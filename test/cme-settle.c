@@ -175,7 +175,9 @@ __snarf_fld(struct snarf_s *tgt, fixc_msg_t msg, size_t idx)
 			break;
 		}
 		break;
-
+	case FIXML_ATTR_UnderlyingStrikePrice:
+		tgt->i.undly.spx = tmp;
+		break;
 	default:
 		break;
 	}
