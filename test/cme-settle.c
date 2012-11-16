@@ -480,6 +480,9 @@ rinse(struct snarf_s *snf)
 		case 'C':
 			fputs("oi", stdout);
 			break;
+		case 'W':
+			fputs("fix", stdout);
+			break;
 		case 'z':
 			fputs("PAI_rate", stdout);
 			break;
