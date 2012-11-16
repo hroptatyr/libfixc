@@ -12505,11 +12505,11 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="T">Cumulative Value Adjustment for long positions</item>
     <item value="U">Daily Value Adjustment for Short Positions</item>
     <item value="V">Cumulative Value Adjustment for Short Positions</item>
+    <item value="W">Fixing Price</item>
+    <item value="X">Cash Rate</item>
     <item value="Y">Recovery Rate</item>
     <item value="Z">Recovery Rate for Long</item>
     <item value="a">Recovery Rate for Short</item>
-    <item value="W">Fixing Price</item>
-    <item value="X">Cash Rate</item>
   </enum>
   <enum eid="274">
     <item value="0">Plus Tick</item>
