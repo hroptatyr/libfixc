@@ -11448,6 +11448,9 @@ See SettlType(63) field for description.</description>
   <field aid="1585" fixml="Rsn" name="PosAmtReason" type="int" not_req_xml="0" eid="1585">
     <description>Specifies the reason for an amount type when reported on a position. Useful when multiple instances of the same amount type are reported.</description>
   </field>
+  <field aid="1586" fixml="" name="NoLegPosAmt" type="NumInGroup" not_req_xml="1">
+    <description>Number of TrdInstrmtLegPosAmt values.</description>
+  </field>
   <field aid="1587" fixml="Amt" name="LegPosAmt" type="Amt" not_req_xml="0">
     <description>Leg position amount.</description>
   </field>
