@@ -3541,7 +3541,7 @@ The Quote Cancel message supports cancellation of:
     <component name="RequestingPartyGrp"/>
     <component name="Parties"/>
     <component name="RequestedPartyRoleGrp"/>
-    <component name="PartiRelationshipGrp"/>
+    <component name="PartyRelationshipGrp"/>
     <field aid="263"/>
     <field aid="58"/>
     <field aid="354"/>
