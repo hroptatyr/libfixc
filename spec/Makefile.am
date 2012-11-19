@@ -23,6 +23,7 @@ BUILT_SOURCES += FIX.5.0SP1.xml
 BUILT_SOURCES += FIX.5.0SP2.xml
 BUILT_SOURCES += FIXT.1.1.xml
 EXTRA_DIST += FIX.5.0SP3.xml
+EXTRA_DIST += FIX.5.0SP2+CME.xml
 
 %.xml: gen-spec.xsl \
 		%/Base/MsgType.xml \
