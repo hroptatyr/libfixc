@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2" extver="FIX.5.0SP2.EP100">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2" extver="FIX.5.0SP2.EP101">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -2005,6 +2005,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="1430"/>
     <field aid="1300"/>
     <field aid="1301"/>
+    <field aid="549"/>
   </message>
   <message fix="AF" fixml="OrdMassStatReq" name="OrderMassStatusRequest" cat="OrderMassHandling" sec="Trade" not_req_xml="0">
     <description>The order mass status request message requests the status for orders matching criteria specified within the request.</description>
@@ -2555,6 +2556,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="1430"/>
     <field aid="1300"/>
     <field aid="1301"/>
+    <field aid="549"/>
   </message>
   <message fix="AS" fixml="AllocRpt" name="AllocationReport" cat="Allocation" sec="Post Trade" not_req_xml="0">
     <description>Sent from sell-side to buy-side, sell-side to 3rd-party or 3rd-party to buy-side, the Allocation Report (Claim) provides account breakdown of an order or set of orders plus any additional follow-up front-office information developed post-trade during the trade allocation, matching and calculation phase. In versions of FIX prior to version 4.4, this functionality was provided through the Allocation message. Depending on the needs of the market and the timing of "confirmed" status, the role of Allocation Report can be taken over in whole or in part by the Confirmation message.</description>
@@ -5855,6 +5857,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="586"/>
     <field aid="775"/>
     <field aid="1629"/>
+    <field aid="1091"/>
   </component>
   <component fixml="RtSrc" name="RateSource" cat="Common" type="BlockRepeating" not_req_xml="0">
     <description/>
@@ -10906,6 +10909,8 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="r">Execute as delta neutral using volatility provided</item>
     <item value="s">Execute as duration neutral</item>
     <item value="t">Execute as FX neutral</item>
+    <item value="u">Minimum Guaranteed Fill Eligible</item>
+    <item value="v">Bypass Non-Displayed Liquidity</item>
   </enum>
   <enum eid="20">
     <item value="0">New</item>
@@ -12089,6 +12094,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="99">Other</item>
     <item value="12">Cancel On Connection Loss</item>
     <item value="13">Cancel On Logout</item>
+    <item value="14">Assign Time Priority</item>
   </enum>
   <enum eid="380">
     <item value="0">Other</item>
@@ -12566,6 +12572,9 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="D">Non-algorithmic</item>
     <item value="E">Algorithmic</item>
     <item value="F">Cross</item>
+    <item value="G">Insider Account</item>
+    <item value="H">Significant Shareholder</item>
+    <item value="I">Normal Course Issuer Bid (NCIB)</item>
   </enum>
   <enum eid="530">
     <item value="1">Cancel orders for a security</item>
@@ -12636,6 +12645,10 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="2">Cross IOC - cross trade which is executed partially and the rest is cancelled. One side is fully executed, the other side is partially executed with the remainder being cancelled. This is equivalent to an IOC on the other side. Note: CrossPrioritization(550) field may be used to indicate which side should fully execute in this scenario.</item>
     <item value="3">Cross One Side - cross trade which is partially executed with the unfilled portions remaining active. One side of the cross is fully executed (as denoted by the CrossPrioritization (550) field), but the unfilled portion remains active.</item>
     <item value="4">Cross Same Price - cross trade is executed with existing orders with the same price. In this case other orders exist with the same price, the quantity of the Cross is executed against the existing orders and quotes, the remainder of the cross is executed against the other side of the cross. The two sides potentially have different quantities.</item>
+    <item value="5">Basis Cross - A trade where a basket of securities or an index participation unit is transacted at prices achieved through the execution of related exchange-traded derivative instruments in an amount that will correspond to an equivalent market exposure.</item>
+    <item value="6">Contingent Cross - A cross resulting from a paired order placed by a Participant to execute an order on a security that is contingent on the execution of a second order for an offsetting volume of a related security.</item>
+    <item value="7">VWAP Cross - A cross for the purpose of executing a trade at a volume-weighted average price of a security traded for a continuous period on or during a trading day.</item>
+    <item value="8">STS Cross - A closing price cross resulting from an order placed by a Participant for execution in a Special Trading Session at the last sale price.</item>
   </enum>
   <enum eid="550">
     <item value="0">None</item>
@@ -12743,6 +12756,9 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="6">Account is carried on non-customer side of books and is cross margined</item>
     <item value="7">Account is house trader and is cross margined</item>
     <item value="8">Joint back office account (JBO)</item>
+    <item value="9">Equities specialist</item>
+    <item value="10">Options market maker</item>
+    <item value="11">Options firm account</item>
   </enum>
   <enum eid="582">
     <item value="1">Member trading for their own account</item>
@@ -13069,6 +13085,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="5">Broker Execution</item>
     <item value="6">Desk Receipt</item>
     <item value="7">Submission to Clearing</item>
+    <item value="8">Time Priority</item>
   </enum>
   <enum eid="773">
     <item value="1">Status</item>
@@ -13307,6 +13324,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="37">Crossed Trade (X)</item>
     <item value="38">Interim Protected Trade (I)</item>
     <item value="39">Large in Scale (L)</item>
+    <item value="40">Wash Trade</item>
   </enum>
   <enum eid="835">
     <item value="0">Floating (default)</item>
@@ -13461,6 +13479,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="28">Instrument Strike Price</item>
     <item value="29">Tradeable Indicator</item>
     <item value="99">Text. Supply the text of the attribute or disclaimer in the InstrAttribValue (872) field.</item>
+    <item value="30">Instrument is eligible to accept anonymous orders</item>
+    <item value="31">Minimum Guaranteed Fill Volume</item>
   </enum>
   <enum eid="875">
     <item value="1">3(a)(3)</item>
@@ -13889,6 +13909,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="7">Implied Order</item>
     <item value="8">Cross Order</item>
     <item value="9">Streaming price (quote)</item>
+    <item value="A">Internal Cross Order</item>
   </enum>
   <enum eid="1123">
     <item value="0">Trade Confirmation</item>
