@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP103" extver="FIX.5.0SP2.EP103">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP104" extver="FIX.5.0SP2.EP104">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -1194,6 +1194,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="354"/>
     <field aid="355"/>
     <component name="StandardTrailer"/>
+    <field aid="1655"/>
   </message>
   <message fix="g" fixml="TrdgSesStatReq" name="TradingSessionStatusRequest" cat="MarketStructureReferenceData" sec="Pre Trade" not_req_xml="0">
     <description>The Trading Session Status Request is used to request information on the status of a market. With the move to multiple sessions occurring for a given trading party (morning and evening sessions for instance) there is a need to be able to provide information on what product is trading on what market.</description>
@@ -10967,6 +10968,9 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <field aid="1654" fixml="CvrdQty" name="CoveredQty" type="Qty" not_req_xml="0">
     <description>Used in the Position Quantity component to describe the portion of the Short Contract Quantity that is considered covered.</description>
   </field>
+  <field aid="1655" fixml="MktMkrActvty" name="MarketMakerActivity" type="int" not_req_xml="0">
+    <description>Indicates market maker participation in security.</description>
+  </field>
   <cat name="Session" fixml="session" not_req_xml="1"/>
   <cat name="Indication" fixml="indications" not_req_xml="0"/>
   <cat name="SingleGeneralOrderHandling" fixml="order" not_req_xml="0"/>
@@ -12256,6 +12260,8 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="12">Cancel On Connection Loss</item>
     <item value="13">Cancel On Logout</item>
     <item value="14">Assign Time Priority</item>
+    <item value="15">Canceled, Trade Price Violation</item>
+    <item value="16">Canceled, Cross Imbalance</item>
   </enum>
   <enum eid="380">
     <item value="0">Other</item>
@@ -13459,6 +13465,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="45">Option exercise</item>
     <item value="46">Delta neutral transaction</item>
     <item value="47">Financing transaction (includes repo and stock lending)</item>
+    <item value="56">Opening Trade</item>
   </enum>
   <enum eid="829">
     <item value="0">CMTA</item>
@@ -13660,6 +13667,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="99">Text. Supply the text of the attribute or disclaimer in the InstrAttribValue (872) field.</item>
     <item value="30">Instrument is eligible to accept anonymous orders</item>
     <item value="31">Minimum Guaranteed Fill Volume</item>
+    <item value="32">Minimum Guaranteed Fill Status</item>
   </enum>
   <enum eid="875">
     <item value="1">3(a)(3)</item>
@@ -14601,6 +14609,12 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
   </enum>
   <enum eid="1648">
     <item value="1">"hedges for" instrument</item>
+  </enum>
+  <enum eid="1655">
+    <item value="0">No participation</item>
+    <item value="1">Buy participation</item>
+    <item value="2">Sell participation</item>
+    <item value="3">Both buy and sell participation</item>
   </enum>
   <enum eid="35">
     <item value="0">Heartbeat</item>
