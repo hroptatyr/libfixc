@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP105" extver="FIX.5.0SP2.EP105">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP106" extver="FIX.5.0SP2.EP106">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -976,21 +976,26 @@ The Allocation Instruction Ack message is used to acknowledge the receipt of and
     <field aid="1173"/>
     <field aid="264"/>
     <field aid="1022"/>
+    <field aid="1683"/>
     <field aid="1187"/>
     <field aid="75"/>
     <field aid="262"/>
+    <field aid="1500"/>
+    <field aid="1301"/>
+    <field aid="1300"/>
     <component name="Instrument"/>
     <component name="UndInstrmtGrp"/>
     <component name="InstrmtLegGrp"/>
     <field aid="291"/>
     <field aid="292"/>
     <field aid="451"/>
+    <field aid="1682"/>
+    <field aid="1684"/>
     <component name="MDFullGrp"/>
     <field aid="813"/>
     <field aid="814"/>
     <component name="RoutingGrp"/>
     <component name="StandardTrailer"/>
-    <field aid="1500"/>
   </message>
   <message fix="X" fixml="MktDataInc" name="MarketDataIncrementalRefresh" cat="MarketData" sec="Pre Trade" not_req_xml="0">
     <description>The Market Data message for incremental updates may contain any combination of new, changed, or deleted Market Data Entries, for any combination of instruments, with any combination of trades, imbalances, quotes, index values, open, close, settlement, high, low, and VWAP prices, trade volume and open interest so long as the maximum FIX message size is not exceeded. All of these types of Market Data Entries can be changed and deleted.</description>
@@ -998,8 +1003,11 @@ The Allocation Instruction Ack message is used to acknowledge the receipt of and
     <component name="ApplicationSequenceControl"/>
     <field aid="1021"/>
     <field aid="1022"/>
+    <field aid="1683"/>
     <field aid="75"/>
     <field aid="262"/>
+    <field aid="1301"/>
+    <field aid="1300"/>
     <component name="MDIncGrp"/>
     <field aid="813"/>
     <field aid="814"/>
@@ -3683,6 +3691,40 @@ The Quote Cancel message supports cancellation of:
     <field aid="1328"/>
     <field aid="1664"/>
     <field aid="1665"/>
+  </message>
+  <message fix="CN" fixml="SecMassStatReq" name="SecurityMassStatusRequest" cat="SecuritiesReferenceData" sec="Pre Trade" not_req_xml="0">
+    <description></description>
+    <component name="StandardHeader"/>
+    <field aid="324"/>
+    <component name="InstrumentScope"/>
+    <field aid="263"/>
+    <field aid="1465"/>
+    <field aid="1301"/>
+    <field aid="1300"/>
+    <field aid="336"/>
+    <field aid="625"/>
+    <component name="StandardTrailer"/>
+  </message>
+  <message fix="CO" fixml="SecMassStat" name="SecurityMassStatus" cat="SecuritiesReferenceData" sec="Pre Trade" not_req_xml="0">
+    <description></description>
+    <component name="StandardHeader"/>
+    <component name="ApplicationSequenceControl"/>
+    <field aid="324"/>
+    <field aid="1465"/>
+    <field aid="1301"/>
+    <field aid="1300"/>
+    <field aid="336"/>
+    <field aid="625"/>
+    <component name="InstrumentScope"/>
+    <field aid="325"/>
+    <field aid="1679"/>
+    <field aid="1680"/>
+    <field aid="1681"/>
+    <field aid="1021"/>
+    <field aid="264"/>
+    <field aid="60"/>
+    <field aid="334"/>
+    <component name="SecMassStatGrp"/>
     <component name="StandardTrailer"/>
   </message>
   <component fixml="Comm" name="CommissionData" cat="Common" type="Block" not_req_xml="0">
@@ -5393,6 +5435,22 @@ The Quote Cancel message supports cancellation of:
     <component name="LegStipulations"/>
     <component name="LegBenchmarkCurveData"/>
   </component>
+  <component fixml="SecMassStat" name="SecMassStatGrp" cat="SecuritiesReferenceData" type="BlockRepeating" not_req_xml="0">
+    <description/>
+    <field aid="146"/>
+    <component name="Instrument"/>
+    <component name="InstrumentExtension"/>
+    <component name="UndInstrmtGrp"/>
+    <component name="InstrmtLegGrp"/>
+    <field aid="326"/>
+    <field aid="1174"/>
+    <field aid="327"/>
+    <field aid="291"/>
+    <field aid="292"/>
+    <field aid="58"/>
+    <field aid="354"/>
+    <field aid="355"/>
+  </component>
   <component fixml="UndDlvAmt" name="UnderlyingAmount" cat="PositionMaintenance" type="BlockRepeating" not_req_xml="0">
     <description>The UnderlyingAmount component block is used to supply the underlying amounts, dates, settlement status and method for derivative positions.</description>
     <field aid="984"/>
@@ -5682,6 +5740,7 @@ The Quote Cancel message supports cancellation of:
     <description/>
     <field aid="1141"/>
     <field aid="1022"/>
+    <field aid="1683"/>
     <field aid="264"/>
     <field aid="1021"/>
   </component>
@@ -7366,7 +7425,7 @@ See Currency (5) field for description and valid values</description>
     <description>Type of Security Definition message response.</description>
   </field>
   <field aid="324" fixml="StatReqID" name="SecurityStatusReqID" type="String" not_req_xml="0">
-    <description>Unique ID of a Security Status Request message.</description>
+    <description>Unique ID of a Security Status Request or a Security Mass Status Request message.</description>
   </field>
   <field aid="325" fixml="Unsol" name="UnsolicitedIndicator" type="Boolean" not_req_xml="0">
     <description>Indicates whether or not message is being sent as a result of a subscription request or not.</description>
@@ -11499,6 +11558,24 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <field aid="1677" fixml="" name="NoPartyRiskLimits" type="NumInGroup" not_req_xml="1">
     <description>Number of party risk limits.</description>
   </field>
+  <field aid="1679" fixml="TrdgStat" name="SecurityMassTradingStatus" type="int" not_req_xml="0" eid="326">
+    <description>Identifies the trading status applicable to a group of instruments.</description>
+  </field>
+  <field aid="1680" fixml="SecTrdEvnt" name="SecurityMassTradingEvent" type="int" not_req_xml="0" eid="1174">
+    <description>Identifies an event related to the mass trading status.</description>
+  </field>
+  <field aid="1681" fixml="HaltRsn" name="MassHaltReason" type="int" not_req_xml="0" eid="327">
+    <description>Denotes the reason for the Opening Delay or Trading halt of a group of securities.</description>
+  </field>
+  <field aid="1682" fixml="TrdgStat" name="MDSecurityTradingStatus" type="int" not_req_xml="0" eid="326">
+    <description>Identifies the trading status applicable to the instrument in the market data message.</description>
+  </field>
+  <field aid="1683" fixml="MDSubFeedTyp" name="MDSubFeedType" type="String" not_req_xml="0">
+    <description>Describes a sub-class for a given class of service defined by MDFeedType (1022)</description>
+  </field>
+  <field aid="1684" fixml="HaltRsn" name="MDHaltReason" type="int" not_req_xml="0" eid="327">
+    <description>Denotes the reason for the Opening Delay or Trading Halt.</description>
+  </field>
   <field aid="1691" fixml="ID" name="PartyDetailID" type="String" not_req_xml="0">
     <description>Party identifier within Parties Reference Data messages.</description>
   </field>
@@ -11806,6 +11883,8 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="CK">PartyDetailsListUpdateReport</item>
     <item value="CL">PartyRiskLimitsRequest</item>
     <item value="CM">PartyRiskLimitsReport</item>
+    <item value="CN">SecurityMassStatusRequest</item>
+    <item value="CO">SecurityMassStatus</item>
   </enum>
   <enum eid="39">
     <item value="0">New</item>
@@ -12517,11 +12596,13 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="T">Cumulative Value Adjustment for long positions</item>
     <item value="U">Daily Value Adjustment for Short Positions</item>
     <item value="V">Cumulative Value Adjustment for Short Positions</item>
+    <item value="W">Fixing Price</item>
+    <item value="X">Cash Rate</item>
     <item value="Y">Recovery Rate</item>
     <item value="Z">Recovery Rate for Long</item>
     <item value="a">Recovery Rate for Short</item>
-    <item value="W">Fixing Price</item>
-    <item value="X">Cash Rate</item>
+    <item value="b">Market Bid</item>
+    <item value="c">Market Offer</item>
   </enum>
   <enum eid="274">
     <item value="0">Plus Tick</item>
@@ -12845,6 +12926,14 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="24">Pre-Cross - system is in a pre-cross state allowing market to respond to either side of cross</item>
     <item value="25">Cross - system has crossed a percentage of the orders and allows market to respond prior to crossing remaining portion</item>
     <item value="26">Post-close</item>
+  </enum>
+  <enum eid="327">
+    <item value="0">News Dissemination</item>
+    <item value="1">Order Influx</item>
+    <item value="2">Order Imbalance</item>
+    <item value="3">Additional Information</item>
+    <item value="4">News Pending</item>
+    <item value="5">Equipment Changeover</item>
   </enum>
   <enum eid="328">
     <item value="N">Halt was not related to a halt of the common stock</item>
