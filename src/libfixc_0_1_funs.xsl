@@ -5,7 +5,7 @@
   extension-element-prefixes="fn"
   version="1.0">
 
-  <xsl:variable name="_versn" select="translate(/fixc:spec/@version, '._', '')"/>
+  <xsl:variable name="_versn" select="translate(/fixc:spec/@version, '+._', '_')"/>
   <xsl:variable name="versn" select="fixc:lcase($_versn)"/>
   <xsl:variable name="VERSN" select="fixc:ucase($_versn)"/>
 
