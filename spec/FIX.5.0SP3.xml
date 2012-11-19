@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP107" extver="FIX.5.0SP2.EP107">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP108" extver="FIX.5.0SP2.EP108">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -13295,6 +13295,8 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
     <item value="J">Tax ID</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="452">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -14145,6 +14147,8 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="759">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -14331,6 +14335,8 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="784">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -15239,6 +15245,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="951">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -15707,6 +15715,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="1051">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -15866,6 +15876,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="1061">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -16161,6 +16173,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="1119">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -16769,6 +16783,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="1295">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -17412,6 +17428,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="1417">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -17703,6 +17721,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="1464">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -18047,6 +18067,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="1521">
     <item value="1">Firm</item>
@@ -18303,6 +18325,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="1565">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -18458,6 +18482,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="1574">
     <item value="1">Firm</item>
@@ -18654,6 +18680,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="1660">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -18827,6 +18855,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="J">Tax ID</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="K">Australian Company Number</item>
+    <item value="L">Australian Registered Body Number</item>
   </enum>
   <enum eid="1693">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
