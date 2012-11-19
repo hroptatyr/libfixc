@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP108" extver="FIX.5.0SP2.EP108">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP109" extver="FIX.5.0SP2.EP109">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -2443,6 +2443,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="730"/>
     <field aid="731"/>
     <field aid="734"/>
+    <field aid="1595"/>
     <field aid="573"/>
     <component name="InstrmtLegGrp"/>
     <component name="PosUndInstrmtGrp"/>
@@ -2750,6 +2751,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="731"/>
     <field aid="732"/>
     <field aid="734"/>
+    <field aid="1595"/>
     <field aid="432"/>
     <field aid="744"/>
     <field aid="745"/>
@@ -11476,6 +11478,9 @@ See SettlType(63) field for description.</description>
   </field>
   <field aid="1594" fixml="SecGrp" name="LegSecurityGroup" type="String" not_req_xml="0">
     <description>Represents the product group of a leg.This is useful in conveying multi-leg instruments where the legs may participate in separate security groups.</description>
+  </field>
+  <field aid="1595" fixml="CntgPx" name="PositionContingentPrice" type="Price" not_req_xml="0">
+    <description>Risk adjusted price used to calculate variation margin on a position.</description>
   </field>
   <field aid="1616" fixml="Exch" name="InstrumentScopeSecurityExchange" type="Exchange" not_req_xml="0">
     <description>Used to limit instrument scope to specified security exchange.
