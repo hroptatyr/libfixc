@@ -3594,8 +3594,10 @@ The Quote Cancel message supports cancellation of:
     <field aid="1146"/>
     <field aid="996"/>
     <field aid="1147"/>
+    <field aid="1716"/>
     <field aid="1191"/>
     <field aid="1192"/>
+    <field aid="1717"/>
     <field aid="1193"/>
     <field aid="1194"/>
     <field aid="1195"/>
@@ -3682,8 +3684,10 @@ The Quote Cancel message supports cancellation of:
     <field aid="614"/>
     <field aid="999"/>
     <field aid="1224"/>
+    <field aid="1720"/>
     <field aid="1421"/>
     <field aid="1422"/>
+    <field aid="1721"/>
     <field aid="1001"/>
     <field aid="1420"/>
     <field aid="1528"/>
@@ -3853,8 +3857,10 @@ The Quote Cancel message supports cancellation of:
     <field aid="436"/>
     <field aid="998"/>
     <field aid="1423"/>
+    <field aid="1718"/>
     <field aid="1424"/>
     <field aid="1425"/>
+    <field aid="1719"/>
     <field aid="1000"/>
     <field aid="1419"/>
     <field aid="1526"/>
@@ -5663,8 +5669,10 @@ The Quote Cancel message supports cancellation of:
     <field aid="1268"/>
     <field aid="1269"/>
     <field aid="1270"/>
+    <field aid="1722"/>
     <field aid="1315"/>
     <field aid="1316"/>
+    <field aid="1723"/>
     <field aid="1317"/>
     <field aid="1318"/>
     <field aid="1319"/>
@@ -9217,7 +9225,7 @@ Fixed Magnitude UOMs are primarily used in energy derivatives and specify a magn
 The second group, Variable Quantity UOMs, specifies the dimension as a single unit without a magnitude (or more accurately a magnitude of one) and uses the UnitOfMeasureQty(1147) field to define the quantity of units per contract. Variable Quantity UOMs are used for both commodities (such as lbs of lean cattle, bushels of corn, ounces of gold) and financial futures.
 Examples:
 For lean cattle futures contracts, a UnitOfMeasure of 'lbs' with a UnitOfMeasureQty(1147) of 40,000, means each lean cattle futures contract represents 40,000 lbs of lean cattle.
-For Eurodollars futures contracts, a UnitOfMeasure of USD with a UnitOfMeasureQty(1147) of 1,000,000, means a Eurodollar futures contract represents 1,000,000 USD.
+For Eurodollars futures contracts, a UnitOfMeasure of Ccy with a UnitOfMeasureCurrency(1716)  of USD and a UnitOfMeasureQty(1147) of 1,000,000, means a Eurodollar futures contract represents 1,000,000 USD.
 For gold futures contracts, a UnitOfMeasure is oz_tr (Troy ounce) with a UnitOfMeasureQty(1147) of 1,000, means each gold futures contract represents 1,000 troy ounces of gold.</description>
   </field>
   <field aid="997" fixml="TmUnit" name="TimeUnit" type="String" not_req_xml="0">
@@ -10839,6 +10847,30 @@ ComplexEventEndTime must always be greater than or equal to ComplexEventStartTim
   </field>
   <field aid="1617" fixml="AsgnTyp" name="StreamAsgnType" type="int" not_req_xml="0">
     <description>The type of assignment being affected in the Stream Assignment Report.</description>
+  </field>
+  <field aid="1716" fixml="UOMCcy" name="UnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the unit of measure. Conditionally required when UnitOfMeasure(996) = Ccy</description>
+  </field>
+  <field aid="1717" fixml="PxUOMCcy" name="PriceUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the price unit of measure. Conditionally required when PriceUnitOfMeasure(1191) = Ccy</description>
+  </field>
+  <field aid="1718" fixml="UOMCcy" name="UnderlyingUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the unit of measure. Conditionally required when UnderlyingUnitOfMeasure(998) = Ccy</description>
+  </field>
+  <field aid="1719" fixml="PxUOMCcy" name="UnderlyingPriceUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the price unit of measure. Conditionally required when UnderlyingPriceUnitOfMeasure(1424) = Ccy</description>
+  </field>
+  <field aid="1720" fixml="UOMCcy" name="LegUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the unit of measure. Conditionally required when LegUnitOfMeasure(999) = Ccy</description>
+  </field>
+  <field aid="1721" fixml="PxUOMCcy" name="LegPriceUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the price unit of measure. Conditionally required when LegPriceUnitOfMeasure(1421) = Ccy</description>
+  </field>
+  <field aid="1722" fixml="UOMCcy" name="DerivativeUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the unit of measure. Conditionally required when DerivativeUnitOfMeasure(1269) = Ccy</description>
+  </field>
+  <field aid="1723" fixml="PxUOMCcy" name="DerivativePriceUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the price unit of measure. Conditionally required when DerivativePriceUnitOfMeasure(1315) = Ccy</description>
   </field>
   <cat name="Session" fixml="session" not_req_xml="1"/>
   <cat name="Indication" fixml="indications" not_req_xml="0"/>
@@ -13719,6 +13751,13 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="CER">Certified Emissions Reduction</item>
     <item value="PRINC">Principal with relation to debt instrument</item>
     <item value="CRT">Climate Reserve Tonnes</item>
+    <item value="Ccy">Amount of currency</item>
+    <item value="BDFT">Board feet</item>
+    <item value="IPNT">Index point</item>
+    <item value="day">Days</item>
+    <item value="cwt">Hundredweight(US)</item>
+    <item value="g">Grams</item>
+    <item value="dt">Dry metric tons</item>
   </enum>
   <enum eid="997">
     <item value="H">Hour</item>
