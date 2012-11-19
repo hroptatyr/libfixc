@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP111" extver="FIX.5.0SP2.EP111">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP112" extver="FIX.5.0SP2.EP112">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -14263,6 +14263,9 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="761">
     <item value="1">CUSIP</item>
@@ -14451,6 +14454,9 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="786">
     <item value="1">Firm</item>
@@ -15361,6 +15367,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="954">
     <item value="1">Firm</item>
@@ -15831,6 +15840,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="1054">
     <item value="1">Firm</item>
@@ -15992,6 +16004,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="1064">
     <item value="1">Firm</item>
@@ -16289,6 +16304,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="1122">
     <item value="1">Firm</item>
@@ -16899,6 +16917,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="1298">
     <item value="1">Firm</item>
@@ -17366,6 +17387,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="1390">
     <item value="0">Do Not Publish Trade</item>
@@ -17544,6 +17568,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="1419">
     <item value="0">European</item>
@@ -17837,6 +17864,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="1470">
     <item value="1">Industry Classification</item>
@@ -18018,6 +18048,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="1511">
     <item value="0">Valid request</item>
@@ -18441,6 +18474,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="1568">
     <item value="1">Firm</item>
@@ -18800,6 +18836,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="1663">
     <item value="1">Firm</item>
@@ -18975,6 +19014,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="89">Large Positions Reporting Account</item>
     <item value="90">Settlement Firm</item>
     <item value="91">Settlement Account</item>
+    <item value="92">Reporting Market Center</item>
+    <item value="93">Related Reporting Market Center</item>
+    <item value="94">Away Market</item>
   </enum>
   <enum eid="1696">
     <item value="1">Firm</item>
