@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2" extver="FIX.5.0SP2">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2" extver="FIX.5.0SP2.EP98">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -5748,6 +5748,8 @@ The Quote Cancel message supports cancellation of:
     <field aid="1365"/>
     <component name="NestedParties4"/>
     <field aid="1443"/>
+    <field aid="1622"/>
+    <field aid="1623"/>
   </component>
   <component fixml="TrdRepIndicatorsGrp" name="TrdRepIndicatorsGrp" cat="TradeCapture" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -10719,6 +10721,12 @@ ComplexEventEndTime must always be greater than or equal to ComplexEventStartTim
   </field>
   <field aid="1504" fixml="TxnTm" name="RelSymTransactTime" type="UTCTimestamp" not_req_xml="0">
     <description>See TransactTime(60)</description>
+  </field>
+  <field aid="1622" fixml="Typ" name="FillYieldType" type="String" not_req_xml="0">
+    <description>Yield Type, using same values as YieldType (235)</description>
+  </field>
+  <field aid="1623" fixml="Yld" name="FillYield" type="Percentage" not_req_xml="0">
+    <description>Yield Percentage, using same values as Yield (236)</description>
   </field>
   <cat name="Session" fixml="session" not_req_xml="1"/>
   <cat name="Indication" fixml="indications" not_req_xml="0"/>
