@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP114" extver="FIX.5.0SP2.EP114">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP115" extver="FIX.5.0SP2.EP115">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -210,6 +210,8 @@ Indication messages can be transmitted in various transaction types; NEW, CANCEL
     <field aid="194"/>
     <field aid="195"/>
     <field aid="30"/>
+    <field aid="100"/>
+    <field aid="1133"/>
     <field aid="336"/>
     <field aid="625"/>
     <field aid="943"/>
@@ -319,6 +321,9 @@ Indication messages can be transmitted in various transaction types; NEW, CANCEL
     <field aid="60"/>
     <field aid="434"/>
     <field aid="102"/>
+    <field aid="100"/>
+    <field aid="1133"/>
+    <component name="Parties"/>
     <field aid="58"/>
     <field aid="354"/>
     <field aid="355"/>
@@ -541,6 +546,8 @@ The New Order message type may also be used by institutions or retail intermedia
     <component name="Instrument"/>
     <component name="FinancingDetails"/>
     <component name="UndInstrmtGrp"/>
+    <field aid="100"/>
+    <field aid="1133"/>
     <field aid="54"/>
     <field aid="60"/>
     <component name="OrderQtyData"/>
@@ -5608,6 +5615,7 @@ The Quote Cancel message supports cancellation of:
     <description>The DisplayInstruction component block is used to convey instructions on how a reserved order is to be handled in terms of when and how much of the order quantity is to be displayed to the market.</description>
     <field aid="1138"/>
     <field aid="1082"/>
+    <field aid="1608"/>
     <field aid="1083"/>
     <field aid="1084"/>
     <field aid="1085"/>
@@ -11510,6 +11518,9 @@ See SettlType(63) field for description.</description>
   </field>
   <field aid="1607" fixml="SecRejRsn" name="SecurityRejectReason" type="int" not_req_xml="0" eid="1607">
     <description>Identifies the reason  a security definition request is being rejected.</description>
+  </field>
+  <field aid="1608" fixml="InitDsplyQty" name="InitialDisplayQty" type="Qty" not_req_xml="0">
+    <description>Used to convey the initially requested display quantity specified in DisplayQty(1138) on order entry and modification messages in ExecutionReport message. Applicable only in ExecutionReport message where DisplayQty(1138) is the currently displayed quantity and the requested display quantity of the order also needs to be conveyed. The values of the two fields are different as soon as the order is partially filled and also after a refresh of the order whenever DisplayMethod(1084) is not 1=Initial.</description>
   </field>
   <field aid="1616" fixml="Exch" name="InstrumentScopeSecurityExchange" type="Exchange" not_req_xml="0">
     <description>Used to limit instrument scope to specified security exchange.
