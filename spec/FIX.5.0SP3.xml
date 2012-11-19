@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP102" extver="FIX.5.0SP2.EP102">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP103" extver="FIX.5.0SP2.EP103">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -1343,6 +1343,7 @@ The Quote Cancel message supports cancellation of:
     <component name="RgstDtlsGrp"/>
     <component name="RgstDistInstGrp"/>
     <component name="StandardTrailer"/>
+    <field aid="715"/>
   </message>
   <message fix="p" fixml="RgstInstrctnsRsp" name="RegistrationInstructionsResponse" cat="RegistrationInstruction" sec="Post Trade" not_req_xml="0">
     <description>The Registration Instructions Response message type may be used by broker or fund manager (for CIV) in response to a Registration Instructions message submitted by an institution or retail intermediary for an order or for an allocation.</description>
@@ -2300,6 +2301,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="355"/>
     <field aid="120"/>
     <component name="StandardTrailer"/>
+    <component name="RelatedInstrumentGrp"/>
   </message>
   <message fix="AM" fixml="PosMntRpt" name="PositionMaintenanceReport" cat="PositionMaintenance" sec="Post Trade" not_req_xml="0">
     <description>The Position Maintenance Report message is sent by the holder of a positon in response to a Position Maintenance Request and is used to confirm that a request has been successfully processed or rejected.</description>
@@ -2336,6 +2338,8 @@ The Quote Cancel message supports cancellation of:
     <field aid="354"/>
     <field aid="355"/>
     <component name="StandardTrailer"/>
+    <field aid="1328"/>
+    <component name="RelatedInstrumentGrp"/>
   </message>
   <message fix="AN" fixml="ReqForPoss" name="RequestForPositions" cat="PositionMaintenance" sec="Post Trade" not_req_xml="0">
     <description>The Request For Positions message is used by the owner of a position to request a Position Report from the holder of the position, usually the central counter party or clearing organization. The request can be made at several levels of granularity.</description>
@@ -2439,6 +2443,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="1635"/>
     <field aid="911"/>
     <field aid="912"/>
+    <component name="RelatedInstrumentGrp"/>
   </message>
   <message fix="AQ" fixml="TrdCaptRptReqAck" name="TradeCaptureReportRequestAck" cat="TradeCapture" sec="Post Trade" not_req_xml="0">
     <description>The Trade Capture Request Ack message is used to:
@@ -3845,6 +3850,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="706"/>
     <field aid="976"/>
     <component name="NestedParties"/>
+    <field aid="1654"/>
   </component>
   <component fixml="SetInstr" name="SettlInstructionsData" cat="Common" type="Block" not_req_xml="0">
     <description>The SettlInstructionsData component block is used to convey key information regarding standing settlement and delivery instructions. It also provides a reference to standing settlement details regarding the source, delivery instructions, and settlement parties</description>
@@ -6034,6 +6040,16 @@ The Quote Cancel message supports cancellation of:
     <field aid="1645"/>
     <field aid="1644"/>
     <field aid="1646"/>
+  </component>
+  <component fixml="ReltdInstrmt" name="RelatedInstrumentGrp" cat="Common " type="BlockRepeating" not_req_xml="0">
+    <description/>
+    <field aid="1647"/>
+    <field aid="1648"/>
+    <field aid="1649"/>
+    <field aid="1650"/>
+    <field aid="1651"/>
+    <field aid="1652"/>
+    <field aid="1653"/>
   </component>
   <field aid="1" fixml="Acct" name="Account" type="String" not_req_xml="0">
     <description>Account mnemonic as agreed between buy and sell sides, e.g. broker and institution or investor/intermediary and fund manager.</description>
@@ -8401,7 +8417,7 @@ See SecurityID (tag 48) for description and valid values.</description>
     <description>Reference to a PosMaintRptID (721) from a previous Position Maintenance Report that is being replaced or canceled.</description>
   </field>
   <field aid="715" fixml="BizDt" name="ClearingBusinessDate" type="LocalMktDate" not_req_xml="0">
-    <description>The "Clearing Business Date" referred to by this maintenance request.</description>
+    <description>Identifies the Business Date</description>
   </field>
   <field aid="716" fixml="SetSesID" name="SettlSessID" type="String" not_req_xml="0">
     <description>Identifies a specific settlement session</description>
@@ -10335,7 +10351,7 @@ Conditionally required if OptPayoutType(1482) is set to binary.</description>
     <description>Specifies the action taken for the specified trading sessions.</description>
   </field>
   <field aid="1328" fixml="RejTxt" name="RejectText" type="String" not_req_xml="0">
-    <description>Those will be used by Firms to send a reason for rejecting a trade in an allocate claim model.</description>
+    <description>Identifies the reason for rejection.</description>
   </field>
   <field aid="1329" fixml="FeeMult" name="FeeMultiplier" type="float" not_req_xml="0">
     <description>This is a multiplier that Clearing (Fee system) will use to calculate fees and will be sent to the firms on their confirms.</description>
@@ -10925,6 +10941,31 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   </field>
   <field aid="1646" fixml="Ccy" name="MarginAmtCcy" type="Currency" not_req_xml="0">
     <description>Currency of margin requirement</description>
+  </field>
+  <field aid="1647" fixml="" name="NoRelatedInstruments" type="NumInGroup" not_req_xml="1">
+    <description>Number of related instruments</description>
+  </field>
+  <field aid="1648" fixml="InstrmtTyp" name="RelatedInstrumentType" type="int" not_req_xml="0">
+    <description>The type of instrument relationship</description>
+  </field>
+  <field aid="1649" fixml="Sym" name="RelatedSymbol" type="String" not_req_xml="0">
+    <description>Instrument being used to offset the Option Instrument </description>
+  </field>
+  <field aid="1650" fixml="ID" name="RelatedSecurityID" type="String" not_req_xml="0">
+    <description>Security identifier value of RelatedSecurityIDSource (1651) type (e.g. CUSIP, SEDOL, ISIN, etc). Requires RelatedSecurityIDSource.</description>
+  </field>
+  <field aid="1651" fixml="Src" name="RelatedSecurityIDSource" type="String" not_req_xml="0" eid="22">
+    <description>Identifies class or source of the RelatedSecurityID (1650) value. Required if RelatedSecurityID is specified.
+100+ are reserved for private security identifications</description>
+  </field>
+  <field aid="1652" fixml="SecTyp" name="RelatedSecurityType" type="String" not_req_xml="0">
+    <description>Security Type of the Related Instrument</description>
+  </field>
+  <field aid="1653" fixml="MMY" name="RelatedMaturityMonthYear" type="MonthYear" not_req_xml="0">
+    <description>Expiration Date for the Related Instrument contract</description>
+  </field>
+  <field aid="1654" fixml="CvrdQty" name="CoveredQty" type="Qty" not_req_xml="0">
+    <description>Used in the Position Quantity component to describe the portion of the Short Contract Quantity that is considered covered.</description>
   </field>
   <cat name="Session" fixml="session" not_req_xml="1"/>
   <cat name="Indication" fixml="indications" not_req_xml="0"/>
@@ -12378,6 +12419,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="F">Settlement Entity Location (note if Local Market Settlement use "E=ISO Country Code") (see "Appendix 6-G" for valid values)</item>
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
+    <item value="J">Tax ID</item>
   </enum>
   <enum eid="452">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -12465,6 +12507,9 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="84">Acceptable Settling Counterparty</item>
     <item value="85">Unacceptable Settling Counterparty</item>
     <item value="86">CLS Member Bank</item>
+    <item value="87">In Concert Group</item>
+    <item value="88">In Concert Controlling Entity</item>
+    <item value="89">Large Positions Reporting Account</item>
   </enum>
   <enum eid="460">
     <item value="1">AGENCY</item>
@@ -13068,6 +13113,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="SEA">Succession Event Adjustment</item>
     <item value="NET">Net Qty</item>
     <item value="GRS">Gross Qty</item>
+    <item value="ITD">Intraday Qty</item>
   </enum>
   <enum eid="706">
     <item value="0">Submitted</item>
@@ -13101,6 +13147,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="4">Position Change Submission/Margin Disposition</item>
     <item value="5">Pledge</item>
     <item value="6">Large Trader Submission</item>
+    <item value="7">Large Positions Reporting Submission</item>
   </enum>
   <enum eid="712">
     <item value="1">New - used to increment the overall transaction quantity</item>
@@ -13141,6 +13188,9 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="5">Backout Message</item>
     <item value="6">Delta Positions</item>
     <item value="7">Net Position</item>
+    <item value="8">Large Positions Reporting</item>
+    <item value="9">Exercise Position Reporting Submission</item>
+    <item value="10">Position Limit Reporting Submission</item>
   </enum>
   <enum eid="725">
     <item value="0">Inband - transport the request was sent over (default)</item>
@@ -13308,6 +13358,12 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="31">Location</item>
     <item value="32">Execution venue</item>
     <item value="33">Currency delivery identifier</item>
+    <item value="34">Address City</item>
+    <item value="35">Address State/Province</item>
+    <item value="36">Address Postal Code</item>
+    <item value="37">Address Street</item>
+    <item value="38">Address Country (ISO country code)</item>
+    <item value="39">ISO country code</item>
   </enum>
   <enum eid="808">
     <item value="1">Pending Accept</item>
@@ -14542,6 +14598,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="22">Total Margin</item>
     <item value="23">Variation Margin</item>
     <item value="24">Secondary Variation Margin</item>
+  </enum>
+  <enum eid="1648">
+    <item value="1">"hedges for" instrument</item>
   </enum>
   <enum eid="35">
     <item value="0">Heartbeat</item>
