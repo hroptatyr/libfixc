@@ -982,6 +982,7 @@ The Allocation Instruction Ack message is used to acknowledge the receipt of and
     <field aid="813"/>
     <field aid="814"/>
     <component name="RoutingGrp"/>
+    <component name="AttrbGrp"/>
     <component name="StandardTrailer"/>
     <field aid="1500"/>
   </message>
