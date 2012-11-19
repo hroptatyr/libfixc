@@ -11342,10 +11342,10 @@ See SecurityExchange(207) field for description.</description>
   <field aid="1627" fixml="Valu" name="MatchAttribValue" type="String" not_req_xml="0">
     <description>Enumeration value of the MatchAttribField to be applied as a Matching Criteria to the Instruction.</description>
   </field>
-  <field aid="1628" fixml="TrgrScope" name="TriggerScope" type="Int" not_req_xml="0">
+  <field aid="1628" fixml="TrgrScope" name="TriggerScope" type="int" not_req_xml="0">
     <description>Defines the scope of TriggerAction(1101) when it is set to "cancel" (3).</description>
   </field>
-  <field aid="1629" fixml="ExpsreDur" name="ExposureDuration" type="Int" not_req_xml="0">
+  <field aid="1629" fixml="ExpsreDur" name="ExposureDuration" type="int" not_req_xml="0">
     <description>This is the time in seconds of a "Good for Time" (GFT) TimeInForce.
 
 Positive integer value which represents the time is seconds in which the new order remains active in the market before it is automatically cancelled (e.g. expired).
@@ -11355,7 +11355,7 @@ Bi-lateral agreements will dictate the maximum value of this field. It is assume
   <field aid="1630" fixml="NoLmtAmts" name="NoLimitAmts" type="NumInGroup" not_req_xml="1">
     <description>The number of limit amount entries.</description>
   </field>
-  <field aid="1631" fixml="LmtAmtTyp" name="LimitAmtType" type="Int" not_req_xml="0">
+  <field aid="1631" fixml="LmtAmtTyp" name="LimitAmtType" type="int" not_req_xml="0">
     <description>Identifies the type of limit amount expressed in LastLimitAmt(1632) and LimitAmtRemaining(1633).</description>
   </field>
   <field aid="1632" fixml="LastLmtAmt" name="LastLimitAmt" type="Amt" not_req_xml="0">
