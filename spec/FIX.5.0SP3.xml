@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP112" extver="FIX.5.0SP2.EP112">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP114" extver="FIX.5.0SP2.EP114">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -1135,6 +1135,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="322"/>
     <field aid="323"/>
     <field aid="560"/>
+    <field aid="1607"/>
     <field aid="292"/>
     <component name="Instrument"/>
     <component name="InstrumentExtension"/>
@@ -1145,6 +1146,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="354"/>
     <field aid="355"/>
     <component name="Stipulations"/>
+    <field aid="1606"/>
     <component name="InstrmtLegGrp"/>
     <component name="SpreadOrBenchmarkCurveData"/>
     <component name="YieldData"/>
@@ -1628,15 +1630,6 @@ The Quote Cancel message supports cancellation of:
     <component name="ApplicationSequenceControl"/>
     <field aid="964"/>
     <field aid="715"/>
-    <field aid="320"/>
-    <field aid="322"/>
-    <field aid="560"/>
-    <field aid="393"/>
-    <field aid="1301"/>
-    <field aid="1300"/>
-    <field aid="893"/>
-    <component name="SecListGrp"/>
-    <component name="StandardTrailer"/>
     <field aid="1465"/>
     <field aid="1466"/>
     <field aid="1467"/>
@@ -1644,7 +1637,17 @@ The Quote Cancel message supports cancellation of:
     <field aid="1469"/>
     <field aid="1470"/>
     <field aid="1471"/>
+    <field aid="320"/>
+    <field aid="322"/>
+    <field aid="560"/>
+    <field aid="1607"/>
     <field aid="60"/>
+    <field aid="393"/>
+    <field aid="1301"/>
+    <field aid="1300"/>
+    <field aid="893"/>
+    <component name="SecListGrp"/>
+    <component name="StandardTrailer"/>
   </message>
   <message fix="z" fixml="DerivSecListReq" name="DerivativeSecurityListRequest" cat="SecuritiesReferenceData" sec="Pre Trade" not_req_xml="0">
     <description>The Derivative Security List Request message is used to return a list of securities from the counterparty that match criteria provided on the request</description>
@@ -1669,18 +1672,19 @@ The Quote Cancel message supports cancellation of:
     <description>The Derivative Security List message is used to return a list of securities that matches the criteria specified in a Derivative Security List Request.</description>
     <component name="StandardHeader"/>
     <component name="ApplicationSequenceControl"/>
+    <field aid="964"/>
     <field aid="320"/>
     <field aid="322"/>
     <field aid="560"/>
+    <field aid="1607"/>
+    <field aid="715"/>
     <component name="UnderlyingInstrument"/>
     <component name="DerivativeSecurityDefinition"/>
+    <field aid="779"/>
+    <field aid="60"/>
     <field aid="393"/>
     <field aid="893"/>
     <component name="RelSymDerivSecGrp"/>
-    <field aid="964"/>
-    <field aid="715"/>
-    <field aid="779"/>
-    <field aid="60"/>
     <component name="StandardTrailer"/>
   </message>
   <message fix="AB" fixml="NewOrdMleg" name="NewOrderMultileg" cat="MultilegOrders" sec="Trade" not_req_xml="0">
@@ -3158,6 +3162,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="354"/>
     <field aid="355"/>
     <component name="Stipulations"/>
+    <field aid="1606"/>
     <component name="InstrmtLegGrp"/>
     <component name="SpreadOrBenchmarkCurveData"/>
     <component name="YieldData"/>
@@ -5044,10 +5049,11 @@ The Quote Cancel message supports cancellation of:
     <field aid="292"/>
     <component name="InstrumentExtension"/>
     <component name="InstrmtLegGrp"/>
+    <field aid="1504"/>
+    <field aid="1606"/>
     <field aid="58"/>
     <field aid="354"/>
     <field aid="355"/>
-    <field aid="1504"/>
   </component>
   <component fixml="RFQReq" name="RFQReqGrp" cat="QuotationNegotiation" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -5106,10 +5112,11 @@ The Quote Cancel message supports cancellation of:
     <component name="InstrmtLegSecListGrp"/>
     <component name="SpreadOrBenchmarkCurveData"/>
     <component name="YieldData"/>
+    <field aid="1504"/>
+    <field aid="1606"/>
     <field aid="58"/>
     <field aid="354"/>
     <field aid="355"/>
-    <field aid="1504"/>
   </component>
   <component fixml="SecT" name="SecTypesGrp" cat="SecuritiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -11498,6 +11505,12 @@ See SettlType(63) field for description.</description>
   <field aid="1599" fixml="SidePxDiff" name="SidePriceDifferential" type="Price" not_req_xml="0">
     <description>Price Differential between the front and back leg of a spread or complex instrument.</description>
   </field>
+  <field aid="1606" fixml="NumSimplInstrmt" name="NumOfSimpleInstruments" type="int" not_req_xml="0">
+    <description>Represents the total number of simple instruments that make up a multi-legged security. Complex spread instruments may be constructed of legs which themselves are multi-leg instruments.</description>
+  </field>
+  <field aid="1607" fixml="SecRejRsn" name="SecurityRejectReason" type="int" not_req_xml="0" eid="1607">
+    <description>Identifies the reason  a security definition request is being rejected.</description>
+  </field>
   <field aid="1616" fixml="Exch" name="InstrumentScopeSecurityExchange" type="Exchange" not_req_xml="0">
     <description>Used to limit instrument scope to specified security exchange.
 See SecurityExchange(207) field for description.</description>
@@ -13054,6 +13067,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="24">Pre-Cross - system is in a pre-cross state allowing market to respond to either side of cross</item>
     <item value="25">Cross - system has crossed a percentage of the orders and allows market to respond prior to crossing remaining portion</item>
     <item value="26">Post-close</item>
+    <item value="27">No-cancel</item>
   </enum>
   <enum eid="327">
     <item value="0">News Dissemination</item>
@@ -14809,6 +14823,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="39">Large in Scale (L)</item>
     <item value="40">Wash Trade</item>
     <item value="41">Trade at Settlement</item>
+    <item value="42">Auction at Trade</item>
     <item value="43">Trade at Marker</item>
   </enum>
   <enum eid="835">
@@ -15490,6 +15505,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="CBM">Cubic Meters</item>
     <item value="CER">Certified Emissions Reduction</item>
     <item value="PRINC">Principal with relation to debt instrument</item>
+    <item value="CRT">Climate Reserve Tonnes</item>
   </enum>
   <enum eid="997">
     <item value="H">Hour</item>
@@ -15517,6 +15533,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="CBM">Cubic Meters</item>
     <item value="CER">Certified Emissions Reduction</item>
     <item value="PRINC">Principal with relation to debt instrument</item>
+    <item value="CRT">Climate Reserve Tonnes</item>
   </enum>
   <enum eid="999">
     <item value="Bbl">Barrels</item>
@@ -15535,6 +15552,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="CBM">Cubic Meters</item>
     <item value="CER">Certified Emissions Reduction</item>
     <item value="PRINC">Principal with relation to debt instrument</item>
+    <item value="CRT">Climate Reserve Tonnes</item>
   </enum>
   <enum eid="1000">
     <item value="H">Hour</item>
@@ -15601,6 +15619,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="39">Large in Scale (L)</item>
     <item value="40">Wash Trade</item>
     <item value="41">Trade at Settlement</item>
+    <item value="42">Auction at Trade</item>
     <item value="43">Trade at Marker</item>
   </enum>
   <enum eid="1013">
@@ -16489,6 +16508,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="CBM">Cubic Meters</item>
     <item value="CER">Certified Emissions Reduction</item>
     <item value="PRINC">Principal with relation to debt instrument</item>
+    <item value="CRT">Climate Reserve Tonnes</item>
   </enum>
   <enum eid="1193">
     <item value="C">Cash settlement required</item>
@@ -16771,6 +16791,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="CBM">Cubic Meters</item>
     <item value="CER">Certified Emissions Reduction</item>
     <item value="PRINC">Principal with relation to debt instrument</item>
+    <item value="CRT">Climate Reserve Tonnes</item>
   </enum>
   <enum eid="1271">
     <item value="H">Hour</item>
@@ -17107,6 +17128,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="CBM">Cubic Meters</item>
     <item value="CER">Certified Emissions Reduction</item>
     <item value="PRINC">Principal with relation to debt instrument</item>
+    <item value="CRT">Climate Reserve Tonnes</item>
   </enum>
   <enum eid="1317">
     <item value="C">Cash settlement required</item>
@@ -17599,6 +17621,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="CBM">Cubic Meters</item>
     <item value="CER">Certified Emissions Reduction</item>
     <item value="PRINC">Principal with relation to debt instrument</item>
+    <item value="CRT">Climate Reserve Tonnes</item>
   </enum>
   <enum eid="1424">
     <item value="Bbl">Barrels</item>
@@ -17617,6 +17640,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="CBM">Cubic Meters</item>
     <item value="CER">Certified Emissions Reduction</item>
     <item value="PRINC">Principal with relation to debt instrument</item>
+    <item value="CRT">Climate Reserve Tonnes</item>
   </enum>
   <enum eid="1426">
     <item value="0">Reset ApplSeqNum to new value specified in ApplNewSeqNum(1399)</item>
@@ -18607,6 +18631,19 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
   <enum eid="1598">
     <item value="0">Trade Clearing at Execution Price</item>
     <item value="1">Trade Clearing at Alternate Clearing Price</item>
+  </enum>
+  <enum eid="1607">
+    <item value="1">Invalid instrument requested</item>
+    <item value="2">Instrument already exists</item>
+    <item value="3">Request type not supported</item>
+    <item value="4">System unavailable for instrument creation</item>
+    <item value="5">Ineligible instrument group</item>
+    <item value="6">Instrument ID unavailable</item>
+    <item value="7">Invalid or missing data on option leg</item>
+    <item value="8">Invalid or missing data on future leg</item>
+    <item value="10">Invalid or missing data on FX leg</item>
+    <item value="11">Invalid leg price specified</item>
+    <item value="12">Invalid instrument structure specified</item>
   </enum>
   <enum eid="1617">
     <item value="1">Assignment</item>
