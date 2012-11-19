@@ -3601,6 +3601,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="1717"/>
     <field aid="1193"/>
     <field aid="1194"/>
+    <field aid="8100"/>
     <field aid="1195"/>
     <field aid="1196"/>
     <field aid="1197"/>
@@ -10880,6 +10881,9 @@ ComplexEventEndTime must always be greater than or equal to ComplexEventStartTim
   </field>
   <field aid="1831" fixml="SetlPxIncr2" name="SettlPriceSecondaryIncrement" type="Price" not_req_xml="0">
     <description>Secondary settlement price increment for stated price range. The meaning of secondary is left to bilateral agreement, e.g. it may refer to final settlement for a contract.</description>
+  </field>
+  <field aid="8100" fixml="FnlSettlCcy" name="FinalSettlCurrency" type="Currency" not_req_xml="0">
+    <description>Currency code of final settlement denomination.</description>
   </field>
   <cat name="Session" fixml="session" not_req_xml="1"/>
   <cat name="Indication" fixml="indications" not_req_xml="0"/>
