@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP104" extver="FIX.5.0SP2.EP104">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2+CME" extver="FIX.5.0SP2+CME">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -293,10 +293,6 @@ Indication messages can be transmitted in various transaction types; NEW, CANCEL
     <field aid="811"/>
     <component name="StandardTrailer"/>
     <component name="RateSource"/>
-    <component name="MatchingInstructions"/>
-    <field aid="1629"/>
-    <field aid="1385"/>
-    <component name="LimitAmts"/>
   </message>
   <message fix="9" fixml="OrdCxlRej" name="OrderCancelReject" cat="SingleGeneralOrderHandling" sec="Trade" not_req_xml="0">
     <description>The order cancel reject message is issued by the broker upon receipt of a cancel request or cancel/replace request message which cannot be honored.</description>
@@ -495,8 +491,6 @@ The New Order message type may also be used by institutions or retail intermedia
     <field aid="1080"/>
     <field aid="1081"/>
     <component name="StandardTrailer"/>
-    <component name="MatchingInstructions"/>
-    <field aid="1629"/>
   </message>
   <message fix="E" fixml="NewOrdList" name="NewOrderList" cat="ProgramTrading" sec="Trade" not_req_xml="0">
     <description>The NewOrderList Message can be used in one of two ways depending on which market conventions are being followed.</description>
@@ -644,8 +638,6 @@ Do not use this message to cancel the remaining quantity of an outstanding order
     <field aid="1032"/>
     <component name="TrdRegTimestamps"/>
     <component name="StandardTrailer"/>
-    <component name="MatchingInstructions"/>
-    <field aid="1629"/>
   </message>
   <message fix="H" fixml="OrdStatReq" name="OrderStatusRequest" cat="SingleGeneralOrderHandling" sec="Trade" not_req_xml="0">
     <description>The order status request message is used by the institution to generate an order status message back from the broker.</description>
@@ -980,6 +972,7 @@ The Allocation Instruction Ack message is used to acknowledge the receipt of and
     <field aid="75"/>
     <field aid="262"/>
     <component name="Instrument"/>
+    <component name="InstrumentExtension"/>
     <component name="UndInstrmtGrp"/>
     <component name="InstrmtLegGrp"/>
     <field aid="291"/>
@@ -989,6 +982,7 @@ The Allocation Instruction Ack message is used to acknowledge the receipt of and
     <field aid="813"/>
     <field aid="814"/>
     <component name="RoutingGrp"/>
+    <component name="AttrbGrp"/>
     <component name="StandardTrailer"/>
     <field aid="1500"/>
   </message>
@@ -1126,21 +1120,26 @@ The Quote Cancel message supports cancellation of:
     <field aid="320"/>
     <field aid="322"/>
     <field aid="323"/>
+    <field aid="560"/>
+    <field aid="1607"/>
     <field aid="292"/>
     <component name="Instrument"/>
     <component name="InstrumentExtension"/>
     <component name="UndInstrmtGrp"/>
+    <component name="SecurityClassificationGrp"/>
     <field aid="15"/>
     <field aid="58"/>
     <field aid="354"/>
     <field aid="355"/>
     <component name="Stipulations"/>
+    <field aid="1606"/>
     <component name="InstrmtLegGrp"/>
     <component name="SpreadOrBenchmarkCurveData"/>
     <component name="YieldData"/>
     <component name="MarketSegmentGrp"/>
-    <component name="StandardTrailer"/>
+    <field aid="779"/>
     <field aid="60"/>
+    <component name="StandardTrailer"/>
   </message>
   <message fix="e" fixml="SecStatReq" name="SecurityStatusRequest" cat="SecuritiesReferenceData" sec="Pre Trade" not_req_xml="0">
     <description>The Security Status Request message provides for the ability to request the status of a security. One or more Security Status messages are returned as a result of a Security Status Request message.</description>
@@ -1194,7 +1193,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="354"/>
     <field aid="355"/>
     <component name="StandardTrailer"/>
-    <field aid="1655"/>
   </message>
   <message fix="g" fixml="TrdgSesStatReq" name="TradingSessionStatusRequest" cat="MarketStructureReferenceData" sec="Pre Trade" not_req_xml="0">
     <description>The Trading Session Status Request is used to request information on the status of a market. With the move to multiple sessions occurring for a given trading party (morning and evening sessions for instance) there is a need to be able to provide information on what product is trading on what market.</description>
@@ -1344,7 +1342,6 @@ The Quote Cancel message supports cancellation of:
     <component name="RgstDtlsGrp"/>
     <component name="RgstDistInstGrp"/>
     <component name="StandardTrailer"/>
-    <field aid="715"/>
   </message>
   <message fix="p" fixml="RgstInstrctnsRsp" name="RegistrationInstructionsResponse" cat="RegistrationInstruction" sec="Post Trade" not_req_xml="0">
     <description>The Registration Instructions Response message type may be used by broker or fund manager (for CIV) in response to a Registration Instructions message submitted by an institution or retail intermediary for an order or for an allocation.</description>
@@ -1469,7 +1466,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="513"/>
     <field aid="494"/>
     <component name="StandardTrailer"/>
-    <field aid="1629"/>
   </message>
   <message fix="t" fixml="CrssOrdCxlRplcReq" name="CrossOrderCancelReplaceRequest" cat="CrossOrders" sec="Trade" not_req_xml="0">
     <description>Used to modify a cross order previously submitted using the New Order - Cross message. See Order Cancel Replace Request for details concerning message usage.</description>
@@ -1532,7 +1528,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="513"/>
     <field aid="494"/>
     <component name="StandardTrailer"/>
-    <field aid="1629"/>
   </message>
   <message fix="u" fixml="CrssOrdCxlReq" name="CrossOrderCancelRequest" cat="CrossOrders" sec="Trade" not_req_xml="0">
     <description>Used to fully cancel the remaining open quantity of a cross order.</description>
@@ -1617,15 +1612,6 @@ The Quote Cancel message supports cancellation of:
     <component name="ApplicationSequenceControl"/>
     <field aid="964"/>
     <field aid="715"/>
-    <field aid="320"/>
-    <field aid="322"/>
-    <field aid="560"/>
-    <field aid="393"/>
-    <field aid="1301"/>
-    <field aid="1300"/>
-    <field aid="893"/>
-    <component name="SecListGrp"/>
-    <component name="StandardTrailer"/>
     <field aid="1465"/>
     <field aid="1466"/>
     <field aid="1467"/>
@@ -1633,7 +1619,17 @@ The Quote Cancel message supports cancellation of:
     <field aid="1469"/>
     <field aid="1470"/>
     <field aid="1471"/>
+    <field aid="320"/>
+    <field aid="322"/>
+    <field aid="560"/>
+    <field aid="1607"/>
     <field aid="60"/>
+    <field aid="393"/>
+    <field aid="1301"/>
+    <field aid="1300"/>
+    <field aid="893"/>
+    <component name="SecListGrp"/>
+    <component name="StandardTrailer"/>
   </message>
   <message fix="z" fixml="DerivSecListReq" name="DerivativeSecurityListRequest" cat="SecuritiesReferenceData" sec="Pre Trade" not_req_xml="0">
     <description>The Derivative Security List Request message is used to return a list of securities from the counterparty that match criteria provided on the request</description>
@@ -1658,18 +1654,20 @@ The Quote Cancel message supports cancellation of:
     <description>The Derivative Security List message is used to return a list of securities that matches the criteria specified in a Derivative Security List Request.</description>
     <component name="StandardHeader"/>
     <component name="ApplicationSequenceControl"/>
+    <field aid="964"/>
     <field aid="320"/>
     <field aid="322"/>
     <field aid="560"/>
+    <field aid="1607"/>
+    <field aid="715"/>
     <component name="UnderlyingInstrument"/>
     <component name="DerivativeSecurityDefinition"/>
+    <field aid="779"/>
+    <field aid="60"/>
     <field aid="393"/>
     <field aid="893"/>
     <component name="RelSymDerivSecGrp"/>
     <component name="StandardTrailer"/>
-    <field aid="964"/>
-    <field aid="715"/>
-    <field aid="60"/>
   </message>
   <message fix="AB" fixml="NewOrdMleg" name="NewOrderMultileg" cat="MultilegOrders" sec="Trade" not_req_xml="0">
     <description>The New Order - Multileg is provided to submit orders for securities that are made up of multiple securities, known as legs.</description>
@@ -1760,8 +1758,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="494"/>
     <field aid="563"/>
     <component name="StandardTrailer"/>
-    <component name="MatchingInstructions"/>
-    <field aid="1629"/>
   </message>
   <message fix="AC" fixml="MlegOrdCxlRplc" name="MultilegOrderCancelReplace" cat="MultilegOrders" sec="Trade" not_req_xml="0">
     <description>Used to modify a multileg order previously submitted using the New Order - Multileg message. See Order Cancel Replace Request for details concerning message usage.</description>
@@ -1853,8 +1849,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="494"/>
     <field aid="563"/>
     <component name="StandardTrailer"/>
-    <component name="MatchingInstructions"/>
-    <field aid="1629"/>
   </message>
   <message fix="AD" fixml="TrdCaptRptReq" name="TradeCaptureReportRequest" cat="TradeCapture" sec="Post Trade" not_req_xml="0">
     <description>The Trade Capture Report Request can be used to:
@@ -1870,6 +1864,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="263"/>
     <field aid="571"/>
     <field aid="818"/>
+    <field aid="527"/>
     <field aid="17"/>
     <field aid="150"/>
     <field aid="37"/>
@@ -1951,6 +1946,9 @@ The Quote Cancel message supports cancellation of:
     <field aid="1015"/>
     <field aid="716"/>
     <field aid="717"/>
+    <field aid="1430"/>
+    <field aid="1300"/>
+    <field aid="1301"/>
     <component name="Instrument"/>
     <component name="FinancingDetails"/>
     <field aid="854"/>
@@ -1960,6 +1958,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="823"/>
     <field aid="32"/>
     <field aid="31"/>
+    <field aid="1522"/>
     <field aid="1056"/>
     <field aid="15"/>
     <field aid="120"/>
@@ -2001,13 +2000,10 @@ The Quote Cancel message supports cancellation of:
     <field aid="1132"/>
     <field aid="1134"/>
     <field aid="381"/>
+    <field aid="751"/>
     <field aid="1328"/>
     <field aid="1329"/>
     <component name="StandardTrailer"/>
-    <field aid="1430"/>
-    <field aid="1300"/>
-    <field aid="1301"/>
-    <field aid="549"/>
   </message>
   <message fix="AF" fixml="OrdMassStatReq" name="OrderMassStatusRequest" cat="OrderMassHandling" sec="Trade" not_req_xml="0">
     <description>The order mass status request message requests the status for orders matching criteria specified within the request.</description>
@@ -2302,7 +2298,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="355"/>
     <field aid="120"/>
     <component name="StandardTrailer"/>
-    <component name="RelatedInstrumentGrp"/>
   </message>
   <message fix="AM" fixml="PosMntRpt" name="PositionMaintenanceReport" cat="PositionMaintenance" sec="Post Trade" not_req_xml="0">
     <description>The Position Maintenance Report message is sent by the holder of a positon in response to a Position Maintenance Request and is used to confirm that a request has been successfully processed or rejected.</description>
@@ -2339,8 +2334,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="354"/>
     <field aid="355"/>
     <component name="StandardTrailer"/>
-    <field aid="1328"/>
-    <component name="RelatedInstrumentGrp"/>
   </message>
   <message fix="AN" fixml="ReqForPoss" name="RequestForPositions" cat="PositionMaintenance" sec="Post Trade" not_req_xml="0">
     <description>The Request For Positions message is used by the owner of a position to request a Position Report from the holder of the position, usually the central counter party or clearing organization. The request can be made at several levels of granularity.</description>
@@ -2400,7 +2393,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="354"/>
     <field aid="355"/>
     <component name="StandardTrailer"/>
-    <field aid="911"/>
   </message>
   <message fix="AP" fixml="PosRpt" name="PositionReport" cat="PositionMaintenance" sec="Post Trade" not_req_xml="0">
     <description>The Position Report message is returned by the holder of a position in response to a Request for Position message. The purpose of the message is to report all aspects of a position and may be provided on a standing basis to report end of day positions to an owner.</description>
@@ -2441,10 +2433,6 @@ The Quote Cancel message supports cancellation of:
     <component name="StandardTrailer"/>
     <field aid="1434"/>
     <field aid="811"/>
-    <field aid="1635"/>
-    <field aid="911"/>
-    <field aid="912"/>
-    <component name="RelatedInstrumentGrp"/>
   </message>
   <message fix="AQ" fixml="TrdCaptRptReqAck" name="TradeCaptureReportRequestAck" cat="TradeCapture" sec="Post Trade" not_req_xml="0">
     <description>The Trade Capture Request Ack message is used to:
@@ -2501,6 +2489,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="572"/>
     <field aid="881"/>
     <field aid="939"/>
+    <field aid="1523"/>
     <field aid="751"/>
     <field aid="818"/>
     <field aid="263"/>
@@ -2518,6 +2507,9 @@ The Quote Cancel message supports cancellation of:
     <field aid="854"/>
     <field aid="32"/>
     <field aid="31"/>
+    <field aid="1430"/>
+    <field aid="1300"/>
+    <field aid="1301"/>
     <component name="Instrument"/>
     <field aid="669"/>
     <field aid="1056"/>
@@ -2563,10 +2555,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="64"/>
     <field aid="1329"/>
     <component name="StandardTrailer"/>
-    <field aid="1430"/>
-    <field aid="1300"/>
-    <field aid="1301"/>
-    <field aid="549"/>
   </message>
   <message fix="AS" fixml="AllocRpt" name="AllocationReport" cat="Allocation" sec="Post Trade" not_req_xml="0">
     <description>Sent from sell-side to buy-side, sell-side to 3rd-party or 3rd-party to buy-side, the Allocation Report (Claim) provides account breakdown of an order or set of orders plus any additional follow-up front-office information developed post-trade during the trade allocation, matching and calculation phase. In versions of FIX prior to version 4.4, this functionality was provided through the Allocation message. Depending on the needs of the market and the timing of "confirmed" status, the role of Allocation Report can be taken over in whole or in part by the Confirmation message.</description>
@@ -3139,12 +3127,14 @@ The Quote Cancel message supports cancellation of:
     <field aid="354"/>
     <field aid="355"/>
     <component name="Stipulations"/>
+    <field aid="1606"/>
     <component name="InstrmtLegGrp"/>
     <component name="SpreadOrBenchmarkCurveData"/>
     <component name="YieldData"/>
     <component name="MarketSegmentGrp"/>
-    <component name="StandardTrailer"/>
+    <field aid="779"/>
     <field aid="60"/>
+    <component name="StandardTrailer"/>
   </message>
   <message fix="BK" fixml="SecListUpd" name="SecurityListUpdateReport" cat="SecuritiesReferenceData" sec="Pre Trade" not_req_xml="0">
     <description>The Security List Update Report is used for reporting updates to a Contract Security Masterfile. Updates could be due to Corporate Actions or other business events. Update may include additions, modifications and deletions.</description>
@@ -3340,8 +3330,9 @@ The Quote Cancel message supports cancellation of:
     <field aid="393"/>
     <field aid="893"/>
     <component name="RelSymDerivSecUpdGrp"/>
-    <component name="StandardTrailer"/>
+    <field aid="779"/>
     <field aid="60"/>
+    <component name="StandardTrailer"/>
   </message>
   <message fix="BS" fixml="TrdgSesListUpd" name="TradingSessionListUpdateReport" cat="MarketStructureReferenceData" sec="Pre Trade" not_req_xml="0">
     <description>The Trading Session List Update Report is used by marketplaces to provide intra-day updates of trading sessions when there are changes to one or more trading sessions.</description>
@@ -3535,73 +3526,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="355"/>
     <component name="StandardTrailer"/>
   </message>
-  <message fix="CH" fixml="MgnReqmtInq" name="MarginRequirementInquiry" cat="MarginRequirementManagement" sec="Post Trade" not_req_xml="0">
-    <description/>
-    <component name="StandardHeader"/>
-    <field aid="1635"/>
-    <component name="MarginReqmtInqQualGrp"/>
-    <field aid="263"/>
-    <field aid="725"/>
-    <field aid="726"/>
-    <component name="Parties"/>
-    <field aid="715"/>
-    <field aid="716"/>
-    <field aid="717"/>
-    <field aid="1639"/>
-    <component name="Instrument"/>
-    <field aid="60"/>
-    <field aid="58"/>
-    <field aid="354"/>
-    <field aid="355"/>
-    <component name="StandardTrailer"/>
-  </message>
-  <message fix="CI" fixml="MgnReqmtInqAck" name="MarginRequirementInquiryAck" cat="MarginRequirementManagement" sec="Post Trade" not_req_xml="0">
-    <description/>
-    <component name="StandardHeader"/>
-    <field aid="1635"/>
-    <component name="MarginReqmtInqQualGrp"/>
-    <field aid="1640"/>
-    <field aid="1641"/>
-    <field aid="911"/>
-    <field aid="263"/>
-    <field aid="725"/>
-    <field aid="726"/>
-    <component name="Parties"/>
-    <field aid="715"/>
-    <field aid="716"/>
-    <field aid="717"/>
-    <field aid="1639"/>
-    <component name="Instrument"/>
-    <field aid="60"/>
-    <field aid="58"/>
-    <field aid="354"/>
-    <field aid="355"/>
-    <component name="StandardTrailer"/>
-  </message>
-  <message fix="CJ" fixml="MgnReqmtRpt" name="MarginRequirementReport" cat="MarginRequirementManagement" sec="Post Trade" not_req_xml="0">
-    <description/>
-    <component name="StandardHeader"/>
-    <component name="ApplicationSequenceControl"/>
-    <field aid="1642"/>
-    <field aid="1635"/>
-    <field aid="1638"/>
-    <field aid="911"/>
-    <field aid="912"/>
-    <field aid="325"/>
-    <component name="Parties"/>
-    <field aid="715"/>
-    <field aid="716"/>
-    <field aid="717"/>
-    <field aid="1639"/>
-    <field aid="15"/>
-    <component name="Instrument"/>
-    <component name="MarginAmountData"/>
-    <field aid="60"/>
-    <field aid="58"/>
-    <field aid="354"/>
-    <field aid="355"/>
-    <component name="StandardTrailer"/>
-  </message>
   <component fixml="Comm" name="CommissionData" cat="Common" type="Block" not_req_xml="0">
     <description>The CommissionDate component block is used to carry commission information such as the type of commission and the rate.</description>
     <field aid="12"/>
@@ -3672,13 +3596,17 @@ The Quote Cancel message supports cancellation of:
     <field aid="1146"/>
     <field aid="996"/>
     <field aid="1147"/>
+    <field aid="1716"/>
     <field aid="1191"/>
     <field aid="1192"/>
+    <field aid="1717"/>
     <field aid="1193"/>
     <field aid="1194"/>
+    <field aid="8100"/>
     <field aid="1195"/>
     <field aid="1196"/>
     <field aid="1197"/>
+    <field aid="1524"/>
     <field aid="1198"/>
     <field aid="1199"/>
     <field aid="1200"/>
@@ -3734,6 +3662,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="603"/>
     <component name="LegSecAltIDGrp"/>
     <field aid="607"/>
+    <field aid="1594"/>
     <field aid="608"/>
     <field aid="609"/>
     <field aid="764"/>
@@ -3758,10 +3687,13 @@ The Quote Cancel message supports cancellation of:
     <field aid="614"/>
     <field aid="999"/>
     <field aid="1224"/>
+    <field aid="1720"/>
     <field aid="1421"/>
     <field aid="1422"/>
+    <field aid="1721"/>
     <field aid="1001"/>
     <field aid="1420"/>
+    <field aid="1528"/>
     <field aid="615"/>
     <field aid="616"/>
     <field aid="617"/>
@@ -3841,6 +3773,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="707"/>
     <field aid="708"/>
     <field aid="1055"/>
+    <field aid="1585"/>
   </component>
   <component fixml="Qty" name="PositionQty" cat="Common" type="BlockRepeating" not_req_xml="0">
     <description>The PositionQty component block specifies the various types of position quantity in the position life-cycle including start-of-day, intraday, trade, adjustments, and end-of-day position quantities. Quantities are expressed in terms of long and short quantities.</description>
@@ -3851,7 +3784,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="706"/>
     <field aid="976"/>
     <component name="NestedParties"/>
-    <field aid="1654"/>
   </component>
   <component fixml="SetInstr" name="SettlInstructionsData" cat="Common" type="Block" not_req_xml="0">
     <description>The SettlInstructionsData component block is used to convey key information regarding standing settlement and delivery instructions. It also provides a reference to standing settlement details regarding the source, delivery instructions, and settlement parties</description>
@@ -3928,10 +3860,13 @@ The Quote Cancel message supports cancellation of:
     <field aid="436"/>
     <field aid="998"/>
     <field aid="1423"/>
+    <field aid="1718"/>
     <field aid="1424"/>
     <field aid="1425"/>
+    <field aid="1719"/>
     <field aid="1000"/>
     <field aid="1419"/>
+    <field aid="1526"/>
     <field aid="435"/>
     <field aid="308"/>
     <field aid="306"/>
@@ -4075,6 +4010,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="366"/>
     <field aid="80"/>
     <field aid="467"/>
+    <field aid="1593"/>
     <field aid="81"/>
     <field aid="989"/>
     <field aid="1002"/>
@@ -4463,7 +4399,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="848"/>
     <field aid="849"/>
     <field aid="494"/>
-    <field aid="1629"/>
   </component>
   <component fixml="Full" name="MDFullGrp" cat="MarketData" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -4516,6 +4451,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="1024"/>
     <field aid="332"/>
     <field aid="333"/>
+    <field aid="1592"/>
     <field aid="1020"/>
     <field aid="63"/>
     <field aid="64"/>
@@ -4530,7 +4466,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="828"/>
     <field aid="1025"/>
     <field aid="31"/>
-    <field aid="1629"/>
   </component>
   <component fixml="Inc" name="MDIncGrp" cat="MarketData" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -4597,6 +4532,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="1024"/>
     <field aid="332"/>
     <field aid="333"/>
+    <field aid="1592"/>
     <field aid="1020"/>
     <field aid="63"/>
     <field aid="64"/>
@@ -4614,7 +4550,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="1025"/>
     <field aid="31"/>
     <field aid="1500"/>
-    <field aid="1629"/>
   </component>
   <component fixml="Req" name="MDReqGrp" cat="MarketData" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -4898,10 +4833,11 @@ The Quote Cancel message supports cancellation of:
     <field aid="292"/>
     <component name="InstrumentExtension"/>
     <component name="InstrmtLegGrp"/>
+    <field aid="1504"/>
+    <field aid="1606"/>
     <field aid="58"/>
     <field aid="354"/>
     <field aid="355"/>
-    <field aid="1504"/>
   </component>
   <component fixml="RFQReq" name="RFQReqGrp" cat="QuotationNegotiation" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -4950,6 +4886,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="146"/>
     <component name="Instrument"/>
     <component name="InstrumentExtension"/>
+    <component name="SecurityClassificationGrp"/>
     <component name="FinancingDetails"/>
     <component name="SecurityTradingRules"/>
     <component name="StrikeRules"/>
@@ -4959,10 +4896,11 @@ The Quote Cancel message supports cancellation of:
     <component name="InstrmtLegSecListGrp"/>
     <component name="SpreadOrBenchmarkCurveData"/>
     <component name="YieldData"/>
+    <field aid="1504"/>
+    <field aid="1606"/>
     <field aid="58"/>
     <field aid="354"/>
     <field aid="355"/>
-    <field aid="1504"/>
   </component>
   <component fixml="SecT" name="SecTypesGrp" cat="SecuritiesReferenceData" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -5064,6 +5002,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="661"/>
     <field aid="736"/>
     <field aid="467"/>
+    <field aid="1593"/>
     <component name="NestedParties2"/>
     <field aid="80"/>
     <field aid="993"/>
@@ -5077,6 +5016,8 @@ The Quote Cancel message supports cancellation of:
     <field aid="54"/>
     <field aid="1009"/>
     <field aid="1005"/>
+    <field aid="1506"/>
+    <field aid="1507"/>
     <field aid="1006"/>
     <field aid="1007"/>
     <field aid="83"/>
@@ -5138,7 +5079,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="1428"/>
     <field aid="1429"/>
     <field aid="1444"/>
-    <component name="LimitAmts"/>
   </component>
   <component fixml="TrdColl" name="TrdCollGrp" cat="CollateralManagement" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -5150,6 +5090,7 @@ The Quote Cancel message supports cancellation of:
     <description/>
     <field aid="555"/>
     <component name="InstrumentLeg"/>
+    <component name="LegPositionAmountData"/>
     <field aid="687"/>
     <field aid="690"/>
     <field aid="990"/>
@@ -5162,6 +5103,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="587"/>
     <field aid="588"/>
     <field aid="637"/>
+    <field aid="686"/>
     <field aid="675"/>
     <field aid="1073"/>
     <field aid="1074"/>
@@ -5171,6 +5113,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="1383"/>
     <field aid="1384"/>
     <field aid="1418"/>
+    <field aid="1591"/>
     <component name="TradeCapLegUnderlyingsGrp"/>
   </component>
   <component fixml="TrdSes" name="TrdgSesGrp" cat="Common" type="ImplicitBlockRepeating" not_req_xml="0">
@@ -5349,6 +5292,9 @@ The Quote Cancel message supports cancellation of:
     <description/>
     <field aid="552"/>
     <field aid="54"/>
+    <field aid="1427"/>
+    <field aid="1506"/>
+    <field aid="1507"/>
     <component name="Parties"/>
     <field aid="1"/>
     <field aid="660"/>
@@ -5402,12 +5348,10 @@ The Quote Cancel message supports cancellation of:
     <field aid="83"/>
     <field aid="1008"/>
     <component name="SideTrdRegTS"/>
-    <field aid="1427"/>
     <field aid="1428"/>
     <field aid="1429"/>
     <field aid="1115"/>
     <component name="TradeReportOrderDetail"/>
-    <component name="LimitAmts"/>
   </component>
   <component fixml="Pty" name="UndlyInstrumentParties" cat="Common" type="BlockRepeating" not_req_xml="0">
     <description>The use of this component block is restricted to instrument definition only and is not permitted to contain transactional information. Only a specified subset of party roles will be supported within the InstrumentParty block.</description>
@@ -5451,7 +5395,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="1112"/>
     <field aid="1113"/>
     <field aid="1114"/>
-    <field aid="1628"/>
   </component>
   <component fixml="Pty" name="RootParties" cat="Common" type="BlockRepeating" not_req_xml="0">
     <description>The RootParties component block is a version of the Parties component block used to provide root information regarding the owning and entering parties of a transaction.</description>
@@ -5560,6 +5503,8 @@ The Quote Cancel message supports cancellation of:
     <field aid="1207"/>
     <field aid="1208"/>
     <field aid="1209"/>
+    <field aid="1830"/>
+    <field aid="1831"/>
   </component>
   <component fixml="StrkRules" name="StrikeRules" cat="Common" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -5729,11 +5674,14 @@ The Quote Cancel message supports cancellation of:
     <field aid="1268"/>
     <field aid="1269"/>
     <field aid="1270"/>
+    <field aid="1722"/>
     <field aid="1315"/>
     <field aid="1316"/>
+    <field aid="1723"/>
     <field aid="1317"/>
     <field aid="1318"/>
     <field aid="1319"/>
+    <field aid="1576"/>
     <field aid="1320"/>
     <field aid="1321"/>
     <field aid="1322"/>
@@ -5777,6 +5725,7 @@ The Quote Cancel message supports cancellation of:
     <component name="DerivativeInstrument"/>
     <component name="DerivativeInstrumentAttribute"/>
     <component name="MarketSegmentGrp"/>
+    <component name="SecurityClassificationGrp"/>
   </component>
   <component fixml="RelSym" name="RelSymDerivSecUpdGrp" cat="Common" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -5848,8 +5797,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="1365"/>
     <component name="NestedParties4"/>
     <field aid="1443"/>
-    <field aid="1622"/>
-    <field aid="1623"/>
   </component>
   <component fixml="TrdRepIndicatorsGrp" name="TrdRepIndicatorsGrp" cat="TradeCapture" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -5934,8 +5881,14 @@ The Quote Cancel message supports cancellation of:
     <field aid="483"/>
     <field aid="586"/>
     <field aid="775"/>
-    <field aid="1629"/>
-    <field aid="1091"/>
+  </component>
+  <component fixml="TrdRptOrdDetl" name="LegPositionAmountData" cat="TradeCapture" type="BlockRepeating" not_req_xml="0">
+    <description/>
+    <field aid="1586"/>
+    <field aid="1587"/>
+    <field aid="1588"/>
+    <field aid="1589"/>
+    <field aid="1590"/>
   </component>
   <component fixml="RtSrc" name="RateSource" cat="Common" type="BlockRepeating" not_req_xml="0">
     <description/>
@@ -6014,43 +5967,10 @@ The Quote Cancel message supports cancellation of:
     <field aid="354"/>
     <field aid="355"/>
   </component>
-  <component fixml="MtchgInst" name="MatchingInstructions" cat="Common" type="BlockRepeating" not_req_xml="0">
-    <description/>
-    <field aid="1624"/>
-    <field aid="1625"/>
-    <field aid="1301"/>
-    <field aid="1626"/>
-    <field aid="1627"/>
-  </component>
-  <component fixml="LmtAmts" name="LimitAmts" cat="Common" type="BlockRepeating" not_req_xml="0">
-    <description/>
-    <field aid="1630"/>
-    <field aid="1631"/>
-    <field aid="1632"/>
-    <field aid="1633"/>
-    <field aid="1634"/>
-  </component>
-  <component fixml="MgnReqmtInqQual" name="MarginReqmtInqQualGrp" cat="MarginRequirementManagement" type="BlockRepeating" not_req_xml="0">
-    <description/>
-    <field aid="1636"/>
-    <field aid="1637"/>
-  </component>
-  <component fixml="MgnAmtData" name="MarginAmountData" cat="MarginRequirementManagement" type="BlockRepeating" not_req_xml="0">
-    <description/>
-    <field aid="1643"/>
-    <field aid="1645"/>
-    <field aid="1644"/>
-    <field aid="1646"/>
-  </component>
-  <component fixml="ReltdInstrmt" name="RelatedInstrumentGrp" cat="Common " type="BlockRepeating" not_req_xml="0">
-    <description/>
-    <field aid="1647"/>
-    <field aid="1648"/>
-    <field aid="1649"/>
-    <field aid="1650"/>
-    <field aid="1651"/>
-    <field aid="1652"/>
-    <field aid="1653"/>
+  <component fixml="SecClsfnGrp" name="SecurityClassificationGrp" cat="Common" type="BlockRepeating" not_req_xml="0">
+    <field aid="1582"/>
+    <field aid="1583"/>
+    <field aid="1584"/>
   </component>
   <field aid="1" fixml="Acct" name="Account" type="String" not_req_xml="0">
     <description>Account mnemonic as agreed between buy and sell sides, e.g. broker and institution or investor/intermediary and fund manager.</description>
@@ -8418,7 +8338,7 @@ See SecurityID (tag 48) for description and valid values.</description>
     <description>Reference to a PosMaintRptID (721) from a previous Position Maintenance Report that is being replaced or canceled.</description>
   </field>
   <field aid="715" fixml="BizDt" name="ClearingBusinessDate" type="LocalMktDate" not_req_xml="0">
-    <description>Identifies the Business Date</description>
+    <description>The "Clearing Business Date" referred to by this maintenance request.</description>
   </field>
   <field aid="716" fixml="SetSesID" name="SettlSessID" type="String" not_req_xml="0">
     <description>Identifies a specific settlement session</description>
@@ -8536,7 +8456,7 @@ See Pool (691) for description and valid values.</description>
   </field>
   <field aid="751" fixml="RejRsn" name="TradeReportRejectReason" type="int" not_req_xml="0">
     <description>Reason Trade Capture Request was rejected.
-4000+ Reserved and available for bi-laterally agreed upon user-defined values</description>
+100+ Reserved and available for bi-laterally agreed upon user-defined values.</description>
   </field>
   <field aid="752" fixml="MLegRptTyp" name="SideMultiLegReportingType" type="int" not_req_xml="0">
     <description>Used to indicate if the side being reported on Trade Capture Report represents a leg of a multileg instrument or a single security.</description>
@@ -8868,7 +8788,7 @@ Primarily intended for US futures markets. Certain trading practices are permitt
     <description>Reason for short sale.</description>
   </field>
   <field aid="854" fixml="QtyTyp" name="QtyType" type="int" not_req_xml="0">
-    <description>Type of quantity specified in a quantity field:</description>
+    <description>Type of quantity specified in quantity field. ContractMultiplier (tag 231) is required when QtyType = 1 (Contracts). UnitOfMeasure (tag 996) and TimeUnit (tag 997) are required when QtyType =  2 (Units of Measure per Time Unit).</description>
   </field>
   <field aid="855" fixml="TrdTyp2" name="SecondaryTrdType" type="int" not_req_xml="0" eid="828">
     <description>Additional TrdType(828) assigned to a trade by trade match system.</description>
@@ -9310,7 +9230,7 @@ Fixed Magnitude UOMs are primarily used in energy derivatives and specify a magn
 The second group, Variable Quantity UOMs, specifies the dimension as a single unit without a magnitude (or more accurately a magnitude of one) and uses the UnitOfMeasureQty(1147) field to define the quantity of units per contract. Variable Quantity UOMs are used for both commodities (such as lbs of lean cattle, bushels of corn, ounces of gold) and financial futures.
 Examples:
 For lean cattle futures contracts, a UnitOfMeasure of 'lbs' with a UnitOfMeasureQty(1147) of 40,000, means each lean cattle futures contract represents 40,000 lbs of lean cattle.
-For Eurodollars futures contracts, a UnitOfMeasure of USD with a UnitOfMeasureQty(1147) of 1,000,000, means a Eurodollar futures contract represents 1,000,000 USD.
+For Eurodollars futures contracts, a UnitOfMeasure of Ccy with a UnitOfMeasureCurrency(1716)  of USD and a UnitOfMeasureQty(1147) of 1,000,000, means a Eurodollar futures contract represents 1,000,000 USD.
 For gold futures contracts, a UnitOfMeasure is oz_tr (Troy ounce) with a UnitOfMeasureQty(1147) of 1,000, means each gold futures contract represents 1,000 troy ounces of gold.</description>
   </field>
   <field aid="997" fixml="TmUnit" name="TimeUnit" type="String" not_req_xml="0">
@@ -10352,7 +10272,7 @@ Conditionally required if OptPayoutType(1482) is set to binary.</description>
     <description>Specifies the action taken for the specified trading sessions.</description>
   </field>
   <field aid="1328" fixml="RejTxt" name="RejectText" type="String" not_req_xml="0">
-    <description>Identifies the reason for rejection.</description>
+    <description>Those will be used by Firms to send a reason for rejecting a trade in an allocate claim model.</description>
   </field>
   <field aid="1329" fixml="FeeMult" name="FeeMultiplier" type="float" not_req_xml="0">
     <description>This is a multiplier that Clearing (Fee system) will use to calculate fees and will be sent to the firms on their confirms.</description>
@@ -10856,120 +10776,115 @@ ComplexEventEndTime must always be greater than or equal to ComplexEventStartTim
   <field aid="1503" fixml="ActTyp" name="StreamAsgnAckType" type="int" not_req_xml="0">
     <description>Type of acknowledgement.</description>
   </field>
-  <field aid="1617" fixml="AsgnTyp" name="StreamAsgnType" type="int" not_req_xml="0">
-    <description>The type of assignment being affected in the Stream Assignment Report.</description>
-  </field>
   <field aid="1504" fixml="TxnTm" name="RelSymTransactTime" type="UTCTimestamp" not_req_xml="0">
     <description>See TransactTime(60)</description>
   </field>
-  <field aid="1622" fixml="Typ" name="FillYieldType" type="String" not_req_xml="0">
-    <description>Yield Type, using same values as YieldType (235)</description>
+  <field aid="1506" fixml="TrdID" name="SideTradeID" type="String" not_req_xml="0">
+    <description>Used to represent the trade ID for each side of the trade assigned by an intermediary.</description>
   </field>
-  <field aid="1623" fixml="Yld" name="FillYield" type="Percentage" not_req_xml="0">
-    <description>Yield Percentage, using same values as Yield (236)</description>
+  <field aid="1507" fixml="OrigTrdID" name="SideOrigTradeID" type="String" not_req_xml="0">
+    <description>Used to capture the original trade id for each side of a trade undergoing novation to a standardized model.</description>
   </field>
-  <field aid="1624" fixml="" name="NoMatchInst" type="NumInGroup" not_req_xml="1">
-    <description>Number of Instructions in the &lt;MatchingInstructions&gt; repeating group.</description>
+  <field aid="1522" fixml="DiffPx" name="DifferentialPrice" type="Price" not_req_xml="0">
+    <description>Used to specify the differential price when reporting the individual leg of a spread trade. Both leg price and differential price may be provided on such a report. Note that MultiLegReportingType (tag 442) will be set to 2 (Individual leg of a multi-leg security) in this case.</description>
   </field>
-  <field aid="1625" fixml="Inst" name="MatchInst" type="int" not_req_xml="0">
-    <description>Matching Instruction for the order.</description>
+  <field aid="1523" fixml="TrdAckStat" name="TrdAckStatus" type="int" not_req_xml="0" eid="1523">
+    <description>Used to indicate the status of the trade submission (not the trade report)</description>
   </field>
-  <field aid="1626" fixml="ID" name="MatchAttribTagID" type="TagNum" not_req_xml="0">
-    <description>Existing FIX field to be applied as a Matching Criteria to the Instruction, bilaterally agreed between parties.</description>
+  <field aid="1524" fixml="PxQteCcy" name="PriceQuoteCurrency" type="Currency" not_req_xml="0">
+    <description>Default currency in which the price is quoted. Defined at the instrument level. Used in place of Currency (tag 15) to express the currency of a product when the former is implemented as the FX dealt currency.</description>
   </field>
-  <field aid="1627" fixml="Valu" name="MatchAttribValue" type="String" not_req_xml="0">
-    <description>Enumeration value of the MatchAttribField to be applied as a Matching Criteria to the Instruction.</description>
+  <field aid="1526" fixml="PxQteCcy" name="UnderlyingPriceQuoteCurrency" type="Currency" not_req_xml="0">
+    <description>Default currency in which the price is quoted. Defined at the instrument level. Used in place of Currency (tag 15) to express the currency of a product when the former is implemented as the FX dealt currency.</description>
   </field>
-  <field aid="1628" fixml="TrgrScope" name="TriggerScope" type="Int" not_req_xml="0">
-    <description>Defines the scope of TriggerAction(1101) when it is set to "cancel" (3).</description>
+  <field aid="1528" fixml="PxQteCcy" name="LegPriceQuoteCurrency" type="Currency" not_req_xml="0">
+    <description>Default currency in which the price is quoted. Defined at the instrument level. Used in place of Currency (tag 15) to express the currency of a product when the former is implemented as the FX dealt currency.</description>
   </field>
-  <field aid="1629" fixml="ExpsreDur" name="ExposureDuration" type="Int" not_req_xml="0">
-    <description>This is the time in seconds of a "Good for Time" (GFT) TimeInForce.
-
-Positive integer value which represents the time is seconds in which the new order remains active in the market before it is automatically cancelled (e.g. expired).
-
-Bi-lateral agreements will dictate the maximum value of this field. It is assumed that most systems will impose a max limit of 86,400 seconds (i.e. 24 hours).</description>
+  <field aid="1576" fixml="PxQteCcy" name="DerivativePriceQuoteCurrency" type="Currency" not_req_xml="0">
+    <description>Default currency in which the price is quoted. Defined at the instrument level. Used in place of Currency (tag 15) to express the currency of a product when the former is implemented as the FX dealt currency.</description>
   </field>
-  <field aid="1630" fixml="NoLmtAmts" name="NoLimitAmts" type="NumInGroup" not_req_xml="1">
-    <description>The number of limit amount entries.</description>
+  <field aid="1582" fixml="" name="NoSecurityClassifications" type="NumInGroup" not_req_xml="1">
+    <description>Number of Security Classifications.</description>
   </field>
-  <field aid="1631" fixml="LmtAmtTyp" name="LimitAmtType" type="Int" not_req_xml="0">
-    <description>Identifies the type of limit amount expressed in LastLimitAmt(1632) and LimitAmtRemaining(1633).</description>
+  <field aid="1583" fixml="Rsn" name="SecurityClassificationReason" type="int" not_req_xml="0" eid="1583">
+    <description>Allows classification of instruments according to a set of high level reasons. Classification reasons describe the classes in which the instrument participates.</description>
   </field>
-  <field aid="1632" fixml="LastLmtAmt" name="LastLimitAmt" type="Amt" not_req_xml="0">
-    <description>The amount that has been drawn down against the counterparty for a given trade.  The type of limit is specified in LimitAmtType(1631).
-Bilateral agreements dictate the units and maximum value of this field.</description>
+  <field aid="1584" fixml="Val" name="SecurityClassificationValue" type="String" not_req_xml="0">
+    <description>Specifies the product classification value which further details the manner in which the instrument participates in the class.</description>
   </field>
-  <field aid="1633" fixml="LmtAmtRnmg" name="LimitAmtRemaining" type="Amt" not_req_xml="0">
-    <description>The remaining limit amount available between the counterparties.  The type of limit is specified in LimitAmtType(1631).
-Bilateral agreements dictate the units and maximum value of this field.</description>
+  <field aid="1585" fixml="Rsn" name="PosAmtReason" type="int" not_req_xml="0" eid="1585">
+    <description>Specifies the reason for an amount type when reported on a position. Useful when multiple instances of the same amount type are reported.</description>
   </field>
-  <field aid="1634" fixml="LmtAmtCcy" name="LimitAmtCurrency" type="Currency" not_req_xml="0">
-    <description>Indicates the currency that the limit amount is specified in.  See Currency(15) for additional description and valid values.</description>
+  <field aid="1586" fixml="" name="NoLegPosAmt" type="NumInGroup" not_req_xml="1">
+    <description>Number of TrdInstrmtLegPosAmt values.</description>
   </field>
-  <field aid="1635" fixml="ID" name="MarginReqmtInqID" type="String" not_req_xml="0">
-    <description>Margin Requirement Inquiry Identifier</description>
+  <field aid="1587" fixml="Amt" name="LegPosAmt" type="Amt" not_req_xml="0">
+    <description>Leg position amount.</description>
   </field>
-  <field aid="1636" fixml="" name="NoMarginReqmtInqQualifier" type="NumInGroup" not_req_xml="1">
-    <description>Number of qualifier entries</description>
+  <field aid="1588" fixml="Typ" name="LegPosAmtType" type="String" not_req_xml="0" eid="707">
+    <description>Type of leg position amount.</description>
   </field>
-  <field aid="1637" fixml="Qual" name="MarginReqmtInqQualifier" type="int" not_req_xml="0">
-    <description>Qualifier for Margin Requirement Inquiry to identify a specific report</description>
+  <field aid="1589" fixml="Ccy" name="LegPosCurrency" type="Currency" not_req_xml="0">
+    <description>Leg position currency.</description>
   </field>
-  <field aid="1638" fixml="RptTyp" name="MarginReqmtRptType" type="int" not_req_xml="0">
-    <description>Type of Margin Requirement Report</description>
+  <field aid="1590" fixml="Rsn" name="LegPosAmtReason" type="int" not_req_xml="0" eid="1585">
+    <description>Specifies the reason for an amount type when reported on a position. Useful when multiple instances of the same amount type are reported.</description>
   </field>
-  <field aid="1639" fixml="Clss" name="MarginClass" type="String" not_req_xml="0">
-    <description>Identifier for group of instruments with similar risk profile</description>
+  <field aid="1591" fixml="QtyTyp" name="LegQtyType" type="int" not_req_xml="0" eid="854">
+    <description>Type of quantity specified in LegQty field. LegContractMultiplier (614) is required when LegQtyType = 1 (Contracts). LegUnitOfMeasure (tag 999) and LegTimeUnit (tag 1001) are required when LegQtyType = 2 (Units of Measure per Time Unit). LegQtyType can be different for each leg. </description>
   </field>
-  <field aid="1640" fixml="Stat" name="MarginReqmtInqStatus" type="int" not_req_xml="0" eid="945">
-    <description>Status of Margin Requirement Inquiry</description>
+  <field aid="1592" fixml="DiscFctr" name="DiscountFactor" type="float" not_req_xml="0">
+    <description>Used to calculate the present value of an amount to be paid in the future.</description>
+    <!-- somehow the CME still uses DiscntFctr tags -->
+    <alias cat="MarketData" fixml="DiscntFctr"/>
   </field>
-  <field aid="1641" fixml="Rslt" name="MarginReqmtInqResult" type="int" not_req_xml="0">
-    <description>Result returned in response to Margin Requirement Inquiry</description>
+  <field aid="1593" fixml="ParentAllocID" name="ParentAllocID" type="String" not_req_xml="0">
+    <description>Contains the IndividualAllocId (tag 467) value of the allocation that is being offset as a result of a new allocation. This would be an optional field that would only be populated in the case of an allocation of an allocation (as well as any subsequent allocations). This wouldn’t be populated for an initial allocation since an allocation id is not supplied on default (initial) allocations.</description>
   </field>
-  <field aid="1642" fixml="RptID" name="MarginReqmtRptID" type="String" not_req_xml="0">
-    <description>Margin Requirement Report Identifier</description>
+  <field aid="1594" fixml="SecGrp" name="LegSecurityGroup" type="String" not_req_xml="0">
+    <description>Represents the product group of a leg.This is useful in conveying multi-leg instruments where the legs may participate in separate security groups.</description>
   </field>
-  <field aid="1643" fixml="" name="NoMarginAmt" type="NumInGroup" not_req_xml="1">
-    <description>Number of margin requirement amounts</description>
+  <field aid="1606" fixml="NumSimplInstrmt" name="NumOfSimpleInstruments" type="int" not_req_xml="0">
+    <description>Represents the total number of simple instruments that make up a multi-legged security. Complex spread instruments may be constructed of legs which themselves are multi-leg instruments.</description>
   </field>
-  <field aid="1644" fixml="AmtTyp" name="MarginAmtType" type="int" not_req_xml="0">
-    <description>Type of margin requirement</description>
+  <field aid="1607" fixml="SecRejRsn" name="SecurityRejectReason" type="int" not_req_xml="0" eid="1607">
+    <description>Identifies the reason  a security definition request is being rejected.</description>
   </field>
-  <field aid="1645" fixml="Amt" name="MarginAmt" type="Amt" not_req_xml="0">
-    <description>Amount of margin requirement</description>
+  <field aid="1617" fixml="AsgnTyp" name="StreamAsgnType" type="int" not_req_xml="0">
+    <description>The type of assignment being affected in the Stream Assignment Report.</description>
   </field>
-  <field aid="1646" fixml="Ccy" name="MarginAmtCcy" type="Currency" not_req_xml="0">
-    <description>Currency of margin requirement</description>
+  <field aid="1716" fixml="UOMCcy" name="UnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the unit of measure. Conditionally required when UnitOfMeasure(996) = Ccy</description>
   </field>
-  <field aid="1647" fixml="" name="NoRelatedInstruments" type="NumInGroup" not_req_xml="1">
-    <description>Number of related instruments</description>
+  <field aid="1717" fixml="PxUOMCcy" name="PriceUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the price unit of measure. Conditionally required when PriceUnitOfMeasure(1191) = Ccy</description>
   </field>
-  <field aid="1648" fixml="InstrmtTyp" name="RelatedInstrumentType" type="int" not_req_xml="0">
-    <description>The type of instrument relationship</description>
+  <field aid="1718" fixml="UOMCcy" name="UnderlyingUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the unit of measure. Conditionally required when UnderlyingUnitOfMeasure(998) = Ccy</description>
   </field>
-  <field aid="1649" fixml="Sym" name="RelatedSymbol" type="String" not_req_xml="0">
-    <description>Instrument being used to offset the Option Instrument </description>
+  <field aid="1719" fixml="PxUOMCcy" name="UnderlyingPriceUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the price unit of measure. Conditionally required when UnderlyingPriceUnitOfMeasure(1424) = Ccy</description>
   </field>
-  <field aid="1650" fixml="ID" name="RelatedSecurityID" type="String" not_req_xml="0">
-    <description>Security identifier value of RelatedSecurityIDSource (1651) type (e.g. CUSIP, SEDOL, ISIN, etc). Requires RelatedSecurityIDSource.</description>
+  <field aid="1720" fixml="UOMCcy" name="LegUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the unit of measure. Conditionally required when LegUnitOfMeasure(999) = Ccy</description>
   </field>
-  <field aid="1651" fixml="Src" name="RelatedSecurityIDSource" type="String" not_req_xml="0" eid="22">
-    <description>Identifies class or source of the RelatedSecurityID (1650) value. Required if RelatedSecurityID is specified.
-100+ are reserved for private security identifications</description>
+  <field aid="1721" fixml="PxUOMCcy" name="LegPriceUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the price unit of measure. Conditionally required when LegPriceUnitOfMeasure(1421) = Ccy</description>
   </field>
-  <field aid="1652" fixml="SecTyp" name="RelatedSecurityType" type="String" not_req_xml="0">
-    <description>Security Type of the Related Instrument</description>
+  <field aid="1722" fixml="UOMCcy" name="DerivativeUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the unit of measure. Conditionally required when DerivativeUnitOfMeasure(1269) = Ccy</description>
   </field>
-  <field aid="1653" fixml="MMY" name="RelatedMaturityMonthYear" type="MonthYear" not_req_xml="0">
-    <description>Expiration Date for the Related Instrument contract</description>
+  <field aid="1723" fixml="PxUOMCcy" name="DerivativePriceUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
+    <description>Indicates the currency of the price unit of measure. Conditionally required when DerivativePriceUnitOfMeasure(1315) = Ccy</description>
   </field>
-  <field aid="1654" fixml="CvrdQty" name="CoveredQty" type="Qty" not_req_xml="0">
-    <description>Used in the Position Quantity component to describe the portion of the Short Contract Quantity that is considered covered.</description>
+  <field aid="1830" fixml="SettlPxIncr" name="SettlPriceIncrement" type="Price" not_req_xml="0">
+    <description>Settlement price increment for stated price range.</description>
   </field>
-  <field aid="1655" fixml="MktMkrActvty" name="MarketMakerActivity" type="int" not_req_xml="0">
-    <description>Indicates market maker participation in security.</description>
+  <field aid="1831" fixml="SetlPxIncr2" name="SettlPriceSecondaryIncrement" type="Price" not_req_xml="0">
+    <description>Secondary settlement price increment for stated price range. The meaning of secondary is left to bilateral agreement, e.g. it may refer to final settlement for a contract.</description>
+  </field>
+  <field aid="8100" fixml="FnlSettlCcy" name="FinalSettlCurrency" type="Currency" not_req_xml="0">
+    <description>Currency code of final settlement denomination.</description>
   </field>
   <cat name="Session" fixml="session" not_req_xml="1"/>
   <cat name="Indication" fixml="indications" not_req_xml="0"/>
@@ -10997,7 +10912,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <cat name="ImplFields" fixml="fields" not_req_xml="0"/>
   <cat name="MarketStructureReferenceData" fixml="marketstructure" not_req_xml="0"/>
   <cat name="SecuritiesReferenceData" fixml="securitiesreference" not_req_xml="0"/>
-  <cat name="MarginRequirementManagement" fixml="marginrequirement" not_req_xml="0"/>
   <enum eid="4">
     <item value="B">Buy</item>
     <item value="S">Sell</item>
@@ -11074,8 +10988,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="r">Execute as delta neutral using volatility provided</item>
     <item value="s">Execute as duration neutral</item>
     <item value="t">Execute as FX neutral</item>
-    <item value="u">Minimum Guaranteed Fill Eligible</item>
-    <item value="v">Bypass Non-Displayed Liquidity</item>
   </enum>
   <enum eid="20">
     <item value="0">New</item>
@@ -11235,7 +11147,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="7">At the Close</item>
     <item value="8">Good Through Crossing</item>
     <item value="9">At Crossing</item>
-    <item value="A">Good for Time (GFT)</item>
   </enum>
   <enum eid="61">
     <item value="0">Normal</item>
@@ -12172,6 +12083,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="24">Pre-Cross - system is in a pre-cross state allowing market to respond to either side of cross</item>
     <item value="25">Cross - system has crossed a percentage of the orders and allows market to respond prior to crossing remaining portion</item>
     <item value="26">Post-close</item>
+    <item value="27">No-cancel</item>
   </enum>
   <enum eid="328">
     <item value="N">Halt was not related to a halt of the common stock</item>
@@ -12257,11 +12169,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="10">Warehouse Recap</item>
     <item value="11">Peg Refresh</item>
     <item value="99">Other</item>
-    <item value="12">Cancel On Connection Loss</item>
-    <item value="13">Cancel On Logout</item>
-    <item value="14">Assign Time Priority</item>
-    <item value="15">Canceled, Trade Price Violation</item>
-    <item value="16">Canceled, Cross Imbalance</item>
   </enum>
   <enum eid="380">
     <item value="0">Other</item>
@@ -12361,8 +12268,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="17">Product ticks in thirty-seconds</item>
     <item value="18">Product ticks in sixty-forths</item>
     <item value="19">Product ticks in one-twenty-eights</item>
-    <item value="20">Normal rate representation (e.g. FX rate)</item>
-    <item value="21">Inverse rate representation (e.g. FX rate)</item>
   </enum>
   <enum eid="427">
     <item value="0">Book out all trades on day of execution</item>
@@ -12425,7 +12330,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="F">Settlement Entity Location (note if Local Market Settlement use "E=ISO Country Code") (see "Appendix 6-G" for valid values)</item>
     <item value="G">MIC (ISO 10383 - Market Identificer Code) (See "Appendix 6-C")</item>
     <item value="H">CSD participant/member code (e.g.. Euroclear, DTC, CREST or Kassenverein number)</item>
-    <item value="J">Tax ID</item>
   </enum>
   <enum eid="452">
     <item value="1">Executing Firm (formerly FIX 4.2 ExecBroker)</item>
@@ -12512,10 +12416,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="83">Clearing Account</item>
     <item value="84">Acceptable Settling Counterparty</item>
     <item value="85">Unacceptable Settling Counterparty</item>
-    <item value="86">CLS Member Bank</item>
-    <item value="87">In Concert Group</item>
-    <item value="88">In Concert Controlling Entity</item>
-    <item value="89">Large Positions Reporting Account</item>
   </enum>
   <enum eid="460">
     <item value="1">AGENCY</item>
@@ -12743,9 +12643,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="D">Non-algorithmic</item>
     <item value="E">Algorithmic</item>
     <item value="F">Cross</item>
-    <item value="G">Insider Account</item>
-    <item value="H">Significant Shareholder</item>
-    <item value="I">Normal Course Issuer Bid (NCIB)</item>
   </enum>
   <enum eid="530">
     <item value="1">Cancel orders for a security</item>
@@ -12816,10 +12713,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="2">Cross IOC - cross trade which is executed partially and the rest is cancelled. One side is fully executed, the other side is partially executed with the remainder being cancelled. This is equivalent to an IOC on the other side. Note: CrossPrioritization(550) field may be used to indicate which side should fully execute in this scenario.</item>
     <item value="3">Cross One Side - cross trade which is partially executed with the unfilled portions remaining active. One side of the cross is fully executed (as denoted by the CrossPrioritization (550) field), but the unfilled portion remains active.</item>
     <item value="4">Cross Same Price - cross trade is executed with existing orders with the same price. In this case other orders exist with the same price, the quantity of the Cross is executed against the existing orders and quotes, the remainder of the cross is executed against the other side of the cross. The two sides potentially have different quantities.</item>
-    <item value="5">Basis Cross - A trade where a basket of securities or an index participation unit is transacted at prices achieved through the execution of related exchange-traded derivative instruments in an amount that will correspond to an equivalent market exposure.</item>
-    <item value="6">Contingent Cross - A cross resulting from a paired order placed by a Participant to execute an order on a security that is contingent on the execution of a second order for an offsetting volume of a related security.</item>
-    <item value="7">VWAP Cross - A cross for the purpose of executing a trade at a volume-weighted average price of a security traded for a continuous period on or during a trading day.</item>
-    <item value="8">STS Cross - A closing price cross resulting from an order placed by a Participant for execution in a Special Trading Session at the last sale price.</item>
   </enum>
   <enum eid="550">
     <item value="0">None</item>
@@ -12927,9 +12820,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="6">Account is carried on non-customer side of books and is cross margined</item>
     <item value="7">Account is house trader and is cross margined</item>
     <item value="8">Joint back office account (JBO)</item>
-    <item value="9">Equities specialist</item>
-    <item value="10">Options market maker</item>
-    <item value="11">Options firm account</item>
   </enum>
   <enum eid="582">
     <item value="1">Member trading for their own account</item>
@@ -13117,9 +13007,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="DLT">Net Delta Qty</item>
     <item value="CEA">Credit Event Adjustment</item>
     <item value="SEA">Succession Event Adjustment</item>
-    <item value="NET">Net Qty</item>
-    <item value="GRS">Gross Qty</item>
-    <item value="ITD">Intraday Qty</item>
   </enum>
   <enum eid="706">
     <item value="0">Submitted</item>
@@ -13153,7 +13040,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="4">Position Change Submission/Margin Disposition</item>
     <item value="5">Pledge</item>
     <item value="6">Large Trader Submission</item>
-    <item value="7">Large Positions Reporting Submission</item>
   </enum>
   <enum eid="712">
     <item value="1">New - used to increment the overall transaction quantity</item>
@@ -13193,10 +13079,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="4">Settlement Activity</item>
     <item value="5">Backout Message</item>
     <item value="6">Delta Positions</item>
-    <item value="7">Net Position</item>
-    <item value="8">Large Positions Reporting</item>
-    <item value="9">Exercise Position Reporting Submission</item>
-    <item value="10">Position Limit Reporting Submission</item>
   </enum>
   <enum eid="725">
     <item value="0">Inband - transport the request was sent over (default)</item>
@@ -13264,7 +13146,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="5">Broker Execution</item>
     <item value="6">Desk Receipt</item>
     <item value="7">Submission to Clearing</item>
-    <item value="8">Time Priority</item>
   </enum>
   <enum eid="773">
     <item value="1">Status</item>
@@ -13364,12 +13245,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="31">Location</item>
     <item value="32">Execution venue</item>
     <item value="33">Currency delivery identifier</item>
-    <item value="34">Address City</item>
-    <item value="35">Address State/Province</item>
-    <item value="36">Address Postal Code</item>
-    <item value="37">Address Street</item>
-    <item value="38">Address Country (ISO country code)</item>
-    <item value="39">ISO country code</item>
   </enum>
   <enum eid="808">
     <item value="1">Pending Accept</item>
@@ -13465,7 +13340,6 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="45">Option exercise</item>
     <item value="46">Delta neutral transaction</item>
     <item value="47">Financing transaction (includes repo and stock lending)</item>
-    <item value="56">Opening Trade</item>
   </enum>
   <enum eid="829">
     <item value="0">CMTA</item>
@@ -13510,7 +13384,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="37">Crossed Trade (X)</item>
     <item value="38">Interim Protected Trade (I)</item>
     <item value="39">Large in Scale (L)</item>
-    <item value="40">Wash Trade</item>
+    <item value="41">Trade at Settlement</item>
+    <item value="42">Auction at Trade</item>
+    <item value="43">Trade at Marker</item>
   </enum>
   <enum eid="835">
     <item value="0">Floating (default)</item>
@@ -13587,8 +13463,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
   </enum>
   <enum eid="854">
     <item value="0">Units (shares, par, currency)</item>
-    <item value="1">Contracts (if used - must specify ContractMultiplier (tag 231))</item>
-    <item value="2">Units of Measure per Time Unit (if used - must specify UnitofMeasure (tag 996) and TimeUnit (tag 997))</item>
+    <item value="1">Contracts</item>
+    <item value="2">Units of Measure per Time Unit</item>
   </enum>
   <enum eid="856">
     <item value="0">Submit</item>
@@ -13616,22 +13492,26 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="1">Put</item>
     <item value="2">Call</item>
     <item value="3">Tender</item>
-    <item value="4">Sinking Fund Call</item>
+    <item value="4">Sinking fund call</item>
     <item value="5">Activation</item>
-    <item value="6">Inactiviation</item>
-    <item value="7">Last Eligible Trade Date</item>
-    <item value="8">Swap Start Date</item>
-    <item value="9">Swap End Date</item>
-    <item value="10">Swap Roll Date</item>
-    <item value="11">Swap Next Start Date</item>
-    <item value="12">Swap Next Roll Date</item>
-    <item value="13">First Delivery Date</item>
-    <item value="14">Last Delivery Date</item>
-    <item value="15">Initial Inventory Due Date</item>
-    <item value="16">Final Inventory Due Date</item>
-    <item value="17">First Intent Date</item>
-    <item value="18">Last Intent Date</item>
-    <item value="19">Position Removal Date</item>
+    <item value="6">Inactivation</item>
+    <item value="7">Last eligible trade date</item>
+    <item value="8">Swap start date</item>
+    <item value="9">Swap end date</item>
+    <item value="10">Swap roll date</item>
+    <item value="11">Swap next start date</item>
+    <item value="12">Swap next roll date</item>
+    <item value="13">First delivery date</item>
+    <item value="14">Last delivery date</item>
+    <item value="15">Initial inventory due date</item>
+    <item value="16">Final inventory due date</item>
+    <item value="17">First intent date</item>
+    <item value="18">Last intent date</item>
+    <item value="19">Position removal date</item>
+    <item value="21">Deliver start time</item>
+    <item value="22">Delivery end time</item>
+    <item value="23">First notice date</item>
+    <item value="24">Last notice date</item>
     <item value="99">Other</item>
   </enum>
   <enum eid="871">
@@ -13642,32 +13522,36 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="5">Variable rate</item>
     <item value="6">Less fee for put</item>
     <item value="7">Stepped coupon</item>
-    <item value="8">Coupon period (if not semi-annual). Supply redemption date in the InstrAttribValue (872) field.</item>
+    <item value="8">Coupon period (if not semi-annual)</item>
     <item value="9">When [and if] issued</item>
     <item value="10">Original issue discount</item>
     <item value="11">Callable, puttable</item>
     <item value="12">Escrowed to Maturity</item>
-    <item value="13">Escrowed to redemption date - callable. Supply redemption date in the InstrAttribValue (872) field</item>
+    <item value="13">Escrowed to redemption date - callable</item>
     <item value="14">Pre-refunded</item>
     <item value="15">In default</item>
     <item value="16">Unrated</item>
     <item value="17">Taxable</item>
     <item value="18">Indexed</item>
     <item value="19">Subject To Alternative Minimum Tax</item>
-    <item value="20">Original issue discount price. Supply price in the InstrAttribValue (872) field</item>
+    <item value="20">Original issue discount price</item>
     <item value="21">Callable below maturity value</item>
     <item value="22">Callable without notice by mail to holder unless registered</item>
-    <item value="23">Price tick rules for security.</item>
-    <item value="24">Trade type eligibility details for security.</item>
-    <item value="25">Instrument Denominator</item>
-    <item value="26">Instrument Numerator</item>
-    <item value="27">Instrument Price Precision</item>
-    <item value="28">Instrument Strike Price</item>
-    <item value="29">Tradeable Indicator</item>
+    <item value="23">Price tick rules for security</item>
+    <item value="24">Trade type eligibility details for security</item>
+    <item value="25">Instrument denominator</item>
+    <item value="26">Instrument numerator</item>
+    <item value="27">Instrument price precision</item>
+    <item value="28">Instrument strike price</item>
+    <item value="29">Tradeable indicator</item>
+    <item value="31">Minimum guaranteed fill volume</item>
+    <item value="32">Minimum guaranteed fill status</item>
+    <item value="33">Trade at settlement (TAS) eligibility</item>
+    <item value="34">Test instrument</item>
+    <item value="35">Dummy instrument</item>
+    <item value="36">Negative settlement price eligibility</item>
+    <item value="37">Negative strike price eligibility</item>
     <item value="99">Text. Supply the text of the attribute or disclaimer in the InstrAttribValue (872) field.</item>
-    <item value="30">Instrument is eligible to accept anonymous orders</item>
-    <item value="31">Minimum Guaranteed Fill Volume</item>
-    <item value="32">Minimum Guaranteed Fill Status</item>
   </enum>
   <enum eid="875">
     <item value="1">3(a)(3)</item>
@@ -13777,7 +13661,11 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
   <enum eid="939">
     <item value="0">Accepted</item>
     <item value="1">Rejected</item>
+    <item value="2">Cancelled</item>
     <item value="3">Accepted with errors</item>
+    <item value="4">Pending New</item>
+    <item value="5">Pending Cancel</item>
+    <item value="6">Pending Replace</item>
   </enum>
   <enum eid="940">
     <item value="1">Received</item>
@@ -13872,17 +13760,45 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
   <enum eid="996">
     <item value="Bcf">Billion cubic feet</item>
     <item value="MMbbl">Million Barrels</item>
+    <item value="L">liters</item>
     <item value="MMBtu">One Million BTU</item>
-    <item value="MWh">Megawatt hours</item>
+    <item value="kL">kiloliters</item>
+    <item value="thm">therms</item>
     <item value="Bbl">Barrels</item>
     <item value="Bu">Bushels</item>
     <item value="lbs">pounds</item>
     <item value="Gal">Gallons</item>
     <item value="oz_tr">Troy Ounces</item>
+    <item value="GJ">gigajoules</item>
     <item value="t">Metric Tons (aka Tonne)</item>
+    <item value="kWh">Kilowatt hours</item>
+    <item value="MWh">Megawatt hours</item>
     <item value="tn">Tons (US)</item>
     <item value="USD">US Dollars</item>
     <item value="Alw">Allowances</item>
+    <item value="CBM">Cubic Meters</item>
+    <item value="CER">Certified Emissions Reduction</item>
+    <item value="PRINC">Principal with relation to debt instrument</item>
+    <item value="CRT">Climate Reserve Tonnes</item>
+    <item value="Ccy">Amount of currency</item>
+    <item value="BDFT">Board feet</item>
+    <item value="IPNT">Index point</item>
+    <item value="day">Days</item>
+    <item value="cwt">Hundredweight(US)</item>
+    <item value="g">Grams</item>
+    <item value="dt">Dry metric tons</item>
+    <item value="EnvOfst">Environmental Offset</item>
+    <item value="EnvCrd">Environmental Credit</item>
+    <item value="kW-min ">Kilowatt-Minute (electrical capacity)</item>
+    <item value="MW-min">Megawatt-Minute (electrical capacity)</item>
+    <item value="kW-h">Kilowatt-Hour (electrical capacity)</item>
+    <item value="MW-h">Megawatt-Hour (electrical capacity)</item>
+    <item value="kW-d">Kilowatt-Day (electrical capacity)</item>
+    <item value="MW-d">Megawatt-Day (electrical capacity)</item>
+    <item value="kW-M">Kilowatt-Month (electrical capacity)</item>
+    <item value="MW-M">Megawatt-Month (electrical capacity)</item>
+    <item value="kW-a">Kilowatt-Year (electrical capacity)</item>
+    <item value="MW-a">Megawatt-Year (electrical capacity)</item>
   </enum>
   <enum eid="997">
     <item value="H">Hour</item>
@@ -13897,6 +13813,7 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="1">Automatic</item>
     <item value="2">Guarantor</item>
     <item value="3">Manual</item>
+    <item value="4">Broker assigned</item>
   </enum>
   <enum eid="1015">
     <item value="0">false - trade is not an AsOf trade</item>
@@ -14057,7 +13974,6 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="2">Specified Trading Session</item>
     <item value="3">Next Auction</item>
     <item value="4">Price Movement</item>
-    <item value="5">On Order Entry or order modification entry</item>
   </enum>
   <enum eid="1101">
     <item value="1">Activate</item>
@@ -14096,7 +14012,6 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="7">Implied Order</item>
     <item value="8">Cross Order</item>
     <item value="9">Streaming price (quote)</item>
-    <item value="A">Internal Cross Order</item>
   </enum>
   <enum eid="1123">
     <item value="0">Trade Confirmation</item>
@@ -14145,8 +14060,6 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="1">Instructions of Broker</item>
     <item value="2">Instructions for Institution</item>
     <item value="3">Investor</item>
-    <item value="4">Buyer's settlement instructions</item>
-    <item value="5">Seller's settlement instructions</item>
   </enum>
   <enum eid="1167">
     <item value="0">Accepted</item>
@@ -14211,11 +14124,12 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="1">user requested</item>
   </enum>
   <enum eid="1209">
-    <item value="0">Regular</item>
-    <item value="1">Variable</item>
-    <item value="2">Fixed</item>
+    <item value="0">Regular trading</item>
+    <item value="1">Variable cabinet</item>
+    <item value="2">Fixed cabinet</item>
     <item value="3">Traded as a spread leg</item>
     <item value="4">Settled as a spread leg</item>
+    <item value="5">Traded as spread</item>
   </enum>
   <enum eid="1302">
     <item value="0">Months</item>
@@ -14322,8 +14236,6 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="2">One Triggers the Other (OTO)</item>
     <item value="3">One Updates the Other (OUO) - Absolute Quantity Reduction</item>
     <item value="4">One Updates the Other (OUO) - Proportional Quantity Reduction</item>
-    <item value="5">Bid and Offer</item>
-    <item value="6">Bid and Offer OCO</item>
   </enum>
   <enum eid="1386">
     <item value="0">Broker / Exchange option</item>
@@ -14538,83 +14450,42 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="P">Principal</item>
     <item value="R">Riskless Principal</item>
   </enum>
-  <enum eid="1625">
-    <item value="1">Match</item>
-    <item value="2">Do Not Match</item>
+  <enum eid="1523">
+    <item value="0">Accepted</item>
+    <item value="1">Rejected</item>
+    <item value="2">Received</item>
   </enum>
-  <enum eid="1628">
-    <item value="0">This order (default)</item>
-    <item value="1">Other order (use RefID)</item>
-    <item value="2">All other orders for the given security</item>
-    <item value="3">All other orders for the given security and price</item>
-    <item value="4">All other orders for the given security and side</item>
-    <item value="5">All other orders for the given security, price and side</item>
+  <enum eid="1583">
+     <item value="0">Fee</item>
+     <item value="1">Credit Controls</item>
+     <item value="2">Margin</item>
+     <item value="3">Entitlement / Eligibility</item>
+     <item value="4">Market Data</item>
+     <item value="5">Account Selection</item>
+     <item value="6">Delivery Process</item>
+     <item value="7">Sector</item>
   </enum>
-  <enum eid="1631">
-    <item value="0">Credit limit</item>
-    <item value="1">Gross position limit</item>
-    <item value="2">Net position limit</item>
-    <item value="3">Risk exposure limit</item>
-    <item value="4">Long position limit</item>
-    <item value="5">Short position limit</item>
+  <enum eid="1585">
+     <item value="0">Options settlement</item>
+     <item value="1">Pending erosion adjustment</item>
+     <item value="2">Final erosion adjustment</item>
+     <item value="3">Tear-up coupon amount</item>
+     <item value="4">Price Alignment Interest</item>
+     <item value="5">Delivery invoice charges</item>
+     <item value="6">Delivery storage charges</item>
   </enum>
-  <enum eid="1637">
-    <item value="0">Summary</item>
-    <item value="1">Detail</item>
-    <item value="2">Excess/Deficit</item>
-    <item value="3">Net Position</item>
-  </enum>
-  <enum eid="1638">
-    <item value="0">Summary</item>
-    <item value="1">Detail</item>
-    <item value="2">Excess/Deficit</item>
-  </enum>
-  <enum eid="1641">
-    <item value="0">Successful (default)</item>
-    <item value="1">Invalid or unknown instrument</item>
-    <item value="2">Invalid or unknown margin class</item>
-    <item value="3">Invalid Parties</item>
-    <item value="4">Invalid Transport Type requested</item>
-    <item value="5">Invalid Destination requested</item>
-    <item value="6">No margin requirement found</item>
-    <item value="7">Margin requirement inquiry qualifier not supported</item>
-    <item value="8">Unauthorized for margin requirement inquiry</item>
-    <item value="99">Other (further information in Text (58) field)</item>
-  </enum>
-  <enum eid="1644">
-    <item value="1">Additional Margin</item>
-    <item value="2">Adjusted Margin</item>
-    <item value="3">Unadjusted Margin</item>
-    <item value="4">Binary Add-On Amount</item>
-    <item value="5">Cash Balance Amount</item>
-    <item value="6">Concentration Margin</item>
-    <item value="7">Core Margin</item>
-    <item value="8">Delivery Margin</item>
-    <item value="9">Discretionary Margin</item>
-    <item value="10">Futures Spread Margin</item>
-    <item value="11">Initial Margin</item>
-    <item value="12">Liquidating Margin</item>
-    <item value="13">Margin Call Amount</item>
-    <item value="14">Margin Deficit Amount (Shortfall)</item>
-    <item value="15">Margin Excess Amount (Surplus)</item>
-    <item value="16">Option Premium Amount</item>
-    <item value="17">Premium Margin</item>
-    <item value="18">Reserve Margin</item>
-    <item value="19">Security Collateral Amount</item>
-    <item value="20">Stress Test Add-On Amount</item>
-    <item value="21">Super Margin</item>
-    <item value="22">Total Margin</item>
-    <item value="23">Variation Margin</item>
-    <item value="24">Secondary Variation Margin</item>
-  </enum>
-  <enum eid="1648">
-    <item value="1">"hedges for" instrument</item>
-  </enum>
-  <enum eid="1655">
-    <item value="0">No participation</item>
-    <item value="1">Buy participation</item>
-    <item value="2">Sell participation</item>
-    <item value="3">Both buy and sell participation</item>
+  <enum eid="1607">
+    <item value="1">Invalid instrument requested</item>
+    <item value="2">Instrument already exists</item>
+    <item value="3">Request type not supported</item>
+    <item value="4">System unavailable for instrument creation</item>
+    <item value="5">Ineligible instrument group</item>
+    <item value="6">Instrument ID unavailable</item>
+    <item value="7">Invalid or missing data on option leg</item>
+    <item value="8">Invalid or missing data on future leg</item>
+    <item value="10">Invalid or missing data on FX leg</item>
+    <item value="11">Invalid leg price specified</item>
+    <item value="12">Invalid instrument structure specified</item>
   </enum>
   <enum eid="35">
     <item value="0">Heartbeat</item>
@@ -14687,9 +14558,6 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="CC">StreamAssignmentRequest</item>
     <item value="CD">StreamAssignmentReport</item>
     <item value="CE">StreamAssignmentReportACK</item>
-    <item value="CH">MarginRequirementInquiry</item>
-    <item value="CI">MarginRequirementInquiryAck</item>
-    <item value="CJ">MarginRequirementReport</item>
     <item value="D">NewOrderSingle</item>
     <item value="E">NewOrderList</item>
     <item value="F">OrderCancelRequest</item>

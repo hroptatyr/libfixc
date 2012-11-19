@@ -164,4 +164,12 @@ cme_settle_CPPFLAGS += -D_GNU_SOURCE
 cme_settle_LDFLAGS = $(AM_LDFLAGS)
 cme_settle_LDADD = $(top_builddir)/src/libfixc.la
 
+bin_tests += cme_settle_test_01.sh
+bin_tests += cme_settle_test_02.sh
+bin_tests += cme_settle_test_03.sh
+EXTRA_DIST += cbt.settle.20121105.s.xml
+EXTRA_DIST += cbt.settle.20121105.s.syms
+EXTRA_DIST += cbt.settle.20121105.s.meta
+EXTRA_DIST += cbt.settle.20121105.s.rinse
+
 ## Makefile.am ends here
