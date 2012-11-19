@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2" extver="FIX.5.0SP2.EP101">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP102" extver="FIX.5.0SP2.EP102">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -2395,6 +2395,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="354"/>
     <field aid="355"/>
     <component name="StandardTrailer"/>
+    <field aid="911"/>
   </message>
   <message fix="AP" fixml="PosRpt" name="PositionReport" cat="PositionMaintenance" sec="Post Trade" not_req_xml="0">
     <description>The Position Report message is returned by the holder of a position in response to a Request for Position message. The purpose of the message is to report all aspects of a position and may be provided on a standing basis to report end of day positions to an owner.</description>
@@ -2435,6 +2436,9 @@ The Quote Cancel message supports cancellation of:
     <component name="StandardTrailer"/>
     <field aid="1434"/>
     <field aid="811"/>
+    <field aid="1635"/>
+    <field aid="911"/>
+    <field aid="912"/>
   </message>
   <message fix="AQ" fixml="TrdCaptRptReqAck" name="TradeCaptureReportRequestAck" cat="TradeCapture" sec="Post Trade" not_req_xml="0">
     <description>The Trade Capture Request Ack message is used to:
@@ -3520,6 +3524,73 @@ The Quote Cancel message supports cancellation of:
     <field aid="1503"/>
     <field aid="1501"/>
     <field aid="1502"/>
+    <field aid="58"/>
+    <field aid="354"/>
+    <field aid="355"/>
+    <component name="StandardTrailer"/>
+  </message>
+  <message fix="CH" fixml="MgnReqmtInq" name="MarginRequirementInquiry" cat="MarginRequirementManagement" sec="Post Trade" not_req_xml="0">
+    <description/>
+    <component name="StandardHeader"/>
+    <field aid="1635"/>
+    <component name="MarginReqmtInqQualGrp"/>
+    <field aid="263"/>
+    <field aid="725"/>
+    <field aid="726"/>
+    <component name="Parties"/>
+    <field aid="715"/>
+    <field aid="716"/>
+    <field aid="717"/>
+    <field aid="1639"/>
+    <component name="Instrument"/>
+    <field aid="60"/>
+    <field aid="58"/>
+    <field aid="354"/>
+    <field aid="355"/>
+    <component name="StandardTrailer"/>
+  </message>
+  <message fix="CI" fixml="MgnReqmtInqAck" name="MarginRequirementInquiryAck" cat="MarginRequirementManagement" sec="Post Trade" not_req_xml="0">
+    <description/>
+    <component name="StandardHeader"/>
+    <field aid="1635"/>
+    <component name="MarginReqmtInqQualGrp"/>
+    <field aid="1640"/>
+    <field aid="1641"/>
+    <field aid="911"/>
+    <field aid="263"/>
+    <field aid="725"/>
+    <field aid="726"/>
+    <component name="Parties"/>
+    <field aid="715"/>
+    <field aid="716"/>
+    <field aid="717"/>
+    <field aid="1639"/>
+    <component name="Instrument"/>
+    <field aid="60"/>
+    <field aid="58"/>
+    <field aid="354"/>
+    <field aid="355"/>
+    <component name="StandardTrailer"/>
+  </message>
+  <message fix="CJ" fixml="MgnReqmtRpt" name="MarginRequirementReport" cat="MarginRequirementManagement" sec="Post Trade" not_req_xml="0">
+    <description/>
+    <component name="StandardHeader"/>
+    <component name="ApplicationSequenceControl"/>
+    <field aid="1642"/>
+    <field aid="1635"/>
+    <field aid="1638"/>
+    <field aid="911"/>
+    <field aid="912"/>
+    <field aid="325"/>
+    <component name="Parties"/>
+    <field aid="715"/>
+    <field aid="716"/>
+    <field aid="717"/>
+    <field aid="1639"/>
+    <field aid="15"/>
+    <component name="Instrument"/>
+    <component name="MarginAmountData"/>
+    <field aid="60"/>
     <field aid="58"/>
     <field aid="354"/>
     <field aid="355"/>
@@ -5951,6 +6022,18 @@ The Quote Cancel message supports cancellation of:
     <field aid="1632"/>
     <field aid="1633"/>
     <field aid="1634"/>
+  </component>
+  <component fixml="MgnReqmtInqQual" name="MarginReqmtInqQualGrp" cat="MarginRequirementManagement" type="BlockRepeating" not_req_xml="0">
+    <description/>
+    <field aid="1636"/>
+    <field aid="1637"/>
+  </component>
+  <component fixml="MgnAmtData" name="MarginAmountData" cat="MarginRequirementManagement" type="BlockRepeating" not_req_xml="0">
+    <description/>
+    <field aid="1643"/>
+    <field aid="1645"/>
+    <field aid="1644"/>
+    <field aid="1646"/>
   </component>
   <field aid="1" fixml="Acct" name="Account" type="String" not_req_xml="0">
     <description>Account mnemonic as agreed between buy and sell sides, e.g. broker and institution or investor/intermediary and fund manager.</description>
@@ -10807,6 +10890,42 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <field aid="1634" fixml="LmtAmtCcy" name="LimitAmtCurrency" type="Currency" not_req_xml="0">
     <description>Indicates the currency that the limit amount is specified in.  See Currency(15) for additional description and valid values.</description>
   </field>
+  <field aid="1635" fixml="ID" name="MarginReqmtInqID" type="String" not_req_xml="0">
+    <description>Margin Requirement Inquiry Identifier</description>
+  </field>
+  <field aid="1636" fixml="" name="NoMarginReqmtInqQualifier" type="NumInGroup" not_req_xml="1">
+    <description>Number of qualifier entries</description>
+  </field>
+  <field aid="1637" fixml="Qual" name="MarginReqmtInqQualifier" type="int" not_req_xml="0">
+    <description>Qualifier for Margin Requirement Inquiry to identify a specific report</description>
+  </field>
+  <field aid="1638" fixml="RptTyp" name="MarginReqmtRptType" type="int" not_req_xml="0">
+    <description>Type of Margin Requirement Report</description>
+  </field>
+  <field aid="1639" fixml="Clss" name="MarginClass" type="String" not_req_xml="0">
+    <description>Identifier for group of instruments with similar risk profile</description>
+  </field>
+  <field aid="1640" fixml="Stat" name="MarginReqmtInqStatus" type="int" not_req_xml="0" eid="945">
+    <description>Status of Margin Requirement Inquiry</description>
+  </field>
+  <field aid="1641" fixml="Rslt" name="MarginReqmtInqResult" type="int" not_req_xml="0">
+    <description>Result returned in response to Margin Requirement Inquiry</description>
+  </field>
+  <field aid="1642" fixml="RptID" name="MarginReqmtRptID" type="String" not_req_xml="0">
+    <description>Margin Requirement Report Identifier</description>
+  </field>
+  <field aid="1643" fixml="" name="NoMarginAmt" type="NumInGroup" not_req_xml="1">
+    <description>Number of margin requirement amounts</description>
+  </field>
+  <field aid="1644" fixml="AmtTyp" name="MarginAmtType" type="int" not_req_xml="0">
+    <description>Type of margin requirement</description>
+  </field>
+  <field aid="1645" fixml="Amt" name="MarginAmt" type="Amt" not_req_xml="0">
+    <description>Amount of margin requirement</description>
+  </field>
+  <field aid="1646" fixml="Ccy" name="MarginAmtCcy" type="Currency" not_req_xml="0">
+    <description>Currency of margin requirement</description>
+  </field>
   <cat name="Session" fixml="session" not_req_xml="1"/>
   <cat name="Indication" fixml="indications" not_req_xml="0"/>
   <cat name="SingleGeneralOrderHandling" fixml="order" not_req_xml="0"/>
@@ -10833,6 +10952,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
   <cat name="ImplFields" fixml="fields" not_req_xml="0"/>
   <cat name="MarketStructureReferenceData" fixml="marketstructure" not_req_xml="0"/>
   <cat name="SecuritiesReferenceData" fixml="securitiesreference" not_req_xml="0"/>
+  <cat name="MarginRequirementManagement" fixml="marginrequirement" not_req_xml="0"/>
   <enum eid="4">
     <item value="B">Buy</item>
     <item value="S">Sell</item>
@@ -12946,6 +13066,8 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="DLT">Net Delta Qty</item>
     <item value="CEA">Credit Event Adjustment</item>
     <item value="SEA">Succession Event Adjustment</item>
+    <item value="NET">Net Qty</item>
+    <item value="GRS">Gross Qty</item>
   </enum>
   <enum eid="706">
     <item value="0">Submitted</item>
@@ -13018,6 +13140,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="4">Settlement Activity</item>
     <item value="5">Backout Message</item>
     <item value="6">Delta Positions</item>
+    <item value="7">Net Position</item>
   </enum>
   <enum eid="725">
     <item value="0">Inband - transport the request was sent over (default)</item>
@@ -14371,6 +14494,55 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="4">Long position limit</item>
     <item value="5">Short position limit</item>
   </enum>
+  <enum eid="1637">
+    <item value="0">Summary</item>
+    <item value="1">Detail</item>
+    <item value="2">Excess/Deficit</item>
+    <item value="3">Net Position</item>
+  </enum>
+  <enum eid="1638">
+    <item value="0">Summary</item>
+    <item value="1">Detail</item>
+    <item value="2">Excess/Deficit</item>
+  </enum>
+  <enum eid="1641">
+    <item value="0">Successful (default)</item>
+    <item value="1">Invalid or unknown instrument</item>
+    <item value="2">Invalid or unknown margin class</item>
+    <item value="3">Invalid Parties</item>
+    <item value="4">Invalid Transport Type requested</item>
+    <item value="5">Invalid Destination requested</item>
+    <item value="6">No margin requirement found</item>
+    <item value="7">Margin requirement inquiry qualifier not supported</item>
+    <item value="8">Unauthorized for margin requirement inquiry</item>
+    <item value="99">Other (further information in Text (58) field)</item>
+  </enum>
+  <enum eid="1644">
+    <item value="1">Additional Margin</item>
+    <item value="2">Adjusted Margin</item>
+    <item value="3">Unadjusted Margin</item>
+    <item value="4">Binary Add-On Amount</item>
+    <item value="5">Cash Balance Amount</item>
+    <item value="6">Concentration Margin</item>
+    <item value="7">Core Margin</item>
+    <item value="8">Delivery Margin</item>
+    <item value="9">Discretionary Margin</item>
+    <item value="10">Futures Spread Margin</item>
+    <item value="11">Initial Margin</item>
+    <item value="12">Liquidating Margin</item>
+    <item value="13">Margin Call Amount</item>
+    <item value="14">Margin Deficit Amount (Shortfall)</item>
+    <item value="15">Margin Excess Amount (Surplus)</item>
+    <item value="16">Option Premium Amount</item>
+    <item value="17">Premium Margin</item>
+    <item value="18">Reserve Margin</item>
+    <item value="19">Security Collateral Amount</item>
+    <item value="20">Stress Test Add-On Amount</item>
+    <item value="21">Super Margin</item>
+    <item value="22">Total Margin</item>
+    <item value="23">Variation Margin</item>
+    <item value="24">Secondary Variation Margin</item>
+  </enum>
   <enum eid="35">
     <item value="0">Heartbeat</item>
     <item value="1">TestRequest</item>
@@ -14442,6 +14614,9 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="CC">StreamAssignmentRequest</item>
     <item value="CD">StreamAssignmentReport</item>
     <item value="CE">StreamAssignmentReportACK</item>
+    <item value="CH">MarginRequirementInquiry</item>
+    <item value="CI">MarginRequirementInquiryAck</item>
+    <item value="CJ">MarginRequirementReport</item>
     <item value="D">NewOrderSingle</item>
     <item value="E">NewOrderList</item>
     <item value="F">OrderCancelRequest</item>
