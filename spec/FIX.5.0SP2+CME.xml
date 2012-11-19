@@ -5500,6 +5500,8 @@ The Quote Cancel message supports cancellation of:
     <field aid="1207"/>
     <field aid="1208"/>
     <field aid="1209"/>
+    <field aid="1830"/>
+    <field aid="1831"/>
   </component>
   <component fixml="StrkRules" name="StrikeRules" cat="Common" type="ImplicitBlockRepeating" not_req_xml="0">
     <description/>
@@ -10872,6 +10874,12 @@ ComplexEventEndTime must always be greater than or equal to ComplexEventStartTim
   <field aid="1723" fixml="PxUOMCcy" name="DerivativePriceUnitOfMeasureCurrency" type="Currency" not_req_xml="0">
     <description>Indicates the currency of the price unit of measure. Conditionally required when DerivativePriceUnitOfMeasure(1315) = Ccy</description>
   </field>
+  <field aid="1830" fixml="SettlPxIncr" name="SettlPriceIncrement" type="Price" not_req_xml="0">
+    <description>Settlement price increment for stated price range.</description>
+  </field>
+  <field aid="1831" fixml="SetlPxIncr2" name="SettlPriceSecondaryIncrement" type="Price" not_req_xml="0">
+    <description>Secondary settlement price increment for stated price range. The meaning of secondary is left to bilateral agreement, e.g. it may refer to final settlement for a contract.</description>
+  </field>
   <cat name="Session" fixml="session" not_req_xml="1"/>
   <cat name="Indication" fixml="indications" not_req_xml="0"/>
   <cat name="SingleGeneralOrderHandling" fixml="order" not_req_xml="0"/>
@@ -13496,6 +13504,8 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="19">Position removal date</item>
     <item value="21">Deliver start time</item>
     <item value="22">Delivery end time</item>
+    <item value="23">First notice date</item>
+    <item value="24">Last notice date</item>
     <item value="99">Other</item>
   </enum>
   <enum eid="871">
@@ -13506,29 +13516,35 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="5">Variable rate</item>
     <item value="6">Less fee for put</item>
     <item value="7">Stepped coupon</item>
-    <item value="8">Coupon period (if not semi-annual). Supply redemption date in the InstrAttribValue (872) field.</item>
+    <item value="8">Coupon period (if not semi-annual)</item>
     <item value="9">When [and if] issued</item>
     <item value="10">Original issue discount</item>
     <item value="11">Callable, puttable</item>
     <item value="12">Escrowed to Maturity</item>
-    <item value="13">Escrowed to redemption date - callable. Supply redemption date in the InstrAttribValue (872) field</item>
+    <item value="13">Escrowed to redemption date - callable</item>
     <item value="14">Pre-refunded</item>
     <item value="15">In default</item>
     <item value="16">Unrated</item>
     <item value="17">Taxable</item>
     <item value="18">Indexed</item>
     <item value="19">Subject To Alternative Minimum Tax</item>
-    <item value="20">Original issue discount price. Supply price in the InstrAttribValue (872) field</item>
+    <item value="20">Original issue discount price</item>
     <item value="21">Callable below maturity value</item>
     <item value="22">Callable without notice by mail to holder unless registered</item>
-    <item value="23">Price tick rules for security.</item>
-    <item value="24">Trade type eligibility details for security.</item>
-    <item value="25">Instrument Denominator</item>
-    <item value="26">Instrument Numerator</item>
-    <item value="27">Instrument Price Precision</item>
-    <item value="28">Instrument Strike Price</item>
-    <item value="29">Tradeable Indicator</item>
-    <item value="33">Trade at Settlement (TAS) Eligibility</item>
+    <item value="23">Price tick rules for security</item>
+    <item value="24">Trade type eligibility details for security</item>
+    <item value="25">Instrument denominator</item>
+    <item value="26">Instrument numerator</item>
+    <item value="27">Instrument price precision</item>
+    <item value="28">Instrument strike price</item>
+    <item value="29">Tradeable indicator</item>
+    <item value="31">Minimum guaranteed fill volume</item>
+    <item value="32">Minimum guaranteed fill status</item>
+    <item value="33">Trade at settlement (TAS) eligibility</item>
+    <item value="34">Test instrument</item>
+    <item value="35">Dummy instrument</item>
+    <item value="36">Negative settlement price eligibility</item>
+    <item value="37">Negative strike price eligibility</item>
     <item value="99">Text. Supply the text of the attribute or disclaimer in the InstrAttribValue (872) field.</item>
   </enum>
   <enum eid="875">
@@ -14098,11 +14114,12 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
     <item value="1">user requested</item>
   </enum>
   <enum eid="1209">
-    <item value="0">Regular</item>
-    <item value="1">Variable</item>
-    <item value="2">Fixed</item>
+    <item value="0">Regular trading</item>
+    <item value="1">Variable cabinet</item>
+    <item value="2">Fixed cabinet</item>
     <item value="3">Traded as a spread leg</item>
     <item value="4">Settled as a spread leg</item>
+    <item value="5">Traded as spread</item>
   </enum>
   <enum eid="1302">
     <item value="0">Months</item>
