@@ -11468,7 +11468,8 @@ See SettlType(63) field for description.</description>
   </field>
   <field aid="1592" fixml="DiscFctr" name="DiscountFactor" type="float" not_req_xml="0">
     <description>Used to calculate the present value of an amount to be paid in the future.</description>
-    <alias cat="" fixml="DiscntFctr"/>
+    <!-- somehow the CME still uses DiscntFctr tags -->
+    <alias cat="MarketData" fixml="DiscntFctr"/>
   </field>
   <field aid="1593" fixml="ParentAllocID" name="ParentAllocID" type="String" not_req_xml="0">
     <description>Contains the IndividualAllocId (tag 467) value of the allocation that is being offset as a result of a new allocation. This would be an optional field that would only be populated in the case of an allocation of an allocation (as well as any subsequent allocations). This wouldn’t be populated for an initial allocation since an allocation id is not supplied on default (initial) allocations.</description>
