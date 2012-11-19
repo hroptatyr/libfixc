@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP110" extver="FIX.5.0SP2.EP110">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP111" extver="FIX.5.0SP2.EP111">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -1986,6 +1986,7 @@ The Quote Cancel message supports cancellation of:
     <field aid="195"/>
     <field aid="1071"/>
     <field aid="30"/>
+    <field aid="1596"/>
     <field aid="75"/>
     <field aid="715"/>
     <field aid="6"/>
@@ -5222,7 +5223,13 @@ The Quote Cancel message supports cancellation of:
     <description/>
     <field aid="552"/>
     <field aid="54"/>
+    <field aid="1427"/>
+    <field aid="1428"/>
+    <field aid="1429"/>
     <field aid="1009"/>
+    <field aid="1597"/>
+    <field aid="1599"/>
+    <field aid="1598"/>
     <field aid="1005"/>
     <field aid="1506"/>
     <field aid="1507"/>
@@ -5283,9 +5290,6 @@ The Quote Cancel message supports cancellation of:
     <field aid="1139"/>
     <field aid="1115"/>
     <component name="TradeReportOrderDetail"/>
-    <field aid="1427"/>
-    <field aid="1428"/>
-    <field aid="1429"/>
     <field aid="1444"/>
     <component name="LimitAmts"/>
   </component>
@@ -11481,6 +11485,18 @@ See SettlType(63) field for description.</description>
   </field>
   <field aid="1595" fixml="CntgPx" name="PositionContingentPrice" type="Price" not_req_xml="0">
     <description>Risk adjusted price used to calculate variation margin on a position.</description>
+  </field>
+  <field aid="1596" fixml="ClrTrdPx" name="ClearingTradePrice" type="Price" not_req_xml="0">
+    <description>Alternate clearing price</description>
+  </field>
+  <field aid="1597" fixml="ClrTrdPx" name="SideClearingTradePrice" type="Price" not_req_xml="0">
+    <description>Alternate clearing price for the side being reported.</description>
+  </field>
+  <field aid="1598" fixml="ClrTrdPxType" name="SideClearingTradePriceType" type="int" not_req_xml="0" eid="1598">
+    <description>Indicates to recipient whether trade is clearing at execution prices LastPx(tag 31) or alternate clearing prices SideClearingTradePrice(tag 1597).</description>
+  </field>
+  <field aid="1599" fixml="SidePxDiff" name="SidePriceDifferential" type="Price" not_req_xml="0">
+    <description>Price Differential between the front and back leg of a spread or complex instrument.</description>
   </field>
   <field aid="1616" fixml="Exch" name="InstrumentScopeSecurityExchange" type="Exchange" not_req_xml="0">
     <description>Used to limit instrument scope to specified security exchange.
@@ -18551,6 +18567,10 @@ iii) submitting a transaction report to the Exchange, where the transaction repo
      <item value="4">Price Alignment Interest</item>
      <item value="5">Delivery invoice charges</item>
      <item value="6">Delivery storage charges</item>
+  </enum>
+  <enum eid="1598">
+    <item value="0">Trade Clearing at Execution Price</item>
+    <item value="1">Trade Clearing at Alternate Clearing Price</item>
   </enum>
   <enum eid="1617">
     <item value="1">Assignment</item>
