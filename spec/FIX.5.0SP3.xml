@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP109" extver="FIX.5.0SP2.EP109">
+<spec xmlns="http://www.ga-group.nl/libfixc_0_1" version="FIX.5.0SP2.EP110" extver="FIX.5.0SP2.EP110">
   <message fix="0" fixml="Heartbeat" name="Heartbeat" cat="Session" sec="Session" not_req_xml="1">
     <description>The Heartbeat monitors the status of the communication link and identifies when the last of a string of messages was not received.</description>
     <component name="StandardHeader"/>
@@ -14030,6 +14030,7 @@ Bilateral agreements dictate the units and maximum value of this field.</descrip
     <item value="5">Pledge</item>
     <item value="6">Large Trader Submission</item>
     <item value="7">Large Positions Reporting Submission</item>
+    <item value="8">Long Holdings</item>
   </enum>
   <enum eid="712">
     <item value="1">New - used to increment the overall transaction quantity</item>
