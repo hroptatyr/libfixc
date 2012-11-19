@@ -11362,7 +11362,7 @@ Bi-lateral agreements will dictate the maximum value of this field. It is assume
     <description>The amount that has been drawn down against the counterparty for a given trade.  The type of limit is specified in LimitAmtType(1631).
 Bilateral agreements dictate the units and maximum value of this field.</description>
   </field>
-  <field aid="1633" fixml="LmtAmtRnmg" name="LimitAmtRemaining" type="Amt" not_req_xml="0">
+  <field aid="1633" fixml="LmtAmtRem" name="LimitAmtRemaining" type="Amt" not_req_xml="0">
     <description>The remaining limit amount available between the counterparties.  The type of limit is specified in LimitAmtType(1631).
 Bilateral agreements dictate the units and maximum value of this field.</description>
   </field>
