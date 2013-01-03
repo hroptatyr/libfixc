@@ -323,14 +323,28 @@ ptx_init(__ctx_t ctx, char *restrict p, const char *ep)
 	return;
 }
 
+static inline bool
+ctx_batch_p(fixc_ctxt_t ctx)
+{
+	return ctx.i == FIXC_MSGT_BATCH;
+}
+
+static inline bool
+ctx_udef_p(fixc_ctxt_t ctx)
+{
+	return (ctx.i & 0xff00) == 0x5500/*U?*/;
+}
+
 static char*
 __fixmlify(char *restrict p, const char *ep, fixc_ctxt_t ctx)
 {
 	const char *tag;
 	size_t tsz;
 
-	if (UNLIKELY(ctx.i == FIXC_MSGT_BATCH)) {
+	if (UNLIKELY(ctx_batch_p(ctx))) {
 		tag = "Batch";
+	} else if (UNLIKELY(ctx_udef_p(ctx))) {
+		tag = "User";
 	} else if (ctx.i > 0x2000) {
 		tag = fixc_msgt_fixmlify(ctx.msgt);
 	} else {
@@ -555,6 +569,12 @@ fu_ancest_p(fixc_fld_ctx_t fc, fixc_ctxt_t c)
 	return FIXC_COMP_UNK;
 }
 
+static inline bool
+fixc_udef_p(fixc_msg_t msg)
+{
+	return ctx_udef_p(msg->f35.mtyp);
+}
+
 static void
 fixc_fixup_some(fixc_msg_t msg)
 {
@@ -598,6 +618,16 @@ fixc_fixup(fixc_msg_t msg)
 #define peek()		stk[nstk].ctx
 #define pop()		(streak = 0, stk[nstk--].ctx)
 #define streak()	(streak++)
+
+	/* special case for user defined messages */
+	if (UNLIKELY(fixc_udef_p(msg))) {
+		push(msg->f35.mtyp, 0);
+		for (size_t i = 0; i < msg->nflds; i++) {
+			msg->flds[i].tpc = (uint16_t)peek().ui16;
+			msg->flds[i].cnt = (uint16_t)streak();
+		}
+		return;
+	}
 
 	push(msg->f35.mtyp, 0);
 	for (size_t i = 0; i < msg->nflds; i++) {
