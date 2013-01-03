@@ -62,9 +62,11 @@
 #include "fixml-nsuri-rev.c"
 
 #if defined DEBUG_FLAG
+# include <assert.h>
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 # define FIXC_DEBUG_MEM(args...)
 #else  /* !DEBUG_FLAG */
+# define assert(args...)
 # define FIXC_DEBUG(args...)
 # define FIXC_DEBUG_MEM(args...)
 #endif	/* DEBUG_FLAG */
@@ -154,6 +156,9 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		fixc_fld_t new_flds;
 		void *new_pr;
 
+		assert(msg->nflds < fspc_nu);
+		assert(mvz + msg->pz < new_sz);
+
 		new_flds = malloc(new_sz);
 		memcpy(new_flds, msg->flds, mvz);
 
@@ -169,6 +174,8 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		msg->flds = new_flds;
 		msg->pr = new_pr;
 	}
+	FIXC_DEBUG_MEM("=> %p [%zu]  %p [%zu]\n",
+		       msg->flds, msg->nflds, msg->pr, msg->pz);
 	return;
 }
 
