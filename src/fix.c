@@ -288,6 +288,11 @@ make_fixc_msg(fixc_ctxt_t ctx)
 	return res;
 }
 
+#if defined HAVE_ZLIB_H
+/* forward for anal() */
+static int __fixc_from_fixz();
+#endif	/* HAVE_ZLIB_H */
+
 static kv_state_t
 anal(fixc_msg_t res, char *str, size_t *ssz, kv_state_t st)
 {
@@ -344,7 +349,6 @@ anal(fixc_msg_t res, char *str, size_t *ssz, kv_state_t st)
 			/* must be FIXC_VER_COMP then */
 #if defined HAVE_ZLIB_H
 			size_t rz = *ssz - (q - res->pr);
-			static int __fixc_from_fixz();
 
 			FIXC_DEBUG("\
 compressed message (of size %db v %zu) detected\n", res->f9.i32, rz);
