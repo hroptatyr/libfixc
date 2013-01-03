@@ -165,6 +165,11 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		assert(msg->nflds < fspc_nu);
 		assert(mvz + msg->pz < new_sz);
 
+		if (msg->nflds < fspc) {
+			/* the extra message in mvz is for anal()'s state */
+			mvz += sizeof(*msg->flds);
+		}
+
 		new_flds = malloc(new_sz);
 		memcpy(new_flds, msg->flds, mvz);
 
