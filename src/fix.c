@@ -284,9 +284,9 @@ make_fixc_msg(fixc_ctxt_t ctx)
 }
 
 static kv_state_t
-anal(fixc_msg_t res, char *str, size_t ssz, kv_state_t st)
+anal(fixc_msg_t res, char *str, size_t *ssz, kv_state_t st)
 {
-	const char *const ep = str + ssz;
+	const char *const ep = str + *ssz;
 	const char *q = str;
 
 #define CUR_FLD		(res->flds[res->nflds])
@@ -304,7 +304,7 @@ anal(fixc_msg_t res, char *str, size_t ssz, kv_state_t st)
 				st = VALUE;
 				q = p;
 			} else {
-				return KEY;
+				goto out;
 			}
 			break;
 		case VALUE:
@@ -325,20 +325,20 @@ anal(fixc_msg_t res, char *str, size_t ssz, kv_state_t st)
 				/* last field in a message, always succeed */
 				goto succ;
 			} else {
-				return VALUE;
+				goto out;
 			}
 			break;
 		case ERROR:
 		default:
 			/* don't think we should recover from an error, aye? */
-			return ERROR;
+			goto out;
 		}
 
 		/* check for compressed message */
 		if (res->f8.ver == FIXC_VER_COMP && res->f9.i32 > 0) {
 			/* must be FIXC_VER_COMP then */
 #if defined HAVE_ZLIB_H
-			size_t rz = ssz - (q - res->pr);
+			size_t rz = *ssz - (q - res->pr);
 			static int __fixc_from_fixz();
 
 			FIXC_DEBUG("\
@@ -355,6 +355,8 @@ compressed message (of size %db) detected but no zlib support\n", res->f9.i32);
 		}
 	}
 #undef CUR_FLD
+out:
+	*ssz = q - str;
 	return st;
 }
 
@@ -422,7 +424,7 @@ __fixc_from_fixz(fixc_msg_t res, char *msg, size_t msglen)
 		res->pr[prevproc + nproc] = '\0';
 
 		/* try and parse */
-		st = anal(res, res->pr + prevproc, nproc, st);
+		st = anal(res, res->pr + prevproc, &nproc, st);
 
 		/* update prevproc */
 		prevproc += nproc;
@@ -452,7 +454,7 @@ make_fixc_from_fix(const char *msg, size_t msglen)
 	memcpy(res->pr, msg, msglen);
 	res->pr[msglen] = '\0';
 
-	if (anal(res, res->pr, msglen, st)) {
+	if (anal(res, res->pr, &msglen, st)) {
 		/* error case, only entered upon zlib handling */
 		free_fixc(res);
 		res = NULL;
