@@ -157,8 +157,8 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		       fspc, vspc, fspc_nu, vspc_nu, old_sz, new_sz);
 
 	{
-		/* malloc them guys */
-		size_t mvz = msg->nflds * sizeof(*msg->flds);
+		/* malloc them guys, the extra message in mvz is for anal() */
+		size_t mvz = (msg->nflds + 1U/*anal()*/) * sizeof(*msg->flds);
 		fixc_fld_t new_flds;
 		void *new_pr;
 
