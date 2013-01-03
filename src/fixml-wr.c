@@ -684,31 +684,22 @@ fixc_dump(fixc_msg_t msg)
 }
 
 
-/* public functions */
-/* new system with tag parent context and counter */
-size_t
-fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
+/* helpers */
+#define FIXML_TAG	"FIXML"
+
+static char*
+__render_hdr(char *restrict const buf, const char *const ep, fixc_msg_t msg)
 {
 	static const char xml_pre[] = "\
 <?xml version=\"1.0\"?>";
-	static const char fixml[] = "FIXML";
-	const char *ep = buf + bsz;
 	char *restrict p = buf;
-	struct __ctx_s ctx = {0};
-	fixc_ctxt_t otpc = {0};
 
-	if (fixc_msg_needs_fixup_p(msg)) {
-		/* just in case the reader hasn't given us contexts */
-		fixc_fixup(msg);
-	}
-
-	/* the usual stuff upfront, xml PI */
 	p = sncpy(p, ep, xml_pre, sizeof(xml_pre) - 1);
 	/* newline this one, all other tags will have no indentation */
 	*p++ = '\n';
 	/* ... and open our tag */
 	p = sputc(p, ep, '<');
-	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
+	p = sncpy(p, ep, FIXML_TAG, sizeof(FIXML_TAG) - 1);
 
 	/* fill in xmlns uri */
 	p += __render_xmlns(p, ep - p, msg);
@@ -725,6 +716,51 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 		p = __fixmlify(p, ep, FIXC_MSGT_BATCH);
 		p = sputc(p, ep, '>');
 	}
+	return p;
+}
+
+static char*
+__render_ftr(char *restrict const buf, const char *const ep, fixc_msg_t msg)
+{
+	char *restrict p = buf;
+
+	/* see if we need to close the Batch tag */
+	if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
+		p = sputc(p, ep, '<');
+		p = sputc(p, ep, '/');
+		p = __fixmlify(p, ep, FIXC_MSGT_BATCH);
+		p = sputc(p, ep, '>');
+	}
+	/* final verdict */
+	p = sputc(p, ep, '<');
+	p = sputc(p, ep, '/');
+	p = sncpy(p, ep, FIXML_TAG, sizeof(FIXML_TAG) - 1);
+	p = sputc(p, ep, '>');
+	p = sputc(p, ep, '\n');
+	return p;
+}
+
+#undef FIXML_TAG
+
+
+/* public functions */
+/* new system with tag parent context and counter */
+size_t
+fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
+{
+	const char *const ep = buf + bsz;
+	char *restrict p = buf;
+	struct __ctx_s ctx = {0};
+	fixc_ctxt_t otpc = {0};
+
+	if (fixc_msg_needs_fixup_p(msg)) {
+		/* just in case the reader hasn't given us contexts */
+		fixc_fixup(msg);
+	}
+
+	/* the usual stuff upfront, xml PI */
+	p = __render_hdr(p, ep, msg);
+
 	/* set up our stack */
 	ptx_init(&ctx, p, ep);
 	/* traverse the message only once */
@@ -754,19 +790,9 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 
 	/* copy the context pointer back */
 	p = ctx.p;
-	/* see if we need to close the Batch tag */
-	if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
-		p = sputc(p, ep, '<');
-		p = sputc(p, ep, '/');
-		p = __fixmlify(p, ep, FIXC_MSGT_BATCH);
-		p = sputc(p, ep, '>');
-	}
-	/* final verdict */
-	p = sputc(p, ep, '<');
-	p = sputc(p, ep, '/');
-	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
-	p = sputc(p, ep, '>');
-	p = sputc(p, ep, '\n');
+
+	/* close everything */
+	p = __render_ftr(p, ep, msg);
 	*p = '\0';
 	return p - buf;
 }
@@ -816,9 +842,6 @@ resz_rndr(char **buf, size_t *bsz)
 struct fixc_rndr_s
 fixc_render_fixml_rndr(fixc_msg_t msg)
 {
-	static const char xml_pre[] = "\
-<?xml version=\"1.0\"?>";
-	static const char fixml[] = "FIXML";
 	const char *ep;
 	char *restrict p;
 	struct __ctx_s ctx = {0};
@@ -854,28 +877,8 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 	p = buf;
 
 	/* the usual stuff upfront, xml PI */
-	p = sncpy(p, ep, xml_pre, sizeof(xml_pre) - 1);
-	/* newline this one, all other tags will have no indentation */
-	*p++ = '\n';
-	/* ... and open our tag */
-	p = sputc(p, ep, '<');
-	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
+	p = __render_hdr(p, ep, msg);
 
-	/* fill in xmlns uri */
-	p += __render_xmlns(p, ep - p, msg);
-
-	/* fill in v attr */
-	p += __render_v(p, ep - p, msg);
-
-	/* eo FIXML tag start */
-	p = sputc(p, ep, '>');
-
-	/* see if we need to produce the Batch tag */
-	if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
-		p = sputc(p, ep, '<');
-		p = __fixmlify(p, ep, FIXC_MSGT_BATCH);
-		p = sputc(p, ep, '>');
-	}
 	/* set up our stack */
 	ptx_init(&ctx, p, ep);
 	/* traverse the message only once */
@@ -915,19 +918,8 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 
 	/* copy the context pointer back */
 	p = ctx.p;
-	/* see if we need to close the Batch tag */
-	if (msg->f35.mtyp == FIXC_MSGT_BATCH) {
-		p = sputc(p, ep, '<');
-		p = sputc(p, ep, '/');
-		p = __fixmlify(p, ep, FIXC_MSGT_BATCH);
-		p = sputc(p, ep, '>');
-	}
-	/* final verdict */
-	p = sputc(p, ep, '<');
-	p = sputc(p, ep, '/');
-	p = sncpy(p, ep, fixml, sizeof(fixml) - 1);
-	p = sputc(p, ep, '>');
-	p = sputc(p, ep, '\n');
+	/* close everything */
+	p = __render_ftr(p, ep, msg);
 	*p = '\0';
 
 	/* if mmap is in place, downsize to multiple of totz */
