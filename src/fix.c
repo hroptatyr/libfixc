@@ -369,13 +369,15 @@ __fixc_from_fixz(fixc_msg_t res, char *msg, size_t msglen)
 	struct z_stream_s strm[1];
 	static char tb[1024];
 	size_t nproc;
-	size_t prevproc = 0UL;
+	size_t unproc = 0UL;
 	size_t inproc = 0UL;
 	int finp = 0;
 
 	/* reset fields */
 	res->f8.ver = FIXC_VER_UNK;
 	res->f9.i32 = 0;
+
+	res->pz = 0UL;
 
 	/* initialise the zlib stuff */
 	strm->zalloc = NULL;
@@ -414,21 +416,27 @@ __fixc_from_fixz(fixc_msg_t res, char *msg, size_t msglen)
 		res->f8.ver = FIXC_VER_UNK;
 		res->f9.i32 = 0;
 
-		FIXC_DEBUG("run +%zu  <-%zu  ->%zu\n", prevproc, inproc, nproc);
+		FIXC_DEBUG("run +%zu  <-%zu  ->%zu\n", res->pz, inproc, nproc);
 
 		/* check i/o sizes */
 		check_size(res, nproc / 8, nproc);
 
 		/* generate the husk */
-		memcpy(res->pr + prevproc, tb, nproc);
-		res->pr[prevproc + nproc] = '\0';
-
-		/* try and parse */
-		st = anal(res, res->pr + prevproc, &nproc, st);
+		memcpy(res->pr + res->pz, tb, nproc);
+		res->pr[res->pz + nproc] = '\0';
 
 		/* update prevproc */
-		prevproc += nproc;
+		res->pz += nproc;
+
+		/* try and parse */
+		nproc = res->pz - unproc;
+		st = anal(res, res->pr + unproc, &nproc, st);
+
+		/* update unproc */
+		unproc += nproc;
 	} while (!finp);
+
+	res->pz = unproc;
 	return 0;
 }
 #endif	/* HAVE_ZLIB_H */
