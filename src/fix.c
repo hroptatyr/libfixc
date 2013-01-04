@@ -62,9 +62,11 @@
 #include "fixml-nsuri-rev.c"
 
 #if defined DEBUG_FLAG
+# include <assert.h>
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
 # define FIXC_DEBUG_MEM(args...)
 #else  /* !DEBUG_FLAG */
+# define assert(args...)
 # define FIXC_DEBUG(args...)
 # define FIXC_DEBUG_MEM(args...)
 #endif	/* DEBUG_FLAG */
@@ -77,6 +79,12 @@
 #if !defined CHAR_BIT
 # define CHAR_BIT	(8U)
 #endif	/* !CHAR_BIT */
+
+typedef enum {
+	KEY,
+	VALUE,
+	ERROR,
+} kv_state_t;
 
 
 /* fix guts */
@@ -154,6 +162,14 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		fixc_fld_t new_flds;
 		void *new_pr;
 
+		assert(msg->nflds < fspc_nu);
+		assert(mvz + msg->pz < new_sz);
+
+		if (msg->nflds < fspc) {
+			/* the extra message in mvz is for anal()'s state */
+			mvz += sizeof(*msg->flds);
+		}
+
 		new_flds = malloc(new_sz);
 		memcpy(new_flds, msg->flds, mvz);
 
@@ -169,6 +185,8 @@ check_size(fixc_msg_t msg, size_t add_flds, size_t add_vspc)
 		msg->flds = new_flds;
 		msg->pr = new_pr;
 	}
+	FIXC_DEBUG_MEM("=> %p [%zu]  %p [%zu]\n",
+		       msg->flds, msg->nflds, msg->pr, msg->pz);
 	return;
 }
 
@@ -271,18 +289,96 @@ make_fixc_msg(fixc_ctxt_t ctx)
 }
 
 #if defined HAVE_ZLIB_H
+/* forward for anal() */
+static int __fixc_from_fixz();
+#endif	/* HAVE_ZLIB_H */
+
+static kv_state_t
+anal(fixc_msg_t res, char *str, size_t *ssz, kv_state_t st)
+{
+	const char *const ep = str + *ssz;
+	const char *q = str;
+
+#define CUR_FLD		(res->flds[res->nflds])
+	for (char *p = str; p < ep;) {
+		switch (st) {
+		case KEY:
+			while (*p++ != '=' && p < ep);
+
+			if (p < ep) {
+				/* finish string q */
+				p[-1] = '\0';
+				CUR_FLD = fixc_parse_tag(q, p - 1 - q);
+
+				/* switch to value state */
+				st = VALUE;
+				q = p;
+			} else {
+				goto out;
+			}
+			break;
+		case VALUE:
+			while (*p++ != SOHC && p < ep);
+
+			if (p < ep) {
+				/* finish string q */
+				p[-1] = '\0';
+
+			succ:
+				/* add this field */
+				fixc_parse_fld(res, q, p - 1 - q);
+
+				/* switch to key state */
+				st = KEY;
+				q = p;
+			} else if (CUR_FLD.tag == FIXC_CHECK_SUM) {
+				/* last field in a message, always succeed */
+				goto succ;
+			} else {
+				goto out;
+			}
+			break;
+		case ERROR:
+		default:
+			/* don't think we should recover from an error, aye? */
+			goto out;
+		}
+
+		/* check for compressed message */
+		if (res->f8.ver == FIXC_VER_COMP && res->f9.i32 > 0) {
+			/* must be FIXC_VER_COMP then */
+#if defined HAVE_ZLIB_H
+			size_t rz = *ssz - (q - res->pr);
+
+			FIXC_DEBUG("\
+compressed message (of size %db v %zu) detected\n", res->f9.i32, rz);
+			if (__fixc_from_fixz(res, q, rz) < 0) {
+				return ERROR;
+			}
+			return KEY;
+#else  /* HAVE_ZLIB_H */
+			FIXC_DEBUG("\
+compressed message (of size %db) detected but no zlib support\n", res->f9.i32);
+			return ERROR;
+#endif	/* HAVE_ZLIB_H */
+		}
+	}
+#undef CUR_FLD
+out:
+	*ssz = q - str;
+	return st;
+}
+
+#if defined HAVE_ZLIB_H
 static int
 __fixc_from_fixz(fixc_msg_t res, char *msg, size_t msglen)
 {
-	enum {
-		KEY,
-		VALUE,
-	} kv_state = KEY;
+	kv_state_t st = KEY;
 	/* if msg was completely of the form N=V\1 we'd have 4 chars per fld */
-	struct z_stream_s st[1];
+	struct z_stream_s strm[1];
 	static char tb[1024];
 	size_t nproc;
-	size_t prevproc = 0UL;
+	size_t unproc = 0UL;
 	size_t inproc = 0UL;
 	int finp = 0;
 
@@ -290,29 +386,31 @@ __fixc_from_fixz(fixc_msg_t res, char *msg, size_t msglen)
 	res->f8.ver = FIXC_VER_UNK;
 	res->f9.i32 = 0;
 
-	/* initialise the zlib stuff */
-	st->zalloc = NULL;
-	st->zfree = NULL;
-	st->opaque = NULL;
+	res->pz = 0UL;
 
-	if (inflateInit(st) != Z_OK) {
+	/* initialise the zlib stuff */
+	strm->zalloc = NULL;
+	strm->zfree = NULL;
+	strm->opaque = NULL;
+
+	if (inflateInit(strm) != Z_OK) {
 		return -1;
 	}
 
 	do {
-		st->next_in = (Bytef*)msg + inproc;
-		st->avail_in = msglen - inproc;
+		strm->next_in = (Bytef*)msg + inproc;
+		strm->avail_in = msglen - inproc;
 
-		st->next_out = (Bytef*)tb;
-		st->avail_out = sizeof(tb);
+		strm->next_out = (Bytef*)tb;
+		strm->avail_out = sizeof(tb);
 
-		switch (inflate(st, Z_SYNC_FLUSH)) {
+		switch (inflate(strm, Z_SYNC_FLUSH)) {
 		case Z_OK:
 			/* yay */
 			FIXC_DEBUG("partial\n");
 			break;
 		case Z_STREAM_END:
-			if (inflateEnd(st) == Z_OK) {
+			if (inflateEnd(strm) == Z_OK) {
 				FIXC_DEBUG("complete\n");
 				finp = 1;
 				break;
@@ -322,58 +420,32 @@ __fixc_from_fixz(fixc_msg_t res, char *msg, size_t msglen)
 		}
 
 		/* reset them fields */
-		nproc = sizeof(tb) - st->avail_out;
-		inproc = msglen - st->avail_in;
+		nproc = sizeof(tb) - strm->avail_out;
+		inproc = msglen - strm->avail_in;
 		res->f8.ver = FIXC_VER_UNK;
 		res->f9.i32 = 0;
 
-		FIXC_DEBUG("run +%zu  <-%zu  ->%zu\n", prevproc, inproc, nproc);
+		FIXC_DEBUG("run +%zu  <-%zu  ->%zu\n", res->pz, inproc, nproc);
 
 		/* check i/o sizes */
 		check_size(res, nproc / 8, nproc);
 
 		/* generate the husk */
-		memcpy(res->pr + prevproc, tb, nproc);
-		res->pr[prevproc + nproc] = '\0';
-
-		for (char *p = res->pr + prevproc,
-			     *ep = res->pr + prevproc + nproc,
-			     *q = p; p <= ep; p++) {
-			switch (kv_state) {
-			case KEY:
-				if (*p == '=') {
-					size_t i = res->nflds;
-
-					/* finish string q */
-					*p = '\0';
-					res->flds[i] = fixc_parse_tag(q, p - q);
-
-					/* switch to value state */
-					kv_state = VALUE;
-					q = p + 1;
-				}
-				break;
-			case VALUE:
-				if (*p == SOHC || *p == '\0') {
-					/* finish string q */
-					*p = '\0';
-
-					/* add this field */
-					fixc_parse_fld(res, q, p - q);
-
-					/* switch to key state */
-					kv_state = KEY;
-					q = p + 1;
-				}
-				break;
-			default:
-				break;
-			}
-		}
+		memcpy(res->pr + res->pz, tb, nproc);
+		res->pr[res->pz + nproc] = '\0';
 
 		/* update prevproc */
-		prevproc += nproc;
+		res->pz += nproc;
+
+		/* try and parse */
+		nproc = res->pz - unproc;
+		st = anal(res, res->pr + unproc, &nproc, st);
+
+		/* update unproc */
+		unproc += nproc;
 	} while (!finp);
+
+	res->pz = unproc;
 	return 0;
 }
 #endif	/* HAVE_ZLIB_H */
@@ -382,17 +454,13 @@ fixc_msg_t
 make_fixc_from_fix(const char *msg, size_t msglen)
 {
 #define ROUNDv(x)	ROUND(x, sizeof(void*))
-	enum {
-		KEY,
-		VALUE,
-	} kv_state = KEY;
+	kv_state_t st = KEY;
 	/* if msg was completely of the form N=V\1 we'd have 4 chars per fld */
 	fixc_msg_t res;
 	size_t base = sizeof(*res);
 	size_t fspc = ROUND(msglen / 4, FSPC_RND);
 	size_t vspc = ROUND(msglen + 1, VSPC_RND);
 	size_t totz = ROUNDv(base + fspc * sizeof(*res->flds) + vspc);
-	int comp_handled_p = 0;
 
 	/* generate the husk */
 	res = malloc(totz);
@@ -403,74 +471,18 @@ make_fixc_from_fix(const char *msg, size_t msglen)
 	memcpy(res->pr, msg, msglen);
 	res->pr[msglen] = '\0';
 
-	for (char *p = res->pr, *ep = res->pr + msglen, *q = p; p <= ep; p++) {
-		switch (kv_state) {
-		case KEY:
-			if (*p == '=') {
-				size_t i = res->nflds;
-
-				/* finish string q */
-				*p = '\0';
-				res->flds[i] = fixc_parse_tag(q, p - q);
-
-				/* switch to value state */
-				kv_state = VALUE;
-				q = p + 1;
-			}
-			break;
-		case VALUE:
-			if (*p == SOHC || *p == '\0') {
-				/* finish string q */
-				*p = '\0';
-
-				/* add this field */
-				fixc_parse_fld(res, q, p - q);
-
-				/* switch to key state */
-				kv_state = KEY;
-				q = p + 1;
-			}
-			break;
-		default:
-			break;
-		}
-
-		/* check for compressed message */
-		if (!comp_handled_p) {
-			if (res->f8.ver &&
-			    res->f8.ver != FIXC_VER_COMP) {
-				comp_handled_p = 1;
-			} else if (res->f8.ver && res->f9.i32 > 0) {
-				/* must be FIXC_VER_COMP then */
-#if defined HAVE_ZLIB_H
-				size_t rz = msglen - (q - res->pr);
-
-				FIXC_DEBUG("\
-compressed message (of size %db v %zu) detected\n", res->f9.i32, rz);
-				if (__fixc_from_fixz(res, q, rz) < 0) {
-					goto err;
-				}
-				break;
-#else  /* HAVE_ZLIB_H */
-				FIXC_DEBUG("\
-compressed message (of size %db) detected but no zlib support\n", res->f9.i32);
-				goto err;
-#endif	/* HAVE_ZLIB_H */
-			}
-		}
+	if (anal(res, res->pr, &msglen, st)) {
+		/* error case, only entered upon zlib handling */
+		free_fixc(res);
+		res = NULL;
 	}
 	return res;
-
-err:
-	/* error case, only entered upon zlib handling */
-	free_fixc(res);
-	return NULL;
 }
 
 void
 free_fixc(fixc_msg_t msg)
 {
-	if (msg->flds && msg->flds != msg->these) {
+	if (msg->flds != NULL && msg->flds != msg->these) {
 		free(msg->flds);
 		msg->flds = NULL;
 	}
