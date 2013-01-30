@@ -92,8 +92,8 @@ fix2fixml_LDADD = libfixc.la
 %.c: %.gperf
 	$(AM_V_GEN) $(GPERF) $< --output-file $@
 
-include $(DEPDIR)/fixml-attr-by-ctx.Po
-include $(DEPDIR)/fixml-comp-by-ctx.Po
+-include $(DEPDIR)/fixml-attr-by-ctx.Po
+-include $(DEPDIR)/fixml-comp-by-ctx.Po
 
 fixml-attr-by-ctx.c: fixml-attr-by-ctx.xsl \
 		$(fix_repo).xml fixml-attr-by-ctx.gperfs
