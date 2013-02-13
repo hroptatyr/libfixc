@@ -19,13 +19,12 @@ main(void)
 	fixc_msg_t msg = make_fixc_from_fixml(sdx, sizeof(sdx) - 1);
 	int res = 0;
 
-	/* check fields for tpc and cnt slots */
-	if (msg->nflds > 0) {
-		res = 1;
+	if (msg != NULL) {
+		if (msg->nflds > 0) {
+			res = 1;
+		}
+		free_fixc(msg);
 	}
-
-	/* cpy is filled, we don't need msg anymore */
-	free_fixc(msg);
 	return res;
 #else	/* !HAVE_ANON_STRUCTS_INIT */
 	return 0;
