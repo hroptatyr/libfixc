@@ -142,6 +142,14 @@ fixc_from_fixml_06_SOURCES = fixc_from_fixml_05.c
 fixc_from_fixml_06_LDFLAGS = $(AM_LDFLAGS) -static
 fixc_from_fixml_06_LDADD = $(top_builddir)/src/libfixc.la
 
+rd_tests += fixc_from_fixml_07
+fixc_from_fixml_07_LDADD = $(top_builddir)/src/libfixc.la
+## same thing but static
+rd_tests += fixc_from_fixml_08
+fixc_from_fixml_08_SOURCES = fixc_from_fixml_07.c
+fixc_from_fixml_08_LDFLAGS = $(AM_LDFLAGS) -static
+fixc_from_fixml_08_LDADD = $(top_builddir)/src/libfixc.la
+
 TESTS_ENVIRONMENT += top_builddir=$(top_builddir)
 EXTRA_DIST += $(bin_tests)
 bin_tests += fixml2fix_01.sh
