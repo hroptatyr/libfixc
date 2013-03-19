@@ -118,6 +118,14 @@ fixc_from_fix_02_SOURCES = fixc_from_fix_01.c
 fixc_from_fix_02_LDFLAGS = $(AM_LDFLAGS) -static
 fixc_from_fix_02_LDADD = $(top_builddir)/src/libfixc.la
 
+rd_tests += fixc_from_fix_03
+fixc_from_fix_03_LDADD = $(top_builddir)/src/libfixc.la
+## same thing but static
+rd_tests += fixc_from_fix_04
+fixc_from_fix_04_SOURCES = fixc_from_fix_03.c
+fixc_from_fix_04_LDFLAGS = $(AM_LDFLAGS) -static
+fixc_from_fix_04_LDADD = $(top_builddir)/src/libfixc.la
+
 rd_tests += fixc_from_fixml_01
 fixc_from_fixml_01_LDADD = $(top_builddir)/src/libfixc.la
 ## same thing but static
