@@ -8,9 +8,10 @@ int
 main(void)
 {
 	static char res[] = "\
+<?xml version=\"1.0\"?>
 <FIXML xmlns=\"http://www.fixprotocol.org/FIXML-5-0-SP2\" v=\"5.0 SP2\">\
 <Batch></Batch>\
-</FIXML>\
+</FIXML>
 ";
 	fixc_msg_t msg;
 	struct fixc_rndr_s r;
