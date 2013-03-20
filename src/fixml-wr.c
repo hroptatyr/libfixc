@@ -861,34 +861,20 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	return p - buf;
 }
 
-#define MMAP_THRESH	(65536UL)
-
-static inline size_t
-__round_to_mmap_thresh(size_t x)
-{
-	return ((x + MMAP_THRESH - 1UL) / MMAP_THRESH) * MMAP_THRESH;
-}
-
 static void
 resz_rndr(char **buf, size_t *bsz)
 {
 	/* just double the whole thing */
-	if (2 * *bsz < MMAP_THRESH) {
-		/* just use realloc */
-		*buf = realloc(*buf, 2 * *bsz);
-		*bsz *= 2;
-	} else if (*bsz < MMAP_THRESH) {
+	if (*buf == NULL) {
 		/* start mmap page */
-		size_t naz = __round_to_mmap_thresh(2 * *bsz);
+		size_t naz = *bsz;
 		char *nu = mmap(NULL, naz, PROT_MEM, MAP_MEM, -1, 0);
-		memcpy(nu, *buf, *bsz);
-		free(*buf);
 		*buf = nu;
 		*bsz = naz;
 	} else {
 		/* simples */
-		size_t oaz = __round_to_mmap_thresh(*bsz);
-		size_t naz = __round_to_mmap_thresh(2 * *bsz);
+		size_t oaz = *bsz;
+		size_t naz = 2 * *bsz;
 
 #if defined MREMAP_MAYMOVE
 		*buf = mremap(*buf, oaz, naz, MREMAP_MAYMOVE);
@@ -927,14 +913,9 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 		(4 + msg->nflds) / 4 * (2 * COMP_LEN + 2 + 3/*<> and </>*/) +
 		/* try and be helpful if there's pr space */
 		msg->pz + 16;
-	if (bsz < MMAP_THRESH) {
-		/* malloc must do */
-		buf = malloc(bsz);
-	} else {
-		/* aaah, prefer mmap() */
-		bsz = __round_to_mmap_thresh(bsz);
-		buf = mmap(NULL, bsz, PROT_MEM, MAP_MEM, -1, 0);
-	}
+
+	/* aaah, prefer mmap() */
+	buf = mmap(NULL, bsz, PROT_MEM, MAP_MEM, -1, 0);
 
 	/* assign boundary helper vars */
 	ep = buf + bsz;
@@ -986,10 +967,10 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 	p = __render_ftr(p, ep, msg);
 	*p = '\0';
 
-	/* if mmap is in place, downsize to multiple of totz */
-	if (bsz >= MMAP_THRESH) {
+	/* if mmap is in place, downsize */
+	{
 #if defined MREMAP_MAYMOVE
-		size_t naz = __round_to_mmap_thresh(p - buf);
+		size_t naz = p - buf;
 		buf = mremap(buf, bsz, naz, MREMAP_MAYMOVE);
 #else  /* !MREMAP_MAYMOVE */
 		/* um, good question, another mmap? :O */

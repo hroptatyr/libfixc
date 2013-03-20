@@ -672,14 +672,6 @@ fixc_render_fix(char *restrict buf, size_t bsz, fixc_msg_t msg)
 	return totz;
 }
 
-#define MMAP_THRESH	(65536UL)
-
-static inline size_t
-__round_to_mmap_thresh(size_t x)
-{
-	return ((x + MMAP_THRESH - 1UL) / MMAP_THRESH) * MMAP_THRESH;
-}
-
 static inline struct fixc_rndr_s
 __round_to_align(struct fixc_rndr_s rbuf)
 {
@@ -697,22 +689,16 @@ static void
 resz_rndr(char **buf, size_t *bsz)
 {
 	/* just double the whole thing */
-	if (2 * *bsz < MMAP_THRESH) {
-		/* just use realloc */
-		*buf = realloc(*buf, 2 * *bsz);
-		*bsz *= 2;
-	} else if (*bsz < MMAP_THRESH) {
+	if (*buf == NULL) {
 		/* start mmap page */
-		size_t naz = __round_to_mmap_thresh(2 * *bsz);
+		size_t naz = *bsz;
 		char *nu = mmap(NULL, naz, PROT_MEM, MAP_MEM, -1, 0);
-		memcpy(nu, *buf, *bsz);
-		free(*buf);
 		*buf = nu;
 		*bsz = naz;
 	} else {
 		/* simples */
-		size_t oaz = __round_to_mmap_thresh(*bsz);
-		size_t naz = __round_to_mmap_thresh(2 * *bsz);
+		size_t oaz = *bsz;
+		size_t naz = 2 * *bsz;
 
 #if defined MREMAP_MAYMOVE
 		*buf = mremap(*buf, oaz, naz, MREMAP_MAYMOVE);
@@ -744,14 +730,9 @@ fixc_render_fix_rndr(fixc_msg_t msg)
 		msg->pz +
 		/* for the size (tag #9) and the checksum (tag #10) */
 		16 + 3;
-	if (bsz < MMAP_THRESH) {
-		/* malloc must do */
-		buf = malloc(bsz);
-	} else {
-		/* aaah, prefer mmap() */
-		bsz = __round_to_mmap_thresh(bsz);
-		buf = mmap(NULL, bsz, PROT_MEM, MAP_MEM, -1, 0);
-	}
+
+	/* aaah, prefer mmap() */
+	buf = mmap(NULL, bsz, PROT_MEM, MAP_MEM, -1, 0);
 
 	/* first 2 fields are unrolled */
 	msg->f8.tag = FIXC_BEGIN_STRING;
@@ -790,10 +771,11 @@ fixc_render_fix_rndr(fixc_msg_t msg)
 		totz = hdrz + 1 + blen;
 
 		/* if mmap is in place, downsize to multiple of totz */
-		if (bsz >= MMAP_THRESH) {
+		{
 #if defined MREMAP_MAYMOVE
-			size_t naz = __round_to_mmap_thresh(blen);
+			size_t naz = totz + 6/*for footer*/;
 			buf = mremap(buf, bsz, naz, MREMAP_MAYMOVE);
+			bsz = naz;
 #else  /* !MREMAP_MAYMOVE */
 			/* um, good question, another mmap? :O */
 			;
@@ -806,7 +788,7 @@ fixc_render_fix_rndr(fixc_msg_t msg)
 	}
 
 	/* compute and paste checksum */
-	if (totz + 5/*10=x\nul*/ < bsz) {
+	{
 		msg->f10 = (struct fixc_fld_s){
 			.tag = FIXC_CHECK_SUM,
 			.typ = FIXC_TYP_UCHAR,
@@ -834,14 +816,8 @@ fixc_free_rndr(struct fixc_rndr_s rbuf)
 	/* compute the right rbuf */
 	rbuf = __round_to_align(rbuf);
 
-	if (rbuf.len < MMAP_THRESH) {
-		/* we know we malloc'd the whole shebang */
-		free(rbuf.str);
-	} else {
-		/* we mmapped it */
-		size_t alloc_z = __round_to_mmap_thresh(rbuf.len);
-		munmap(rbuf.str, alloc_z);
-	}
+	/* we mmapped it */
+	munmap(rbuf.str, rbuf.len);
 	return;
 }
 
