@@ -707,8 +707,8 @@ resz_rndr(char **buf, size_t *bsz)
 		memcpy(nu, *buf, *bsz);
 		munmap(*buf, oaz);
 		*buf = nu;
-		*bsz = naz;
 #endif	/* MREMAP_MAYMOVE */
+		*bsz = naz;
 	}
 	return;
 }
