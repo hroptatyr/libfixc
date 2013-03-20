@@ -912,7 +912,7 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 	bsz = (4 + msg->nflds) * (ATTR_LEN + 3/*SPC before and quotes*/) +
 		(4 + msg->nflds) / 4 * (2 * COMP_LEN + 2 + 3/*<> and </>*/) +
 		/* try and be helpful if there's pr space */
-		msg->pz + 16;
+		msg->pz + 64;
 
 	/* aaah, prefer mmap() */
 	buf = mmap(NULL, bsz, PROT_MEM, MAP_MEM, -1, 0);
