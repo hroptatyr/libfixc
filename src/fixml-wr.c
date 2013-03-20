@@ -314,12 +314,10 @@ push_state(__ctx_t ctx, fixc_ctxt_t otag)
 }
 
 static void
-ptx_init(__ctx_t ctx, char *restrict p, const char *ep)
+ptx_init(__ctx_t ctx)
 {
 	/* initialise the ctxcb pool */
 	init_ctxcb(ctx);
-	ctx->p = p;
-	ctx->ep = ep;
 	return;
 }
 
@@ -826,7 +824,9 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	p = __render_hdr(p, ep, msg);
 
 	/* set up our stack */
-	ptx_init(&ctx, p, ep);
+	ptx_init(&ctx);
+	ctx.p = p;
+	ctx.ep = ep;
 	/* traverse the message only once */
 	for (size_t i = 0; i < msg->nflds; i++) {
 		fixc_ctxt_t ictx = {(unsigned int)msg->flds[i].tpc};
@@ -892,8 +892,6 @@ resz_rndr(char **buf, size_t *bsz)
 struct fixc_rndr_s
 fixc_render_fixml_rndr(fixc_msg_t msg)
 {
-	const char *ep;
-	char *restrict p;
 	struct __ctx_s ctx = {0};
 	fixc_ctxt_t otpc = {0};
 	char *buf;
@@ -918,26 +916,26 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 	buf = mmap(NULL, bsz, PROT_MEM, MAP_MEM, -1, 0);
 
 	/* assign boundary helper vars */
-	ep = buf + bsz;
-	p = buf;
+	ctx.ep = buf + bsz;
+	ctx.p = buf;
 
 	/* the usual stuff upfront, xml PI */
-	p = __render_hdr(p, ep, msg);
+	ctx.p = __render_hdr(ctx.p, ctx.ep, msg);
 
 	/* set up our stack */
-	ptx_init(&ctx, p, ep);
+	ptx_init(&ctx);
 	/* traverse the message only once */
 	for (size_t i = 0; i < msg->nflds; i++) {
 		fixc_ctxt_t ictx = {(unsigned int)msg->flds[i].tpc};
 
 		/* check if the buffer needs resizing */
-		if (UNLIKELY((ep - p) * 10UL / bsz < 1)) {
+		if (UNLIKELY((ctx.ep - ctx.p) * 10UL / bsz < 1)) {
 			/* oh fuck, we're in the last 10% */
-			off_t off = p - buf;
+			off_t off = ctx.p - buf;
 
 			resz_rndr(&buf, &bsz);
-			p = buf + off;
-			ep = buf + bsz;
+			ctx.p = buf + off;
+			ctx.ep = buf + bsz;
 		}
 
 		/* several edge triggers here:
@@ -961,11 +959,9 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 
 	while (pop_rndr_state(&ctx).i);
 
-	/* copy the context pointer back */
-	p = ctx.p;
 	/* close everything */
-	p = __render_ftr(p, ep, msg);
-	*p = '\0';
+	ctx.p = __render_ftr(ctx.p, ctx.ep, msg);
+	*ctx.p = '\0';
 
 #if 0
 /* downsizing is problematic */
@@ -981,7 +977,7 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 #endif	/* MREMAP_MAYMOVE */
 	}
 #endif	/* 0 */
-	return (struct fixc_rndr_s){.str = buf, .len = p - buf, .z = bsz};
+	return (struct fixc_rndr_s){.str = buf, .len = ctx.p - buf, .z = bsz};
 }
 
 /* fixml-wr.c ends here */
