@@ -967,17 +967,21 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 	p = __render_ftr(p, ep, msg);
 	*p = '\0';
 
+#if 0
+/* downsizing is problematic */
 	/* if mmap is in place, downsize */
 	{
 #if defined MREMAP_MAYMOVE
 		size_t naz = p - buf;
 		buf = mremap(buf, bsz, naz, MREMAP_MAYMOVE);
+		bsz = naz;
 #else  /* !MREMAP_MAYMOVE */
 		/* um, good question, another mmap? :O */
-		;
+		bsz = p - buf;
 #endif	/* MREMAP_MAYMOVE */
 	}
-	return (struct fixc_rndr_s){.str = buf, .len = p - buf};
+#endif	/* 0 */
+	return (struct fixc_rndr_s){.str = buf, .len = p - buf, .z = bsz};
 }
 
 /* fixml-wr.c ends here */
