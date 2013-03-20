@@ -8,10 +8,10 @@ int
 main(void)
 {
 	static char res[] = "\
-<?xml version=\"1.0\"?>
+<?xml version=\"1.0\"?>\n\
 <FIXML xmlns=\"http://www.fixprotocol.org/FIXML-5-0-SP2\" v=\"5.0 SP2\">\
 <Batch></Batch>\
-</FIXML>
+</FIXML>\n\
 ";
 	static char buf[4096U];
 	fixc_msg_t msg;
