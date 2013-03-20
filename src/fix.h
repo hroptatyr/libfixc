@@ -145,7 +145,7 @@ struct fixc_tag_data_s {
 
 /** for rendering results */
 struct fixc_rndr_s {
-	char *str;
+	const char *str;
 	size_t len;
 };
 
