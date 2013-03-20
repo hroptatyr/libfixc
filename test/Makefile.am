@@ -67,6 +67,19 @@ EXTRA_DIST += fixml_to_fixc_prep.c
 #fixml_tests += fixc_to_fixml_hash_05
 #fixml_tests += fixc_to_fixml_hash_06
 
+fixml_tests += fixc_to_fixml_01
+fixc_to_fixml_01_LDADD = $(top_builddir)/src/libfixc.la
+fixml_tests += fixc_to_fixml_02
+fixc_to_fixml_02_SOURCES = fixc_to_fixml_01.c
+fixc_to_fixml_02_LDFLAGS = $(AM_LDFLAGS) -static
+fixc_to_fixml_02_LDADD = $(top_builddir)/src/libfixc.la
+fixml_tests += fixc_to_fixml_03
+fixc_to_fixml_03_LDADD = $(top_builddir)/src/libfixc.la
+fixml_tests += fixc_to_fixml_04
+fixc_to_fixml_04_SOURCES = fixc_to_fixml_03.c
+fixc_to_fixml_04_LDFLAGS = $(AM_LDFLAGS) -static
+fixc_to_fixml_04_LDADD = $(top_builddir)/src/libfixc.la
+
 api_tests += fixc_extr_01
 fixc_extr_01_LDADD = $(top_builddir)/src/libfixc.la
 api_tests += fixc_extr_02

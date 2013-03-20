@@ -707,8 +707,8 @@ resz_rndr(char **buf, size_t *bsz)
 		memcpy(nu, *buf, *bsz);
 		munmap(*buf, oaz);
 		*buf = nu;
-		*bsz = naz;
 #endif	/* MREMAP_MAYMOVE */
+		*bsz = naz;
 	}
 	return;
 }
@@ -770,6 +770,8 @@ fixc_render_fix_rndr(fixc_msg_t msg)
 		/* compute new totz now */
 		totz = hdrz + 1 + blen;
 
+#if 0
+/* downsizing is no more */
 		/* if mmap is in place, downsize to multiple of totz */
 		{
 #if defined MREMAP_MAYMOVE
@@ -781,6 +783,7 @@ fixc_render_fix_rndr(fixc_msg_t msg)
 			;
 #endif	/* MREMAP_MAYMOVE */
 		}
+#endif	/* 0 */
 
 		/* memmove the buffer so it conincides with the start */
 		memmove(buf + off, buf, hdrz + 1);
@@ -807,7 +810,7 @@ fixc_render_fix_rndr(fixc_msg_t msg)
 	}
 
 	buf[totz] = '\0';
-	return (struct fixc_rndr_s){.str = buf, .len = totz};
+	return (struct fixc_rndr_s){.str = buf, .len = totz, .z = bsz};
 }
 
 void
@@ -817,7 +820,7 @@ fixc_free_rndr(struct fixc_rndr_s rbuf)
 	rbuf = __round_to_align(rbuf);
 
 	/* we mmapped it */
-	munmap(rbuf.str, rbuf.len);
+	munmap(rbuf.str, rbuf.z);
 	return;
 }
 
