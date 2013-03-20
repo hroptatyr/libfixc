@@ -314,12 +314,10 @@ push_state(__ctx_t ctx, fixc_ctxt_t otag)
 }
 
 static void
-ptx_init(__ctx_t ctx, char *restrict p, const char *ep)
+ptx_init(__ctx_t ctx)
 {
 	/* initialise the ctxcb pool */
 	init_ctxcb(ctx);
-	ctx->p = p;
-	ctx->ep = ep;
 	return;
 }
 
@@ -597,23 +595,51 @@ fixc_fixup_some(fixc_msg_t msg)
 	return;
 }
 
+static inline __attribute__((pure)) size_t
+next2p(size_t z)
+{
+/* return the next 2-power >= z */
+	z--;
+	z |= z >> 1U;
+	z |= z >> 2U;
+	z |= z >> 4U;
+	z |= z >> 8U;
+	z |= z >> 16U;
+	z |= z >> 32U;
+	return ++z;
+}
+
 void
 fixc_fixup(fixc_msg_t msg)
 {
+#define MIN_STKZ	(32U)
 	/* previously known ctx */
 	static struct {
 		fixc_ctxt_t ctx;
 		unsigned int idx;
-	} stk[16];
+	} *stk = NULL;
+	static size_t stkz = 0UL;
 	ssize_t nstk = -1;
 	unsigned int streak = 0;
 	int out_of_stack_p = 0;
 
+#define chck_stk()							\
+	do {								\
+		if ((size_t)nstk >= stkz) {				\
+			size_t nu = next2p(nstk + MIN_STKZ);		\
+			stk = realloc(stk, nu * sizeof(*stk));		\
+			stkz = nu;					\
+		}							\
+	} while (0)
 #define rset()		(streak = 0)
-#define push(x, i)	(rset(),				\
-			 nstk++,				\
-			 stk[nstk].idx = i,			\
-			 stk[nstk].ctx = (fixc_ctxt_t){x})
+#define push(x, i)							\
+	do {								\
+		rset();							\
+		nstk++;							\
+		chck_stk();						\
+		stk[nstk].idx = i;					\
+		stk[nstk].ctx = (fixc_ctxt_t){x};			\
+	} while (0)
 #define peeki()		stk[nstk].idx
 #define peek()		stk[nstk].ctx
 #define pop()		(streak = 0, stk[nstk--].ctx)
@@ -667,7 +693,7 @@ fixc_fixup(fixc_msg_t msg)
 		msg->flds[i].tpc = (uint16_t)peek().ui16;
 		if (i > peeki() + 1 &&
 		    msg->flds[peeki() + 1].tag == msg->flds[i].tag) {
-			rset();
+			(void)rset();
 		}
 		msg->flds[i].cnt = (uint16_t)streak();
 	}
@@ -675,6 +701,12 @@ fixc_fixup(fixc_msg_t msg)
 	/* plain operation, but only if we encountered out_of_stack */
 	if (UNLIKELY(out_of_stack_p)) {
 		fixc_fixup_some(msg);
+	}
+
+	/* shrink stack */
+	if (stkz > 32U) {
+		stk = realloc(stk, MIN_STKZ * sizeof(*stk));
+		stkz = MIN_STKZ;
 	}
 	return;
 }
@@ -792,7 +824,9 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	p = __render_hdr(p, ep, msg);
 
 	/* set up our stack */
-	ptx_init(&ctx, p, ep);
+	ptx_init(&ctx);
+	ctx.p = p;
+	ctx.ep = ep;
 	/* traverse the message only once */
 	for (size_t i = 0; i < msg->nflds; i++) {
 		fixc_ctxt_t ictx = {(unsigned int)msg->flds[i].tpc};
@@ -827,34 +861,20 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 	return p - buf;
 }
 
-#define MMAP_THRESH	(65536UL)
-
-static inline size_t
-__round_to_mmap_thresh(size_t x)
-{
-	return ((x + MMAP_THRESH - 1UL) / MMAP_THRESH) * MMAP_THRESH;
-}
-
 static void
 resz_rndr(char **buf, size_t *bsz)
 {
 	/* just double the whole thing */
-	if (2 * *bsz < MMAP_THRESH) {
-		/* just use realloc */
-		*buf = realloc(*buf, 2 * *bsz);
-		*bsz *= 2;
-	} else if (*bsz < MMAP_THRESH) {
+	if (*buf == NULL) {
 		/* start mmap page */
-		size_t naz = __round_to_mmap_thresh(2 * *bsz);
+		size_t naz = *bsz;
 		char *nu = mmap(NULL, naz, PROT_MEM, MAP_MEM, -1, 0);
-		memcpy(nu, *buf, *bsz);
-		free(*buf);
 		*buf = nu;
 		*bsz = naz;
 	} else {
 		/* simples */
-		size_t oaz = __round_to_mmap_thresh(*bsz);
-		size_t naz = __round_to_mmap_thresh(2 * *bsz);
+		size_t oaz = *bsz;
+		size_t naz = 2 * *bsz;
 
 #if defined MREMAP_MAYMOVE
 		*buf = mremap(*buf, oaz, naz, MREMAP_MAYMOVE);
@@ -863,8 +883,8 @@ resz_rndr(char **buf, size_t *bsz)
 		memcpy(nu, *buf, *bsz);
 		munmap(*buf, oaz);
 		*buf = nu;
-		*bsz = naz;
 #endif	/* MREMAP_MAYMOVE */
+		*bsz = naz;
 	}
 	return;
 }
@@ -872,8 +892,6 @@ resz_rndr(char **buf, size_t *bsz)
 struct fixc_rndr_s
 fixc_render_fixml_rndr(fixc_msg_t msg)
 {
-	const char *ep;
-	char *restrict p;
 	struct __ctx_s ctx = {0};
 	fixc_ctxt_t otpc = {0};
 	char *buf;
@@ -892,37 +910,32 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 	bsz = (4 + msg->nflds) * (ATTR_LEN + 3/*SPC before and quotes*/) +
 		(4 + msg->nflds) / 4 * (2 * COMP_LEN + 2 + 3/*<> and </>*/) +
 		/* try and be helpful if there's pr space */
-		msg->pz + 16;
-	if (bsz < MMAP_THRESH) {
-		/* malloc must do */
-		buf = malloc(bsz);
-	} else {
-		/* aaah, prefer mmap() */
-		bsz = __round_to_mmap_thresh(bsz);
-		buf = mmap(NULL, bsz, PROT_MEM, MAP_MEM, -1, 0);
-	}
+		msg->pz + 64;
+
+	/* aaah, prefer mmap() */
+	buf = mmap(NULL, bsz, PROT_MEM, MAP_MEM, -1, 0);
 
 	/* assign boundary helper vars */
-	ep = buf + bsz;
-	p = buf;
+	ctx.ep = buf + bsz;
+	ctx.p = buf;
 
 	/* the usual stuff upfront, xml PI */
-	p = __render_hdr(p, ep, msg);
+	ctx.p = __render_hdr(ctx.p, ctx.ep, msg);
 
 	/* set up our stack */
-	ptx_init(&ctx, p, ep);
+	ptx_init(&ctx);
 	/* traverse the message only once */
 	for (size_t i = 0; i < msg->nflds; i++) {
 		fixc_ctxt_t ictx = {(unsigned int)msg->flds[i].tpc};
 
 		/* check if the buffer needs resizing */
-		if (UNLIKELY((ep - p) * 10UL / bsz < 1)) {
+		if (UNLIKELY((ctx.ep - ctx.p) * 10UL / bsz < 1)) {
 			/* oh fuck, we're in the last 10% */
-			off_t off = p - buf;
+			off_t off = ctx.p - buf;
 
 			resz_rndr(&buf, &bsz);
-			p = buf + off;
-			ep = buf + bsz;
+			ctx.p = buf + off;
+			ctx.ep = buf + bsz;
 		}
 
 		/* several edge triggers here:
@@ -946,23 +959,25 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 
 	while (pop_rndr_state(&ctx).i);
 
-	/* copy the context pointer back */
-	p = ctx.p;
 	/* close everything */
-	p = __render_ftr(p, ep, msg);
-	*p = '\0';
+	ctx.p = __render_ftr(ctx.p, ctx.ep, msg);
+	*ctx.p = '\0';
 
-	/* if mmap is in place, downsize to multiple of totz */
-	if (bsz >= MMAP_THRESH) {
+#if 0
+/* downsizing is problematic */
+	/* if mmap is in place, downsize */
+	{
 #if defined MREMAP_MAYMOVE
-		size_t naz = __round_to_mmap_thresh(p - buf);
+		size_t naz = p - buf;
 		buf = mremap(buf, bsz, naz, MREMAP_MAYMOVE);
+		bsz = naz;
 #else  /* !MREMAP_MAYMOVE */
 		/* um, good question, another mmap? :O */
-		;
+		bsz = p - buf;
 #endif	/* MREMAP_MAYMOVE */
 	}
-	return (struct fixc_rndr_s){.str = buf, .len = p - buf};
+#endif	/* 0 */
+	return (struct fixc_rndr_s){.str = buf, .len = ctx.p - buf, .z = bsz};
 }
 
 /* fixml-wr.c ends here */
