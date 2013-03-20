@@ -687,7 +687,7 @@ __round_to_align(struct fixc_rndr_s rbuf)
 	size_t off;
 
 	if ((off = x % (2 * sizeof(void*)))) {
-		rbuf.str = (const char*)(x - off);
+		rbuf.str = (char*)(x - off);
 		rbuf.len += off;
 	}
 	return rbuf;
@@ -828,12 +828,6 @@ fixc_render_fix_rndr(fixc_msg_t msg)
 	return (struct fixc_rndr_s){.str = buf, .len = totz};
 }
 
-static inline void*
-unconst(union {const void *c; void *p;} __attribute__((transparent_union)) p)
-{
-	return p.p;
-}
-
 void
 fixc_free_rndr(struct fixc_rndr_s rbuf)
 {
@@ -842,13 +836,11 @@ fixc_free_rndr(struct fixc_rndr_s rbuf)
 
 	if (rbuf.len < MMAP_THRESH) {
 		/* we know we malloc'd the whole shebang */
-		void *p = unconst(rbuf.str);
-		free(p);
+		free(rbuf.str);
 	} else {
 		/* we mmapped it */
 		size_t alloc_z = __round_to_mmap_thresh(rbuf.len);
-		void *p = unconst(rbuf.str);
-		munmap(p, alloc_z);
+		munmap(rbuf.str, alloc_z);
 	}
 	return;
 }
