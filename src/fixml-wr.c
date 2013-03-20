@@ -597,23 +597,51 @@ fixc_fixup_some(fixc_msg_t msg)
 	return;
 }
 
+static inline __attribute__((pure)) size_t
+next2p(size_t z)
+{
+/* return the next 2-power >= z */
+	z--;
+	z |= z >> 1U;
+	z |= z >> 2U;
+	z |= z >> 4U;
+	z |= z >> 8U;
+	z |= z >> 16U;
+	z |= z >> 32U;
+	return ++z;
+}
+
 void
 fixc_fixup(fixc_msg_t msg)
 {
+#define MIN_STKZ	(32U)
 	/* previously known ctx */
 	static struct {
 		fixc_ctxt_t ctx;
 		unsigned int idx;
-	} stk[16];
+	} *stk = NULL;
+	static size_t stkz = 0UL;
 	ssize_t nstk = -1;
 	unsigned int streak = 0;
 	int out_of_stack_p = 0;
 
+#define chck_stk()							\
+	do {								\
+		if ((size_t)nstk >= stkz) {				\
+			size_t nu = next2p(nstk + MIN_STKZ);		\
+			stk = realloc(stk, nu * sizeof(*stk));		\
+			stkz = nu;					\
+		}							\
+	} while (0)
 #define rset()		(streak = 0)
-#define push(x, i)	(rset(),				\
-			 nstk++,				\
-			 stk[nstk].idx = i,			\
-			 stk[nstk].ctx = (fixc_ctxt_t){x})
+#define push(x, i)							\
+	do {								\
+		rset();							\
+		nstk++;							\
+		chck_stk();						\
+		stk[nstk].idx = i;					\
+		stk[nstk].ctx = (fixc_ctxt_t){x};			\
+	} while (0)
 #define peeki()		stk[nstk].idx
 #define peek()		stk[nstk].ctx
 #define pop()		(streak = 0, stk[nstk--].ctx)
@@ -667,7 +695,7 @@ fixc_fixup(fixc_msg_t msg)
 		msg->flds[i].tpc = (uint16_t)peek().ui16;
 		if (i > peeki() + 1 &&
 		    msg->flds[peeki() + 1].tag == msg->flds[i].tag) {
-			rset();
+			(void)rset();
 		}
 		msg->flds[i].cnt = (uint16_t)streak();
 	}
@@ -675,6 +703,12 @@ fixc_fixup(fixc_msg_t msg)
 	/* plain operation, but only if we encountered out_of_stack */
 	if (UNLIKELY(out_of_stack_p)) {
 		fixc_fixup_some(msg);
+	}
+
+	/* shrink stack */
+	if (stkz > 32U) {
+		stk = realloc(stk, MIN_STKZ * sizeof(*stk));
+		stkz = MIN_STKZ;
 	}
 	return;
 }
