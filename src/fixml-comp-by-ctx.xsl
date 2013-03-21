@@ -3,13 +3,20 @@
   xmlns:fixc="http://www.ga-group.nl/libfixc_0_1"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:ec="http://exslt.org/common"
-  extension-element-prefixes="ec"
+  xmlns:s="http://exslt.org/strings"
+  extension-element-prefixes="ec s"
   version="1.0">
 
   <xsl:strip-space elements="*"/>
   <xsl:output method="text"/>
 
   <xsl:param name="MT"/>
+
+  <xsl:variable name="Po">
+    <xsl:variable name="base" select="substring-before($MT, '.Po')"/>
+    <xsl:variable name="pcmp" select="s:tokenize($base, '/')"/>
+    <xsl:value-of select="$pcmp[last()]"/>
+  </xsl:variable>
 
   <xsl:key name="cmpn" match="/fixc:spec/fixc:component" use="@name"/>
 
@@ -35,7 +42,8 @@
     <xsl:apply-templates select="$subc_ns" mode="gperf"/>
 
     <ec:document href="{$MT}" method="text">
-      <xsl:text>fixml-comp-by-ctx.c: </xsl:text>
+      <xsl:value-of select="$Po"/>
+      <xsl:text>.c: </xsl:text>
       <xsl:for-each select="$subc_ns">
         <xsl:text> </xsl:text>
         <xsl:apply-templates select="." mode="deps"/>
