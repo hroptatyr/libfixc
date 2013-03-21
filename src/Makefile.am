@@ -21,46 +21,29 @@ libfixc_la_SOURCES += fix-private.h
 libfixc_la_SOURCES += fixml-wr.c
 libfixc_la_SOURCES += fixml-rd.c
 libfixc_la_SOURCES += nifty.h
-libfixc_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
-libfixc_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
-libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
-libfixc_la_SOURCES += fixml-nsuri.gperf fix-ver.gperf fix-nsuri.h
-libfixc_la_SOURCES += libfixc_0_1_funs.xsl
-libfixc_la_SOURCES += fixml-canon-attr.gperf fixml-canon-attr.h
-libfixc_la_SOURCES += fixml-attr-by-ctx.xsl
-libfixc_la_SOURCES += fixml-attr-by-ctx.c fixml-attr-by-ctx.h
-libfixc_la_SOURCES += fixml-comp-by-ctx.xsl
-libfixc_la_SOURCES += fixml-comp-by-ctx.c fixml-comp-by-ctx.h
-libfixc_la_SOURCES += fixml-attr.xsl fixml-attr-rev.xsl
-libfixc_la_SOURCES += fixml-comp.xsl fixml-comp-rev.xsl
-libfixc_la_SOURCES += fixml-msg.xsl fixml-msg-rev.xsl
-libfixc_la_SOURCES += fixml-comp-rptb.xsl fixml-comp-rptb.c fixml-comp-rptb.h
-libfixc_la_SOURCES += fixml-comp-orb.xsl fixml-comp-orb.h
+#libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
+#libfixc_la_SOURCES += fixml-nsuri.gperf fix-ver.gperf fix-nsuri.h
+#libfixc_la_SOURCES += libfixc_0_1_funs.xsl
+#libfixc_la_SOURCES += fixml-canon-attr.gperf fixml-canon-attr.h
+#libfixc_la_SOURCES += fixml-attr-by-ctx.xsl
+#libfixc_la_SOURCES += fixml-attr-by-ctx.c fixml-attr-by-ctx.h
+#libfixc_la_SOURCES += fixml-comp-by-ctx.xsl
+#libfixc_la_SOURCES += fixml-comp-by-ctx.c fixml-comp-by-ctx.h
+#libfixc_la_SOURCES += fixml-attr.xsl fixml-attr-rev.xsl
+#libfixc_la_SOURCES += fixml-comp.xsl fixml-comp-rev.xsl
+#libfixc_la_SOURCES += fixml-msg.xsl fixml-msg-rev.xsl
+#libfixc_la_SOURCES += fixml-comp-rptb.xsl fixml-comp-rptb.c fixml-comp-rptb.h
+#libfixc_la_SOURCES += fixml-comp-orb.xsl fixml-comp-orb.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_CPPFLAGS += $(zlib_CFLAGS)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
 libfixc_la_LDFLAGS += $(expat_LIBS)
 libfixc_la_LDFLAGS += $(zlib_LIBS)
-BUILT_SOURCES += fixml-comp-sub.c
-BUILT_SOURCES += fixml-comp-fld.c
-BUILT_SOURCES += fixml-fld-ctx.c
 BUILT_SOURCES += fixml-nsuri.c
 BUILT_SOURCES += fix-ver.c
 BUILT_SOURCES += fixml-nsuri-rev.c
-BUILT_SOURCES += fixml-msg.gperf
-BUILT_SOURCES += fixml-msg.c fixml-msg.h
-BUILT_SOURCES += fixml-comp.gperf
-BUILT_SOURCES += fixml-comp.h
-BUILT_SOURCES += fixml-attr.h
-BUILT_SOURCES += fixml-attr-by-ctx.c
 BUILT_SOURCES += fixml-canon-attr.c
-BUILT_SOURCES += fixml-comp-by-ctx.c
-BUILT_SOURCES += fixml-attr-rev.c
-BUILT_SOURCES += fixml-comp-rev.c
-BUILT_SOURCES += fixml-msg-rev.c
-BUILT_SOURCES += fixml-comp-rptb.c
-BUILT_SOURCES += fixml-comp-orb.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-nsuri.h
@@ -182,6 +165,99 @@ fix41.xml: $(top_srcdir)/spec/FIX.4.1.xml
 fix40.xml: $(top_srcdir)/spec/FIX.4.0.xml
 	$(LN_S) -f $< $@
 
+noinst_LTLIBRARIES += test-50sp2.la
+test_50sp2_la_SOURCES = fix-private.h
+test_50sp2_la_SOURCES += nifty.h
+test_50sp2_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
+test_50sp2_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
+test_50sp2_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
+test_50sp2_la_SOURCES += fixml-nsuri.gperf fix-ver.gperf fix-nsuri.h
+test_50sp2_la_SOURCES += libfixc_0_1_funs.xsl
+test_50sp2_la_SOURCES += fixml-canon-attr.gperf fixml-canon-attr.h
+test_50sp2_la_SOURCES += fixml-attr-by-ctx.xsl
+test_50sp2_la_SOURCES += fixml-attr-by-ctx-fix50sp2.c fixml-attr-by-ctx.h
+test_50sp2_la_SOURCES += fixml-comp-by-ctx.xsl
+test_50sp2_la_SOURCES += fixml-comp-by-ctx-fix50sp2.c fixml-comp-by-ctx.h
+test_50sp2_la_SOURCES += fixml-attr.xsl fixml-attr-rev.xsl
+test_50sp2_la_SOURCES += fixml-comp.xsl fixml-comp-rev.xsl
+test_50sp2_la_SOURCES += fixml-msg.xsl fixml-msg-rev.xsl
+test_50sp2_la_SOURCES += fixml-comp-rptb.xsl
+test_50sp2_la_SOURCES += fixml-comp-rptb-fix50sp2.c fixml-comp-rptb.h
+test_50sp2_la_SOURCES += fixml-comp-orb.xsl fixml-comp-orb.h
+test_50sp2_la_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
+test_50sp2_la_LDFLAGS = -module
+BUILT_SOURCES += fixml-comp-sub-fix50sp2.c
+BUILT_SOURCES += fixml-comp-fld-fix50sp2.c
+BUILT_SOURCES += fixml-fld-ctx-fix50sp2.c
+BUILT_SOURCES += fixml-msg-fix50sp2.gperf
+BUILT_SOURCES += fixml-msg-fix50sp2.c fixml-msg-fix50sp2.h
+BUILT_SOURCES += fixml-comp-fix50sp2.gperf
+BUILT_SOURCES += fixml-comp-fix50sp2.h
+BUILT_SOURCES += fixml-attr-fix50sp2.h
+BUILT_SOURCES += fixml-attr-by-ctx-fix50sp2.c
+BUILT_SOURCES += fixml-comp-by-ctx-fix50sp2.c
+BUILT_SOURCES += fixml-attr-rev-fix50sp2.c
+BUILT_SOURCES += fixml-comp-rev-fix50sp2.c
+BUILT_SOURCES += fixml-msg-rev-fix50sp2.c
+BUILT_SOURCES += fixml-comp-rptb-fix50sp2.c
+BUILT_SOURCES += fixml-comp-orb-fix50sp2.c
+
+-include $(DEPDIR)/fixml-attr-by-ctx-fix50sp2.Po
+-include $(DEPDIR)/fixml-comp-by-ctx-fix50sp2.Po
+
+fixml-comp-by-ctx-%.c: fixml-comp-by-ctx.xsl %.xml fixml-comp-by-ctx-%.gperfs
+	$(AM_V_GEN) xsltproc -o $@ $< $(word 2,$+)
+
+fixml-comp-by-ctx-%.gperfs: fixml-comp-by-ctx.xsl %.xml
+	$(AM_V_GEN) xsltproc --stringparam MT $(DEPDIR)/fixml-comp-by-ctx-$*.Po $+ > $@
+
+fixml-attr-by-ctx-%.c: fixml-attr-by-ctx.xsl %.xml fixml-attr-by-ctx-%.gperfs
+	$(AM_V_GEN) xsltproc -o $@ $< $(word 2,$+)
+
+fixml-attr-by-ctx-%.gperfs: fixml-attr-by-ctx.xsl %.xml
+	$(AM_V_GEN) xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx-$*.Po $+ > $@
+
+fixml-comp-rptb-%.c: fixml-comp-rptb.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
+
+fixml-attr-rev-%.c: fixml-attr-rev.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
+
+fixml-comp-rev-%.c: fixml-comp-rev.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
+
+fixml-msg-rev-%.c: fixml-msg-rev.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
+
+fixml-comp-fld-%.c: fixml-comp-fld.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
+
+fixml-comp-sub-%.c: fixml-comp-sub.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
+
+fixml-fld-ctx-%.c: fixml-fld-ctx.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
+
+fixml-attr-%.h: fixml-attr.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
+
+fixml-msg-%.h: fixml-msg.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
+
+fixml-comp-%.h: fixml-comp.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
+
+fixml-comp-%.gperf: fixml-comp.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ --stringparam MT $(DEPDIR)/fixml-comp-$*.Po $+
+
+fixml-msg-%.gperf: fixml-msg.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ --stringparam MT $(DEPDIR)/fixml-msg-$*.Po $+
+
+fixml-comp-rptb-%.c: fixml-comp-rptb.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
+
+fixml-comp-orb-%.c: fixml-comp-orb.xsl %.xml
+	$(AM_V_GEN) xsltproc -o $@ $+
 
 # 
 # Help the developers get nice post-processed source files

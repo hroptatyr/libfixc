@@ -46,14 +46,14 @@
 #include "nifty.h"
 
 #include "fixml-comp-sub.h"
-#include "fixml-comp-sub.c"
+//#include "fixml-comp-sub.c"
 #include "fixml-comp-fld.h"
-#include "fixml-comp-fld.c"
+//#include "fixml-comp-fld.c"
 #include "fixml-comp-rptb.h"
 #include "fixml-comp-orb.h"
-#include "fixml-comp-orb.c"
+//#include "fixml-comp-orb.c"
 #include "fixml-fld-ctx.h"
-#include "fixml-fld-ctx.c"
+//#include "fixml-fld-ctx.c"
 
 #include "fixml-canon-ctxt.h"
 #include "fixml-canon-comp.h"
@@ -61,11 +61,11 @@
 #include "fixml-canon-attr.h"
 
 /* resolves fixc_attr_t to attr string */
-#include "fixml-attr-rev.c"
+//#include "fixml-attr-rev.c"
 /* resolves fixc_comp_t to component element string */
-#include "fixml-comp-rev.c"
+//#include "fixml-comp-rev.c"
 /* resolves fixc_msgt_t to message element string */
-#include "fixml-msg-rev.c"
+//#include "fixml-msg-rev.c"
 
 /* resolves fixc_ver_t objects to various strings, hand-crafted */
 #include "fixml-nsuri-rev.c"
