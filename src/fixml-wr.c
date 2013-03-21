@@ -1,6 +1,6 @@
 /*** fixml-wr.c -- guts for fixml element and attribute rendering
  *
- * Copyright (C) 2010-2012 Sebastian Freundt
+ * Copyright (C) 2010-2013 Sebastian Freundt
  *
  * Author:  Sebastian Freundt <freundt@ga-group.nl>
  *
