@@ -40,9 +40,9 @@ BUILT_SOURCES += fixml-canon-attr.c
 
 header_HEADERS += fix.h
 header_HEADERS += fix-nsuri.h
-header_HEADERS += fixml-canon-attr.h fixml-attr.h
-header_HEADERS += fixml-canon-comp.h fixml-comp.h
-header_HEADERS += fixml-canon-msgt.h fixml-msg.h
+header_HEADERS += fixml-canon-attr.h
+header_HEADERS += fixml-canon-comp.h
+header_HEADERS += fixml-canon-msgt.h
 header_HEADERS += fixml-canon-ctxt.h
 header_HEADERS += engdso.h
 
@@ -56,6 +56,7 @@ fixml2fix_CPPFLAGS += -DSTANDALONE
 fixml2fix_LDFLAGS = $(AM_LDFLAGS)
 fixml2fix_LDFLAGS += -static
 fixml2fix_LDADD = libfixc.la
+fixml2fix_LDADD += fix50sp2.la
 
 bin_PROGRAMS += fix2fixml
 fix2fixml_CPPFLAGS = $(AM_CPPFLAGS)
@@ -63,6 +64,56 @@ fix2fixml_CPPFLAGS += -DSTANDALONE
 fix2fixml_LDFLAGS = $(AM_LDFLAGS)
 fix2fixml_LDFLAGS += -static
 fix2fixml_LDADD = libfixc.la
+fix2fixml_LDADD += fix50sp2.la
+
+## prebuilt engines
+pkglib_LTLIBRARIES += fix50sp2.la
+fix50sp2_la_SOURCES = fix50sp2.xml
+fix50sp2_la_SOURCES += fix-private.h
+fix50sp2_la_SOURCES += nifty.h
+fix50sp2_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
+fix50sp2_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
+fix50sp2_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
+fix50sp2_la_SOURCES += fixml-nsuri.gperf fix-ver.gperf fix-nsuri.h
+fix50sp2_la_SOURCES += libfixc_0_1_funs.xsl
+fix50sp2_la_SOURCES += fixml-canon-attr.gperf fixml-canon-attr.h
+fix50sp2_la_SOURCES += fixml-attr-by-ctx.xsl fixml-attr-by-ctx.h
+fix50sp2_la_SOURCES += fixml-attr-by-ctx-fix50sp2.c
+fix50sp2_la_SOURCES += fixml-comp-by-ctx.xsl fixml-comp-by-ctx.h
+fix50sp2_la_SOURCES += fixml-comp-by-ctx-fix50sp2.c
+fix50sp2_la_SOURCES += fixml-attr.xsl fixml-attr-rev.xsl
+fix50sp2_la_SOURCES += fixml-comp.xsl fixml-comp-rev.xsl
+fix50sp2_la_SOURCES += fixml-msg.xsl fixml-msg.h
+fix50sp2_la_SOURCES += fixml-msg-fix50sp2.c
+fix50sp2_la_SOURCES += fixml-msg-rev.xsl
+fix50sp2_la_SOURCES += fixml-comp-rptb.xsl fixml-comp-rptb.h
+fix50sp2_la_SOURCES += fixml-comp-rptb-fix50sp2.c
+fix50sp2_la_SOURCES += fixml-comp-orb.xsl fixml-comp-orb.h
+fix50sp2_la_SOURCES += fixml-comp-orb-fix50sp2.c
+fix50sp2_la_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
+fix50sp2_la_LDFLAGS = $(MOD_LDFLAGS)
+BUILT_SOURCES += fixml-comp-sub-fix50sp2.c
+BUILT_SOURCES += fixml-comp-fld-fix50sp2.c
+BUILT_SOURCES += fixml-fld-ctx-fix50sp2.c
+BUILT_SOURCES += fixml-msg-fix50sp2.gperf
+BUILT_SOURCES += fixml-msg-fix50sp2.c fixml-msg-fix50sp2.h
+BUILT_SOURCES += fixml-comp-fix50sp2.gperf
+BUILT_SOURCES += fixml-comp-fix50sp2.h
+BUILT_SOURCES += fixml-attr-fix50sp2.h
+BUILT_SOURCES += fixml-attr-by-ctx-fix50sp2.c
+BUILT_SOURCES += fixml-comp-by-ctx-fix50sp2.c
+BUILT_SOURCES += fixml-attr-rev-fix50sp2.c
+BUILT_SOURCES += fixml-comp-rev-fix50sp2.c
+BUILT_SOURCES += fixml-msg-rev-fix50sp2.c
+BUILT_SOURCES += fixml-comp-rptb-fix50sp2.c
+BUILT_SOURCES += fixml-comp-orb-fix50sp2.c
+
+header_HEADERS += fixml-attr-fix50sp2.h
+header_HEADERS += fixml-comp-fix50sp2.h
+header_HEADERS += fixml-msg-fix50sp2.h
+
+-include $(DEPDIR)/fixml-attr-by-ctx-fix50sp2.Po
+-include $(DEPDIR)/fixml-comp-by-ctx-fix50sp2.Po
 
 
 ## our rule for gperf
@@ -103,47 +154,6 @@ fix41.xml: $(top_srcdir)/spec/FIX.4.1.xml
 
 fix40.xml: $(top_srcdir)/spec/FIX.4.0.xml
 	$(LN_S) -f $< $@
-
-pkglib_LTLIBRARIES += test-50sp2.la
-test_50sp2_la_SOURCES = fix-private.h
-test_50sp2_la_SOURCES += nifty.h
-test_50sp2_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
-test_50sp2_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
-test_50sp2_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
-test_50sp2_la_SOURCES += fixml-nsuri.gperf fix-ver.gperf fix-nsuri.h
-test_50sp2_la_SOURCES += libfixc_0_1_funs.xsl
-test_50sp2_la_SOURCES += fixml-canon-attr.gperf fixml-canon-attr.h
-test_50sp2_la_SOURCES += fixml-attr-by-ctx.xsl fixml-attr-by-ctx.h
-test_50sp2_la_SOURCES += fixml-attr-by-ctx-fix50sp2.c
-test_50sp2_la_SOURCES += fixml-comp-by-ctx.xsl fixml-comp-by-ctx.h
-test_50sp2_la_SOURCES += fixml-comp-by-ctx-fix50sp2.c
-test_50sp2_la_SOURCES += fixml-attr.xsl fixml-attr-rev.xsl
-test_50sp2_la_SOURCES += fixml-comp.xsl fixml-comp-rev.xsl
-test_50sp2_la_SOURCES += fixml-msg.xsl fixml-msg-rev.xsl
-test_50sp2_la_SOURCES += fixml-comp-rptb.xsl fixml-comp-rptb.h
-test_50sp2_la_SOURCES += fixml-comp-rptb-fix50sp2.c
-test_50sp2_la_SOURCES += fixml-comp-orb.xsl fixml-comp-orb.h
-test_50sp2_la_SOURCES += fixml-comp-orb-fix50sp2.c
-test_50sp2_la_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
-test_50sp2_la_LDFLAGS = $(MOD_LDFLAGS)
-BUILT_SOURCES += fixml-comp-sub-fix50sp2.c
-BUILT_SOURCES += fixml-comp-fld-fix50sp2.c
-BUILT_SOURCES += fixml-fld-ctx-fix50sp2.c
-BUILT_SOURCES += fixml-msg-fix50sp2.gperf
-BUILT_SOURCES += fixml-msg-fix50sp2.c fixml-msg-fix50sp2.h
-BUILT_SOURCES += fixml-comp-fix50sp2.gperf
-BUILT_SOURCES += fixml-comp-fix50sp2.h
-BUILT_SOURCES += fixml-attr-fix50sp2.h
-BUILT_SOURCES += fixml-attr-by-ctx-fix50sp2.c
-BUILT_SOURCES += fixml-comp-by-ctx-fix50sp2.c
-BUILT_SOURCES += fixml-attr-rev-fix50sp2.c
-BUILT_SOURCES += fixml-comp-rev-fix50sp2.c
-BUILT_SOURCES += fixml-msg-rev-fix50sp2.c
-BUILT_SOURCES += fixml-comp-rptb-fix50sp2.c
-BUILT_SOURCES += fixml-comp-orb-fix50sp2.c
-
--include $(DEPDIR)/fixml-attr-by-ctx-fix50sp2.Po
--include $(DEPDIR)/fixml-comp-by-ctx-fix50sp2.Po
 
 fixml-comp-by-ctx-%.c: fixml-comp-by-ctx.xsl %.xml fixml-comp-by-ctx-%.gperfs
 	$(AM_V_GEN) xsltproc -o $@ $< $(word 2,$+)
