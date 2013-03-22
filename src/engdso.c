@@ -42,6 +42,8 @@
 #include <ltdl.h>
 #include <limits.h>
 #include "engdso.h"
+#include "engdso-private.h"
+#include "nifty.h"
 
 #if defined DEBUG_FLAG
 # include <stdio.h>
@@ -50,7 +52,7 @@
 # define EDEBUG(args...)
 #endif	/* DEBUG_FLAG */
 #if !defined UN
-# define UN(x)			x __attribute__((unused))
+# define UN(x)			UNUSED(x)
 #endif	/* !UN */
 
 
@@ -99,6 +101,7 @@ fixc_msgt_fixmlify(fixc_msgt_t UN(m))
 	EDEBUG("fixc_msgt_fixmlify() husk called.  Load an engine\n");
 	return NULL;
 }
+const char *(*__msgt_fixmlify)(fixc_msgt_t) = fixc_msgt_fixmlify;
 
 #include "fixml-canon-comp.h"
 
@@ -108,6 +111,7 @@ fixc_comp_fixmlify(fixc_comp_t UN(c))
 	EDEBUG("fixc_comp_fixmlify() husk called.  Load an engine\n");
 	return NULL;
 }
+const char *(*__comp_fixmlify)(fixc_comp_t) = fixc_comp_fixmlify;
 
 #include "fixml-canon-attr.h"
 
@@ -117,6 +121,7 @@ fixc_attr_fixmlify(fixc_ctxt_t UN(ctx), fixc_attr_t UN(a))
 	EDEBUG("fixc_attr_fixmlify() husk called.  Load an engine\n");
 	return NULL;
 }
+const char *(*__attr_fixmlify)(fixc_ctxt_t, fixc_attr_t) = fixc_attr_fixmlify;
 
 #include "fixml-attr-by-ctx.h"
 
@@ -127,6 +132,8 @@ fixc_get_aid(fixc_ctxt_t UN(ctx), const char *UN(attr), size_t UN(alen))
 	return FIXC_ATTR_UNK;
 }
 
+fixc_attr_t (*__get_aid)(fixc_ctxt_t, const char*, size_t) = fixc_get_aid;
+
 #include "fixml-comp-by-ctx.h"
 
 __attribute__((weak)) fixc_comp_t
@@ -135,6 +142,17 @@ fixc_get_cid(fixc_ctxt_t UN(ctx), const char *UN(elem), size_t UN(elen))
 	EDEBUG("fixc_get_cid() husk called.  Load an engine\n");
 	return FIXC_COMP_UNK;
 }
+fixc_comp_t (*__get_cid)(fixc_ctxt_t, const char*, size_t) = fixc_get_cid;
+
+#include "fixml-msg.h"
+
+fixc_msgt_t
+fixc_get_mty(const char *UN(elem), size_t UN(elen))
+{
+	EDEBUG("fixc_get_mty() husk called.  Load an engine\n");
+	return FIXC_MSGT_UNK;
+}
+fixc_msgt_t (*__get_mty)(const char*, size_t) = fixc_get_mty;
 
 
 static void
@@ -206,12 +224,20 @@ my_dlopen(const char *filename)
 	return handle;
 }
 
+static fixc_eng_f
+eng_sym(fixc_eng_t m, const char *sym_name)
+{
+	return lt_dlsym(m, sym_name);
+}
+
 
 /* pub funs */
 fixc_eng_t
 fixc_open_eng(const char *file)
 {
 	static int mod_initted_p = 0;
+	fixc_eng_t res;
+	fixc_eng_f fun;
 
 	/* speed-dating singleton */
 	if (!mod_initted_p) {
@@ -222,13 +248,42 @@ fixc_open_eng(const char *file)
 		/* and just so we are a proper singleton */
 		mod_initted_p = 1;
 	}
-	return my_dlopen(file);
+	if (UNLIKELY((res = my_dlopen(file)) == NULL)) {
+		return NULL;
+	}
+	if ((fun = eng_sym(res, "fixc_get_cid")) != NULL) {
+		__get_cid = (fixc_comp_t(*)())fun;
+	}
+	if ((fun = eng_sym(res, "fixc_get_aid")) != NULL) {
+		__get_aid = (fixc_attr_t(*)())fun;
+	}
+	if ((fun = eng_sym(res, "fixc_get_mty")) != NULL) {
+		__get_mty = (fixc_msgt_t(*)())fun;
+	}
+
+	if ((fun = eng_sym(res, "fixc_msgt_fixmlify")) != NULL) {
+		__msgt_fixmlify = (fixc_msgt_t(*)())fun;
+	}
+	if ((fun = eng_sym(res, "fixc_comp_fixmlify")) != NULL) {
+		__comp_fixmlify = (fixc_msgt_t(*)())fun;
+	}
+	if ((fun = eng_sym(res, "fixc_attr_fixmlify")) != NULL) {
+		__attr_fixmlify = (fixc_msgt_t(*)())fun;
+	}
+	return res;
 }
 
 void
 fixc_close_eng(fixc_eng_t eng)
 {
 	lt_dlclose(eng);
+	__get_cid = fixc_get_cid;
+	__get_aid = fixc_get_aid;
+	__get_mty = fixc_get_mty;
+
+	__msgt_fixmlify = fixc_msgt_fixmlify;
+	__comp_fixmlify = fixc_comp_fixmlify;
+	__attr_fixmlify = fixc_attr_fixmlify;
 	return;
 }
 
