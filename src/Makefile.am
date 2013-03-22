@@ -69,23 +69,7 @@ fix2fixml_LDADD = libfixc.la
 %.c: %.gperf
 	$(AM_V_GEN) $(GPERF) $< --output-file $@
 
--include $(DEPDIR)/fixml-attr-by-ctx.Po
--include $(DEPDIR)/fixml-comp-by-ctx.Po
-
-fixml-attr-by-ctx.c: fixml-attr-by-ctx.xsl \
-		$(fix_repo).xml fixml-attr-by-ctx.gperfs
-	$(AM_V_GEN) xsltproc -o $@ $< $(word 2,$+)
-
-fixml-attr-by-ctx.gperfs: fixml-attr-by-ctx.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc --stringparam MT $(DEPDIR)/fixml-attr-by-ctx.Po $+ > $@
-
-fixml-comp-by-ctx.c: fixml-comp-by-ctx.xsl \
-		$(fix_repo).xml fixml-comp-by-ctx.gperfs
-	$(AM_V_GEN) xsltproc -o $@ $< $(word 2,$+)
-
-fixml-comp-by-ctx.gperfs: fixml-comp-by-ctx.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc --stringparam MT $(DEPDIR)/fixml-comp-by-ctx.Po $+ > $@
-
+## rework me!
 dist-hook: fixml-attr-by-ctx.gperfs fixml-comp-by-ctx.gperfs \
 		fixml-attr-by-ctx.c fixml-comp-by-ctx.c
 	for i in `cat $(wordlist 1,2,$+)`; do \
@@ -93,45 +77,6 @@ dist-hook: fixml-attr-by-ctx.gperfs fixml-comp-by-ctx.gperfs \
 			cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; \
 	done
 	cp -a $(wordlist 1,2,$+) "$(distdir)/"
-
-fixml-attr-rev.c: fixml-attr-rev.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ $+
-
-fixml-comp-rev.c: fixml-comp-rev.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ $+
-
-fixml-msg-rev.c: fixml-msg-rev.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ $+
-
-fixml-comp-fld.c: fixml-comp-fld.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ $+
-
-fixml-comp-sub.c: fixml-comp-sub.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ $+
-
-fixml-fld-ctx.c: fixml-fld-ctx.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ $+
-
-fixml-attr.h: fixml-attr.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ $+
-
-fixml-msg.h: fixml-msg.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ $+
-
-fixml-comp.h: fixml-comp.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ $+
-
-fixml-comp.gperf: fixml-comp.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ --stringparam MT $(DEPDIR)/$*.Po $+
-
-fixml-msg.gperf: fixml-msg.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ --stringparam MT $(DEPDIR)/$*.Po $+
-
-fixml-comp-rptb.c: fixml-comp-rptb.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ $+
-
-fixml-comp-orb.c: fixml-comp-orb.xsl $(fix_repo).xml
-	$(AM_V_GEN) xsltproc -o $@ $+
 
 
 ## short cuts for stuff that's in the spec/ dir and named idiotically
