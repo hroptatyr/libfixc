@@ -54,6 +54,8 @@
 #include "fixml-comp-sub.h"
 #include "nifty.h"
 
+#include "engdso-private.h"
+
 #include "fixml-canon-attr.h"
 
 /* to map version strings to fixc_ver_t objects */
@@ -1196,7 +1198,7 @@ fixc_msg_t
 fixc_extr_ctxt_deep(fixc_msg_t msg, fixc_ctxt_t ctx, int n)
 {
 	fixc_msg_t res = make_fixc_msg(ctx);
-	fixc_comp_sub_t chld = fixc_get_comp_sub(ctx);
+	fixc_comp_sub_t chld = __get_comp_sub(ctx);
 	int just_been_in = 0;
 
 	/* check if we've got tpcs and cnts */
