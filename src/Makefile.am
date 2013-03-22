@@ -115,6 +115,55 @@ header_HEADERS += fixml-msg-fix50sp2.h
 -include $(DEPDIR)/fixml-attr-by-ctx-fix50sp2.Po
 -include $(DEPDIR)/fixml-comp-by-ctx-fix50sp2.Po
 
+## just like fix50sp2 but with some CME EPs
+pkglib_LTLIBRARIES += fix50sp2_cme.la
+fix50sp2_cme_la_SOURCES = fix50sp2_cme.xml
+fix50sp2_cme_la_SOURCES += fix-private.h
+fix50sp2_cme_la_SOURCES += nifty.h
+fix50sp2_cme_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
+fix50sp2_cme_la_SOURCES += fixml-comp-fld.xsl fixml-comp-fld.h
+fix50sp2_cme_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
+fix50sp2_cme_la_SOURCES += fixml-nsuri.gperf fix-ver.gperf fix-nsuri.h
+fix50sp2_cme_la_SOURCES += libfixc_0_1_funs.xsl
+fix50sp2_cme_la_SOURCES += fixml-canon-attr.gperf fixml-canon-attr.h
+fix50sp2_cme_la_SOURCES += fixml-attr-by-ctx.xsl fixml-attr-by-ctx.h
+fix50sp2_cme_la_SOURCES += fixml-attr-by-ctx-fix50sp2_cme.c
+fix50sp2_cme_la_SOURCES += fixml-comp-by-ctx.xsl fixml-comp-by-ctx.h
+fix50sp2_cme_la_SOURCES += fixml-comp-by-ctx-fix50sp2_cme.c
+fix50sp2_cme_la_SOURCES += fixml-attr.xsl fixml-attr-rev.xsl
+fix50sp2_cme_la_SOURCES += fixml-comp.xsl fixml-comp-rev.xsl
+fix50sp2_cme_la_SOURCES += fixml-msg.xsl fixml-msg.h
+fix50sp2_cme_la_SOURCES += fixml-msg-fix50sp2_cme.c
+fix50sp2_cme_la_SOURCES += fixml-msg-rev.xsl
+fix50sp2_cme_la_SOURCES += fixml-comp-rptb.xsl fixml-comp-rptb.h
+fix50sp2_cme_la_SOURCES += fixml-comp-rptb-fix50sp2_cme.c
+fix50sp2_cme_la_SOURCES += fixml-comp-orb.xsl fixml-comp-orb.h
+fix50sp2_cme_la_SOURCES += fixml-comp-orb-fix50sp2_cme.c
+fix50sp2_cme_la_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
+fix50sp2_cme_la_LDFLAGS = $(MOD_LDFLAGS)
+BUILT_SOURCES += fixml-comp-sub-fix50sp2_cme.c
+BUILT_SOURCES += fixml-comp-fld-fix50sp2_cme.c
+BUILT_SOURCES += fixml-fld-ctx-fix50sp2_cme.c
+BUILT_SOURCES += fixml-msg-fix50sp2_cme.gperf
+BUILT_SOURCES += fixml-msg-fix50sp2_cme.c fixml-msg-fix50sp2_cme.h
+BUILT_SOURCES += fixml-comp-fix50sp2_cme.gperf
+BUILT_SOURCES += fixml-comp-fix50sp2_cme.h
+BUILT_SOURCES += fixml-attr-fix50sp2_cme.h
+BUILT_SOURCES += fixml-attr-by-ctx-fix50sp2_cme.c
+BUILT_SOURCES += fixml-comp-by-ctx-fix50sp2_cme.c
+BUILT_SOURCES += fixml-attr-rev-fix50sp2_cme.c
+BUILT_SOURCES += fixml-comp-rev-fix50sp2_cme.c
+BUILT_SOURCES += fixml-msg-rev-fix50sp2_cme.c
+BUILT_SOURCES += fixml-comp-rptb-fix50sp2_cme.c
+BUILT_SOURCES += fixml-comp-orb-fix50sp2_cme.c
+
+header_HEADERS += fixml-attr-fix50sp2_cme.h
+header_HEADERS += fixml-comp-fix50sp2_cme.h
+header_HEADERS += fixml-msg-fix50sp2_cme.h
+
+-include $(DEPDIR)/fixml-attr-by-ctx-fix50sp2_cme.Po
+-include $(DEPDIR)/fixml-comp-by-ctx-fix50sp2_cme.Po
+
 
 ## our rule for gperf
 %.c: %.gperf
