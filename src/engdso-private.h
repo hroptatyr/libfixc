@@ -38,6 +38,13 @@
 #define INCLUDED_engdso_private_h_
 
 #include "fix.h"
+#include "fixml-comp-sub.h"
+#include "fixml-fld-ctx.h"
+
+extern fixc_attr_t(*__comp_rptb)(fixc_ctxt_t);
+extern fixc_comp_t(*__get_comp_orb)(fixc_ctxt_t);
+extern fixc_comp_sub_t(*__get_comp_sub)(fixc_ctxt_t);
+extern fixc_fld_ctx_t(*__get_fld_ctx)(fixc_ctxt_t);
 
 extern const char *(*__msgt_fixmlify)(fixc_msgt_t);
 extern const char *(*__comp_fixmlify)(fixc_comp_t);

@@ -65,6 +65,7 @@ fixc_get_comp_sub(fixc_ctxt_t UN(ctx))
 	EDEBUG("fixc_get_comp_sub() husk called.  Load an engine\n");
 	return 0U;
 }
+fixc_comp_sub_t(*__get_comp_sub)(fixc_ctxt_t) = fixc_get_comp_sub;
 
 #include "fixml-comp-rptb.h"
 
@@ -74,6 +75,7 @@ fixc_comp_rptb(fixc_ctxt_t UN(ctx))
 	EDEBUG("fixc_get_comp_rptb() husk called.  Load an engine\n");
 	return FIXC_ATTR_UNK;
 }
+fixc_attr_t(*__comp_rptb)(fixc_ctxt_t) = fixc_comp_rptb;
 
 #include "fixml-comp-orb.h"
 
@@ -83,6 +85,7 @@ fixc_get_comp_orb(fixc_ctxt_t UN(ctx))
 	EDEBUG("fixc_get_comp_orb() husk called.  Load an engine\n");
 	return FIXC_COMP_UNK;
 }
+fixc_comp_t(*__get_comp_orb)(fixc_ctxt_t) = fixc_get_comp_orb;
 
 #include "fixml-fld-ctx.h"
 
@@ -92,6 +95,8 @@ fixc_get_fld_ctx(fixc_ctxt_t UN(ctx))
 	EDEBUG("fixc_get_fld_ctx() husk called.  Load an engine\n");
 	return 0U;
 }
+fixc_fld_ctx_t(*__get_fld_ctx)(fixc_ctxt_t) = fixc_get_fld_ctx;
+
 
 #include "fixml-canon-msgt.h"
 
@@ -262,13 +267,26 @@ fixc_open_eng(const char *file)
 	}
 
 	if ((fun = eng_sym(res, "fixc_msgt_fixmlify")) != NULL) {
-		__msgt_fixmlify = (fixc_msgt_t(*)())fun;
+		__msgt_fixmlify = (const char*(*)())fun;
 	}
 	if ((fun = eng_sym(res, "fixc_comp_fixmlify")) != NULL) {
-		__comp_fixmlify = (fixc_msgt_t(*)())fun;
+		__comp_fixmlify = (const char*(*)())fun;
 	}
 	if ((fun = eng_sym(res, "fixc_attr_fixmlify")) != NULL) {
-		__attr_fixmlify = (fixc_msgt_t(*)())fun;
+		__attr_fixmlify = (const char*(*)())fun;
+	}
+
+	if ((fun = eng_sym(res, "fixc_comp_rptb")) != NULL) {
+		__comp_rptb = (fixc_attr_t(*)())fun;
+	}
+	if ((fun = eng_sym(res, "fixc_get_comp_orb")) != NULL) {
+		__get_comp_orb = (fixc_comp_t(*)())fun;
+	}
+	if ((fun = eng_sym(res, "fixc_get_comp_sub")) != NULL) {
+		__get_comp_sub = (fixc_comp_sub_t(*)())fun;
+	}
+	if ((fun = eng_sym(res, "fixc_get_fld_ctx")) != NULL) {
+		__get_fld_ctx = (fixc_fld_ctx_t(*)())fun;
 	}
 	return res;
 }
@@ -284,6 +302,11 @@ fixc_close_eng(fixc_eng_t eng)
 	__msgt_fixmlify = fixc_msgt_fixmlify;
 	__comp_fixmlify = fixc_comp_fixmlify;
 	__attr_fixmlify = fixc_attr_fixmlify;
+
+	__comp_rptb = fixc_comp_rptb;
+	__get_comp_orb = fixc_get_comp_orb;
+	__get_comp_sub = fixc_get_comp_sub;
+	__get_fld_ctx = fixc_get_fld_ctx;
 	return;
 }
 
