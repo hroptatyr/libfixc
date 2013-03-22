@@ -60,6 +60,7 @@
 __attribute__((weak)) fixc_comp_sub_t
 fixc_get_comp_sub(fixc_ctxt_t UN(ctx))
 {
+	EDEBUG("fixc_get_comp_sub() husk called.  Load an engine\n");
 	return 0U;
 }
 
@@ -68,6 +69,7 @@ fixc_get_comp_sub(fixc_ctxt_t UN(ctx))
 __attribute__((weak)) fixc_attr_t
 fixc_comp_rptb(fixc_ctxt_t UN(ctx))
 {
+	EDEBUG("fixc_get_comp_rptb() husk called.  Load an engine\n");
 	return FIXC_ATTR_UNK;
 }
 
@@ -76,6 +78,7 @@ fixc_comp_rptb(fixc_ctxt_t UN(ctx))
 __attribute__((weak)) fixc_comp_t
 fixc_get_comp_orb(fixc_ctxt_t UN(ctx))
 {
+	EDEBUG("fixc_get_comp_orb() husk called.  Load an engine\n");
 	return FIXC_COMP_UNK;
 }
 
@@ -84,6 +87,7 @@ fixc_get_comp_orb(fixc_ctxt_t UN(ctx))
 __attribute__((weak)) fixc_fld_ctx_t
 fixc_get_fld_ctx(fixc_ctxt_t UN(ctx))
 {
+	EDEBUG("fixc_get_fld_ctx() husk called.  Load an engine\n");
 	return 0U;
 }
 
@@ -92,6 +96,7 @@ fixc_get_fld_ctx(fixc_ctxt_t UN(ctx))
 __attribute__((weak)) const char*
 fixc_msgt_fixmlify(fixc_msgt_t UN(m))
 {
+	EDEBUG("fixc_msgt_fixmlify() husk called.  Load an engine\n");
 	return NULL;
 }
 
@@ -100,6 +105,7 @@ fixc_msgt_fixmlify(fixc_msgt_t UN(m))
 __attribute__((weak)) const char*
 fixc_comp_fixmlify(fixc_comp_t UN(c))
 {
+	EDEBUG("fixc_comp_fixmlify() husk called.  Load an engine\n");
 	return NULL;
 }
 
@@ -108,6 +114,7 @@ fixc_comp_fixmlify(fixc_comp_t UN(c))
 __attribute__((weak)) const char*
 fixc_attr_fixmlify(fixc_ctxt_t UN(ctx), fixc_attr_t UN(a))
 {
+	EDEBUG("fixc_attr_fixmlify() husk called.  Load an engine\n");
 	return NULL;
 }
 
@@ -116,6 +123,7 @@ fixc_attr_fixmlify(fixc_ctxt_t UN(ctx), fixc_attr_t UN(a))
 __attribute__((weak)) fixc_attr_t
 fixc_get_aid(fixc_ctxt_t UN(ctx), const char *UN(attr), size_t UN(alen))
 {
+	EDEBUG("fixc_get_aid() husk called.  Load an engine\n");
 	return FIXC_ATTR_UNK;
 }
 
@@ -124,6 +132,7 @@ fixc_get_aid(fixc_ctxt_t UN(ctx), const char *UN(attr), size_t UN(alen))
 __attribute__((weak)) fixc_comp_t
 fixc_get_cid(fixc_ctxt_t UN(ctx), const char *UN(elem), size_t UN(elen))
 {
+	EDEBUG("fixc_get_cid() husk called.  Load an engine\n");
 	return FIXC_COMP_UNK;
 }
 
