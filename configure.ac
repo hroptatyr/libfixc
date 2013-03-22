@@ -46,10 +46,6 @@ AC_CHECK_SIZEOF([long])
 AC_CHECK_SIZEOF([int])
 AC_CHECK_SIZEOF([size_t])
 
-## libtool goddess^Wgoodness
-SXE_CHECK_LIBTOOL
-SXE_CHECK_LIBLTDL
-
 AC_CHECK_HEADERS([stdbool.h])
 AC_CHECK_HEADERS([fcntl.h])
 
@@ -131,6 +127,10 @@ if test "${have_zlib}" = "yes"; then
 	fi
 fi
 AM_CONDITIONAL([HAVE_ZLIB], [test "${have_zlib}" = "yes"])
+
+## libtool goddess^Wgoodness
+SXE_CHECK_LIBTOOL
+SXE_CHECK_LIBLTDL
 
 dnl -------------------------------------------------------------------------
 dnl final output
