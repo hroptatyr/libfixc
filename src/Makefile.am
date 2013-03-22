@@ -2,12 +2,14 @@
 
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
 AM_LDFLAGS =
+MOD_LDFLAGS = $(XCCLDFLAGS) -shared -avoid-version -module
 
 headerdir = $(pkgincludedir)
 
 bin_PROGRAMS =
 noinst_PROGRAMS =
 lib_LTLIBRARIES =
+pkglib_LTLIBRARIES =
 noinst_LTLIBRARIES =
 noinst_HEADERS =
 header_HEADERS =
@@ -157,7 +159,7 @@ fix41.xml: $(top_srcdir)/spec/FIX.4.1.xml
 fix40.xml: $(top_srcdir)/spec/FIX.4.0.xml
 	$(LN_S) -f $< $@
 
-noinst_LTLIBRARIES += test-50sp2.la
+pkglib_LTLIBRARIES += test-50sp2.la
 test_50sp2_la_SOURCES = fix-private.h
 test_50sp2_la_SOURCES += nifty.h
 test_50sp2_la_SOURCES += fixml-comp-sub.xsl fixml-comp-sub.h
@@ -177,7 +179,7 @@ test_50sp2_la_SOURCES += fixml-comp-rptb.xsl
 test_50sp2_la_SOURCES += fixml-comp-rptb-fix50sp2.c fixml-comp-rptb.h
 test_50sp2_la_SOURCES += fixml-comp-orb.xsl fixml-comp-orb.h
 test_50sp2_la_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
-test_50sp2_la_LDFLAGS = -module
+test_50sp2_la_LDFLAGS = $(MOD_LDFLAGS)
 BUILT_SOURCES += fixml-comp-sub-fix50sp2.c
 BUILT_SOURCES += fixml-comp-fld-fix50sp2.c
 BUILT_SOURCES += fixml-fld-ctx-fix50sp2.c
