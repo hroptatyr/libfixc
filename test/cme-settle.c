@@ -49,8 +49,8 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include "fix.h"
-#include "fixml-msg.h"
-#include "fixml-attr.h"
+#include "fixml-msg-fix50sp2_cme.h"
+#include "fixml-attr-fix50sp2_cme.h"
 
 /* won't exist out of our package */
 #include "nifty.h"
