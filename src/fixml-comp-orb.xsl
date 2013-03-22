@@ -16,8 +16,9 @@
   <xsl:template match="fixc:spec">
     <xsl:text>/* do not edit, gen'd by fixml-comp-orb.xsl */
 
+#include "fixml-comp-</xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>.h"
 #include "fixml-comp-orb.h"
-#include "fixml-comp.h"
 
 fixc_comp_t fixc_get_comp_orb(fixc_ctxt_t ctx)
 {

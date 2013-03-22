@@ -81,8 +81,10 @@
     <!-- build up the main .c file that switches over the context -->
     <xsl:text>/* do not edit, gen'd by fixml-comp-by-ctx.xsl */
 
-#include "fixml-msg.h"
-#include "fixml-comp.h"
+#include "fixml-msg-</xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>.h"
+#include "fixml-comp-</xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>.h"
 #include "fixml-comp-by-ctx.h"
 
 #if defined __INTEL_COMPILER
