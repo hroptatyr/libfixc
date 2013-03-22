@@ -178,6 +178,7 @@ test_50sp2_la_SOURCES += fixml-msg.xsl fixml-msg-rev.xsl
 test_50sp2_la_SOURCES += fixml-comp-rptb.xsl
 test_50sp2_la_SOURCES += fixml-comp-rptb-fix50sp2.c fixml-comp-rptb.h
 test_50sp2_la_SOURCES += fixml-comp-orb.xsl fixml-comp-orb.h
+test_50sp2_la_SOURCES += fixml-comp-orb-fix50sp2.c
 test_50sp2_la_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
 test_50sp2_la_LDFLAGS = $(MOD_LDFLAGS)
 BUILT_SOURCES += fixml-comp-sub-fix50sp2.c
