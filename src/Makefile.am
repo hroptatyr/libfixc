@@ -2,7 +2,7 @@
 
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
 AM_LDFLAGS =
-MOD_LDFLAGS = $(XCCLDFLAGS) -shared -avoid-version -module
+MOD_LDFLAGS = $(XCCLDFLAGS) -avoid-version -module
 
 headerdir = $(pkgincludedir)
 
