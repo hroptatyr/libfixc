@@ -3,7 +3,7 @@
 AM_CPPFLAGS = -D_POSIX_C_SOURCE=200112L -D_XOPEN_SOURCE=600 -D_BSD_SOURCE
 AM_LDFLAGS =
 
-headerdir = $(includedir)/libfixc
+headerdir = $(pkgincludedir)
 
 bin_PROGRAMS =
 noinst_PROGRAMS =
@@ -21,6 +21,7 @@ libfixc_la_SOURCES += fix-private.h
 libfixc_la_SOURCES += fixml-wr.c
 libfixc_la_SOURCES += fixml-rd.c
 libfixc_la_SOURCES += nifty.h
+libfixc_la_SOURCES += engdso.c engdso.h
 #libfixc_la_SOURCES += fixml-fld-ctx.xsl fixml-fld-ctx.h
 #libfixc_la_SOURCES += fixml-nsuri.gperf fix-ver.gperf fix-nsuri.h
 #libfixc_la_SOURCES += libfixc_0_1_funs.xsl
@@ -35,11 +36,14 @@ libfixc_la_SOURCES += nifty.h
 #libfixc_la_SOURCES += fixml-comp-rptb.xsl fixml-comp-rptb.c fixml-comp-rptb.h
 #libfixc_la_SOURCES += fixml-comp-orb.xsl fixml-comp-orb.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
+libfixc_la_CPPFLAGS += -DPKGLIBDIR="\"$(pkglibdir)\""
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
 libfixc_la_CPPFLAGS += $(zlib_CFLAGS)
+libfixc_la_CPPFLAGS += $(INCLTDL)
 libfixc_la_LDFLAGS = $(AM_LDFLAGS)
 libfixc_la_LDFLAGS += $(expat_LIBS)
 libfixc_la_LDFLAGS += $(zlib_LIBS)
+libfixc_la_LDFLAGS += $(LIBLTDL)
 BUILT_SOURCES += fixml-nsuri.c
 BUILT_SOURCES += fix-ver.c
 BUILT_SOURCES += fixml-nsuri-rev.c
@@ -51,6 +55,7 @@ header_HEADERS += fixml-canon-attr.h fixml-attr.h
 header_HEADERS += fixml-canon-comp.h fixml-comp.h
 header_HEADERS += fixml-canon-msgt.h fixml-msg.h
 header_HEADERS += fixml-canon-ctxt.h
+header_HEADERS += engdso.h
 
 ## still needed for the test/ suite
 EXTRA_DIST += fix-msg-type.h
