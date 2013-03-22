@@ -46,26 +46,17 @@
 #include "nifty.h"
 
 #include "fixml-comp-sub.h"
-#include "fixml-comp-sub.c"
 #include "fixml-comp-fld.h"
-#include "fixml-comp-fld.c"
 #include "fixml-comp-rptb.h"
 #include "fixml-comp-orb.h"
-#include "fixml-comp-orb.c"
 #include "fixml-fld-ctx.h"
-#include "fixml-fld-ctx.c"
 
 #include "fixml-canon-ctxt.h"
 #include "fixml-canon-comp.h"
 #include "fixml-canon-msgt.h"
 #include "fixml-canon-attr.h"
 
-/* resolves fixc_attr_t to attr string */
-#include "fixml-attr-rev.c"
-/* resolves fixc_comp_t to component element string */
-#include "fixml-comp-rev.c"
-/* resolves fixc_msgt_t to message element string */
-#include "fixml-msg-rev.c"
+#include "engdso-private.h"
 
 /* resolves fixc_ver_t objects to various strings, hand-crafted */
 #include "fixml-nsuri-rev.c"
@@ -183,7 +174,7 @@ __render_attr(__ctx_t ctx, fixc_ctxt_t t, const char *b, struct fixc_fld_s fld)
 	}
 
 	/* otherwise, go along with the attr finding */
-	attr = fixc_attr_fixmlify(t, (fixc_attr_t)fld.tag);
+	attr = __attr_fixmlify(t, (fixc_attr_t)fld.tag);
 	if (UNLIKELY((alen = strlen(attr)) == 0UL)) {
 		/* probably fubar'd or an unknown attr */
 		static char miss[8];
@@ -344,9 +335,9 @@ __fixmlify(char *restrict p, const char *ep, fixc_ctxt_t ctx)
 	} else if (UNLIKELY(ctx_udef_p(ctx))) {
 		tag = "User";
 	} else if (ctx.i > 0x2000) {
-		tag = fixc_msgt_fixmlify(ctx.msgt);
+		tag = __msgt_fixmlify(ctx.msgt);
 	} else {
-		tag = fixc_comp_fixmlify(ctx.comp);
+		tag = __comp_fixmlify(ctx.comp);
 	}
 	if (UNLIKELY((tsz = strlen(tag)) == 0UL)) {
 		static char miss[8];
@@ -370,9 +361,9 @@ retry:
 		}
 	}
 	/* see if we're falling for optimised implicit blocks */
-	if (UNLIKELY((tmp = fixc_get_comp_orb((fixc_comp_t)parent->ctx)))) {
+	if (UNLIKELY((tmp = __get_comp_orb((fixc_comp_t)parent->ctx)))) {
 		/* one of them optimised implict blocks */
-		parent = fixc_get_comp_sub(tmp);
+		parent = __get_comp_sub(tmp);
 		goto retry;
 	}
 	return 0;
@@ -385,7 +376,7 @@ __ancestp(fixc_comp_sub_t ancest, fixc_ctxt_t descend)
 	/* oh, could be one of them comp-only blocks in between */
 	for (size_t i = 0; i < ancest->nsubs; i++) {
 		fixc_comp_t xcmp = (fixc_comp_t)ancest->subs[i];
-		fixc_comp_sub_t xpar = fixc_get_comp_sub(xcmp);
+		fixc_comp_sub_t xpar = __get_comp_sub(xcmp);
 
 		/* unrolled */
 		for (size_t j = 0; j < xpar->nsubs; j++) {
@@ -396,7 +387,7 @@ __ancestp(fixc_comp_sub_t ancest, fixc_ctxt_t descend)
 				return xcmp;
 			}
 
-			ypar = fixc_get_comp_sub(ycmp);
+			ypar = __get_comp_sub(ycmp);
 			for (size_t k = 0; k < ypar->nsubs; k++) {
 				fixc_comp_t zcmp = (fixc_comp_t)ypar->subs[k];
 
@@ -412,7 +403,7 @@ __ancestp(fixc_comp_sub_t ancest, fixc_ctxt_t descend)
 static void
 push_rndr_state(__ctx_t ctx, fixc_ctxt_t otag)
 {
-	if (UNLIKELY(fixc_get_comp_orb(otag))) {
+	if (UNLIKELY(__get_comp_orb(otag))) {
 		return;
 	} else if (otag.ui16 == FIXC_MSGT_BATCH) {
 		/* batch tags are inserted globally and once only */
@@ -460,7 +451,7 @@ __ancest_rndr(__ctx_t ctx, fixc_comp_sub_t ancest, fixc_ctxt_t descend)
 	/* oh, could be one of them comp-only blocks in between */
 	for (size_t i = 0; i < ancest->nsubs; i++) {
 		fixc_comp_t xcmp = (fixc_comp_t)ancest->subs[i];
-		fixc_comp_sub_t xpar = fixc_get_comp_sub(xcmp);
+		fixc_comp_sub_t xpar = __get_comp_sub(xcmp);
 
 		if (xcmp == descend.ui16) {
 			return xcmp;
@@ -476,7 +467,7 @@ __ancest_rndr(__ctx_t ctx, fixc_comp_sub_t ancest, fixc_ctxt_t descend)
 				return ycmp;
 			}
 
-			ypar = fixc_get_comp_sub(ycmp);
+			ypar = __get_comp_sub(ycmp);
 			for (size_t k = 0; k < ypar->nsubs; k++) {
 				fixc_comp_t zcmp = (fixc_comp_t)ypar->subs[k];
 
@@ -496,7 +487,7 @@ __change_ctx(__ctx_t ctx, fixc_ctxt_t new)
 {
 	/* open a tag, question is child or sibling */
 	while (ctx->state != NULL) {
-		fixc_comp_sub_t sub = fixc_get_comp_sub(ctx->state->osub);
+		fixc_comp_sub_t sub = __get_comp_sub(ctx->state->osub);
 
 		if (__childp(sub, new) || __ancest_rndr(ctx, sub, new)) {
 		new_chld:
@@ -530,7 +521,7 @@ static fixc_comp_t
 fu_ancest_p(fixc_fld_ctx_t fc, fixc_ctxt_t c)
 {
 	/* oh, could be one of them comp-only blocks in between */
-	fixc_comp_sub_t sub = fixc_get_comp_sub(c);
+	fixc_comp_sub_t sub = __get_comp_sub(c);
 
 	/* first level is breadth-first, otherwise depth first */
 	for (size_t i = 0; i < sub->nsubs; i++) {
@@ -544,7 +535,7 @@ fu_ancest_p(fixc_fld_ctx_t fc, fixc_ctxt_t c)
 	for (size_t i = 0; i < sub->nsubs; i++) {
 		/* unrolled */
 		fixc_comp_t xcmp = (fixc_comp_t)sub->subs[i];
-		fixc_comp_sub_t xpar = fixc_get_comp_sub(xcmp);
+		fixc_comp_sub_t xpar = __get_comp_sub(xcmp);
 
 		for (size_t j = 0; j < xpar->nsubs; j++) {
 			fixc_comp_t ycmp = (fixc_comp_t)xpar->subs[j];
@@ -554,7 +545,7 @@ fu_ancest_p(fixc_fld_ctx_t fc, fixc_ctxt_t c)
 				return ycmp;
 			}
 
-			ypar = fixc_get_comp_sub(ycmp);
+			ypar = __get_comp_sub(ycmp);
 			for (size_t k = 0; k < ypar->nsubs; k++) {
 				fixc_comp_t zcmp = (fixc_comp_t)ypar->subs[k];
 
@@ -658,7 +649,7 @@ fixc_fixup(fixc_msg_t msg)
 	push(msg->f35.mtyp, 0);
 	for (size_t i = 0; i < msg->nflds; i++) {
 		fixc_attr_t ma = (fixc_attr_t)msg->flds[i].tag;
-		fixc_fld_ctx_t fc = fixc_get_fld_ctx(ma);
+		fixc_fld_ctx_t fc = __get_fld_ctx(ma);
 
 		do {
 			fixc_comp_t anc;
@@ -674,7 +665,7 @@ fixc_fixup(fixc_msg_t msg)
 				/* otherwise go through subs of lctx */
 				fixc_comp_t tmp;
 
-				if (UNLIKELY((tmp = fixc_get_comp_orb(anc)))) {
+				if (UNLIKELY((tmp = __get_comp_orb(anc)))) {
 					/* fixup optimised repeating blocks */
 					anc = tmp;
 				}
@@ -834,7 +825,7 @@ fixc_render_fixml(char *restrict const buf, size_t bsz, fixc_msg_t msg)
 		/* several edge triggers here:
 		 * - whenever the .tpc (parent ctx) changes
 		 * - whenever the .cnt (field counter) goes back to 0 */
-		if (UNLIKELY(msg->flds[i].tag == fixc_comp_rptb(ictx))) {
+		if (UNLIKELY(msg->flds[i].tag == __comp_rptb(ictx))) {
 			/* don't even render this guy */
 			continue;
 		} else if (msg->flds[i].tpc != otpc.ui16) {
@@ -941,7 +932,7 @@ fixc_render_fixml_rndr(fixc_msg_t msg)
 		/* several edge triggers here:
 		 * - whenever the .tpc (parent ctx) changes
 		 * - whenever the .cnt (field counter) goes back to 0 */
-		if (UNLIKELY(msg->flds[i].tag == fixc_comp_rptb(ictx))) {
+		if (UNLIKELY(msg->flds[i].tag == __comp_rptb(ictx))) {
 			/* don't even render this guy */
 			continue;
 		} else if (msg->flds[i].tpc != otpc.ui16) {

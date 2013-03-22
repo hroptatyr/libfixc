@@ -70,7 +70,8 @@ typedef enum {
 %{
 
 #include "fixml-canon-comp.h"
-#include "fixml-comp.h"
+#include "fixml-comp-</xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>.h"
 
 %}
 %7bit

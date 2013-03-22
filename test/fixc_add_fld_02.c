@@ -6,8 +6,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "fix.h"
-#include "fixml-msg.h"
-#include "fixml-attr.h"
+#include "fixml-msg-fix50sp2.h"
+#include "fixml-attr-fix50sp2.h"
 
 #define countof(x)	(sizeof(x) / sizeof(*x))
 

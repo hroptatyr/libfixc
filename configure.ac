@@ -46,10 +46,6 @@ AC_CHECK_SIZEOF([long])
 AC_CHECK_SIZEOF([int])
 AC_CHECK_SIZEOF([size_t])
 
-## libtool goddess^Wgoodness
-SXE_CHECK_LIBTOOL
-SXE_CHECK_LIBLTDL
-
 AC_CHECK_HEADERS([stdbool.h])
 AC_CHECK_HEADERS([fcntl.h])
 
@@ -110,14 +106,6 @@ dnl must come after all AC_LINK_IFELSE clauses
 ## check for the ldflags
 SXE_CHECK_LDFLAGS
 
-fix_repo_dflt="fix50sp2"
-AC_ARG_WITH([fix-repo], AS_HELP_STRING([--with-fix-repo], [dnl
-	Name of repository file to use.  Default: ${fix_repo_dflt}
-]), [fix_repo="${withval}"], [fix_repo="${fix_repo_dflt}"])
-AC_SUBST([fix_repo_dflt])
-AC_SUBST([fix_repo])
-
-
 PKG_CHECK_MODULES([zlib], [zlib], [have_zlib="yes"], [have_zlib="no"])
 if test "${have_zlib}" = "yes"; then
 	## check for that one header
@@ -131,6 +119,10 @@ if test "${have_zlib}" = "yes"; then
 	fi
 fi
 AM_CONDITIONAL([HAVE_ZLIB], [test "${have_zlib}" = "yes"])
+
+## libtool goddess^Wgoodness
+SXE_CHECK_LIBTOOL
+SXE_CHECK_LIBLTDL
 
 dnl -------------------------------------------------------------------------
 dnl final output

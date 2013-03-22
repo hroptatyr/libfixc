@@ -69,23 +69,30 @@ EXTRA_DIST += fixml_to_fixc_prep.c
 
 fixml_tests += fixc_to_fixml_01
 fixc_to_fixml_01_LDADD = $(top_builddir)/src/libfixc.la
+fixc_to_fixml_01_LDADD += $(top_builddir)/src/fix50sp2.la
 fixml_tests += fixc_to_fixml_02
 fixc_to_fixml_02_SOURCES = fixc_to_fixml_01.c
 fixc_to_fixml_02_LDFLAGS = $(AM_LDFLAGS) -static
 fixc_to_fixml_02_LDADD = $(top_builddir)/src/libfixc.la
+fixc_to_fixml_02_LDADD += $(top_builddir)/src/fix50sp2.la
 fixml_tests += fixc_to_fixml_03
 fixc_to_fixml_03_LDADD = $(top_builddir)/src/libfixc.la
+fixc_to_fixml_03_LDADD += $(top_builddir)/src/fix50sp2.la
 fixml_tests += fixc_to_fixml_04
 fixc_to_fixml_04_SOURCES = fixc_to_fixml_03.c
 fixc_to_fixml_04_LDFLAGS = $(AM_LDFLAGS) -static
 fixc_to_fixml_04_LDADD = $(top_builddir)/src/libfixc.la
+fixc_to_fixml_04_LDADD += $(top_builddir)/src/fix50sp2.la
 
 api_tests += fixc_extr_01
 fixc_extr_01_LDADD = $(top_builddir)/src/libfixc.la
+fixc_extr_01_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.so
 api_tests += fixc_extr_02
 fixc_extr_02_LDADD = $(top_builddir)/src/libfixc.la
+fixc_extr_02_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.so
 api_tests += fixc_extr_deep_01
 fixc_extr_deep_01_LDADD = $(top_builddir)/src/libfixc.la
+fixc_extr_deep_01_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.so
 api_tests += fixc_cpy_01
 fixc_cpy_01_LDADD = $(top_builddir)/src/libfixc.la
 api_tests += fixc_cpy_02
@@ -141,59 +148,73 @@ fixc_from_fix_04_LDADD = $(top_builddir)/src/libfixc.la
 
 rd_tests += fixc_from_fixml_01
 fixc_from_fixml_01_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_01_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.so
 ## same thing but static
 rd_tests += fixc_from_fixml_02
 fixc_from_fixml_02_SOURCES = fixc_from_fixml_01.c
 fixc_from_fixml_02_LDFLAGS = $(AM_LDFLAGS) -static
 fixc_from_fixml_02_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_02_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.a
 
 rd_tests += fixc_from_fixml_03
 fixc_from_fixml_03_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_03_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.so
 ## same thing but static
 rd_tests += fixc_from_fixml_04
 fixc_from_fixml_04_SOURCES = fixc_from_fixml_03.c
 fixc_from_fixml_04_LDFLAGS = $(AM_LDFLAGS) -static
 fixc_from_fixml_04_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_04_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.a
 
 rd_tests += fixc_from_fixml_05
 fixc_from_fixml_05_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_05_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.so
 ## same thing but static
 rd_tests += fixc_from_fixml_06
 fixc_from_fixml_06_SOURCES = fixc_from_fixml_05.c
 fixc_from_fixml_06_LDFLAGS = $(AM_LDFLAGS) -static
 fixc_from_fixml_06_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_06_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.a
 
 rd_tests += fixc_from_fixml_07
 fixc_from_fixml_07_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_07_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.so
 ## same thing but static
 rd_tests += fixc_from_fixml_08
 fixc_from_fixml_08_SOURCES = fixc_from_fixml_07.c
 fixc_from_fixml_08_LDFLAGS = $(AM_LDFLAGS) -static
 fixc_from_fixml_08_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_08_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.a
 
 rd_tests += fixc_from_fixml_09
 fixc_from_fixml_09_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_09_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.so
 ## same thing but static
 rd_tests += fixc_from_fixml_10
 fixc_from_fixml_10_SOURCES = fixc_from_fixml_09.c
 fixc_from_fixml_10_LDFLAGS = $(AM_LDFLAGS) -static
 fixc_from_fixml_10_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_10_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.a
 
 rd_tests += fixc_from_fixml_11
 fixc_from_fixml_11_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_11_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.so
 ## same thing but static
 rd_tests += fixc_from_fixml_12
 fixc_from_fixml_12_SOURCES = fixc_from_fixml_11.c
 fixc_from_fixml_12_LDFLAGS = $(AM_LDFLAGS) -static
 fixc_from_fixml_12_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_12_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.a
 
 rd_tests += fixc_from_fixml_13
 fixc_from_fixml_13_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_13_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.so
 ## same thing but static
 rd_tests += fixc_from_fixml_14
 fixc_from_fixml_14_SOURCES = fixc_from_fixml_13.c
 fixc_from_fixml_14_LDFLAGS = $(AM_LDFLAGS) -static
 fixc_from_fixml_14_LDADD = $(top_builddir)/src/libfixc.la
+fixc_from_fixml_14_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2.a
 
 TESTS_ENVIRONMENT += top_builddir=$(top_builddir)
 EXTRA_DIST += $(bin_tests)
@@ -216,6 +237,7 @@ cme_settle_CPPFLAGS = $(AM_CPPFLAGS)
 cme_settle_CPPFLAGS += -D_GNU_SOURCE
 cme_settle_LDFLAGS = $(AM_LDFLAGS)
 cme_settle_LDADD = $(top_builddir)/src/libfixc.la
+cme_settle_LDADD += $(top_builddir)/src/$(LT_OBJDIR)/fix50sp2_cme.so
 
 bin_tests += cme_settle_test_01.sh
 bin_tests += cme_settle_test_02.sh

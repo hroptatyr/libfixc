@@ -49,17 +49,16 @@
 #include "fix.h"
 #include "nifty.h"
 
-#include "fixml-comp.h"
-#include "fixml-msg.h"
-#include "fixml-msg.c"
-
 #include "fixml-nsuri.c"
+#include "fixml-msg.h"
 
 #include "fixml-comp-by-ctx.h"
 #include "fixml-attr-by-ctx.h"
 
 #include "fixml-comp-rptb.h"
 #include "fixml-comp-orb.h"
+
+#include "engdso-private.h"
 
 #if defined DEBUG_FLAG
 # define FIXC_DEBUG(args...)	fprintf(stderr, args)
@@ -168,13 +167,6 @@ __nsid_from_href(const char *href, size_t hlen)
 {
 	const struct fixc_nsuri_s *n = __fixml_nsiddify(href, hlen);
 	return n != NULL ? n->nsid : FIXC_VER_UNK;
-}
-
-static fixc_msgt_t
-__mty_from_elem(const char *elem, size_t elen)
-{
-	const struct fixml_msgt_s *p = __fixml_mtypify(elem, elen);
-	return p != NULL ? (fixc_msgt_t)p->mty : FIXC_MSGT_UNK;
 }
 
 
@@ -395,7 +387,7 @@ check_rptblk(__ctx_t ctx)
 	unsigned int cid = ctx->state->otag;
 	fixc_attr_t rpba;
 
-	if (LIKELY((rpba = fixc_comp_rptb(cid)) == FIXC_ATTR_UNK)) {
+	if (LIKELY((rpba = __comp_rptb(cid)) == FIXC_ATTR_UNK)) {
 		return;
 	}
 	/* otherwise it's update time */
@@ -427,7 +419,7 @@ bang_attr(__ctx_t ctx, fixc_attr_t tag, const char *val, size_t vsz)
 	if (LIKELY(fixc_add_tag(ctx->msg, tag, val, vsz) >= 0)) {
 		fixc_comp_t tmp;
 
-		if (UNLIKELY((tmp = fixc_get_comp_orb(ctx->state->otag)))) {
+		if (UNLIKELY((tmp = __get_comp_orb(ctx->state->otag)))) {
 			/* fixup optimised repeating blocks */
 			ctx->state->otag = tmp;
 		}
@@ -461,7 +453,7 @@ proc_UNK_attr(__ctx_t ctx, const char *attr, const char *value)
 	}
 
 	/* aiddify */
-	switch (fixc_get_aid(ctx->state ? ctx->state->otag : 0, attr, alen)) {
+	switch (__get_aid(ctx->state ? ctx->state->otag : 0, attr, alen)) {
 	case FIXC_ATTR_XMLNS:
 	case FIXC_ATTR_V:
 		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
@@ -492,7 +484,7 @@ proc_FIXML_attr(__ctx_t ctx, const char *attr, const char *value)
 	if (ctx->state == NULL || (ctxid = ctx->state->otag) == 0) {
 		goto attr_unk;
 	}
-	switch ((aid = fixc_get_aid(ctxid, attr, alen))) {
+	switch ((aid = __get_aid(ctxid, attr, alen))) {
 	case FIXC_ATTR_XMLNS:
 	case FIXC_ATTR_V:
 		proc_FIXC_xmlns(ctx, rattr == attr ? NULL : rattr, value);
@@ -523,7 +515,7 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 	if (LIKELY(ctx->state != NULL)) {
 		ctxid = ctx->state->otag;
 	}
-	switch ((cid = fixc_get_cid(ctxid, elem, elen))) {
+	switch ((cid = __get_cid(ctxid, elem, elen))) {
 	case FIXC_COMP_FIXML:
 		ptx_init(ctx);
 		push_state(ctx, FIXC_COMP_FIXML);
@@ -531,7 +523,7 @@ sax_bo_FIXML_elt(__ctx_t ctx, const char *elem, const char **attr)
 
 	case FIXC_COMP_UNK: {
 		/* could be a message */
-		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
+		const fixc_msgt_t mty = __get_mty(elem, elen);
 
 		if (!mty) {
 			FIXC_DEBUG("neither cid nor mty: %s (in ctxt %u)\n",
@@ -592,7 +584,7 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 	if (LIKELY(ctx->state->old_state != NULL)) {
 		ctxid = ctx->state->old_state->otag;
 	}
-	switch (fixc_get_cid(ctxid, elem, elen)) {
+	switch (__get_cid(ctxid, elem, elen)) {
 		/* top-levels */
 	case FIXC_COMP_FIXML:
 		(void)pop_state(ctx);
@@ -600,7 +592,7 @@ sax_eo_FIXML_elt(__ctx_t ctx, const char *elem)
 
 	case FIXC_COMP_UNK: {
 		/* could be a message */
-		const fixc_msgt_t mty = __mty_from_elem(elem, elen);
+		const fixc_msgt_t mty = __get_mty(elem, elen);
 
 		if (!mty) {
 			break;

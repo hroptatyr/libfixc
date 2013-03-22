@@ -18,8 +18,14 @@ main(void)
   </SecDef>\n\
 </FIXML>\n\
 ";
-	fixc_msg_t msg = make_fixc_from_fixml(foo, sizeof(foo) - 1);
+	fixc_msg_t msg;
 	int res = 0;
+
+	if (fixc_open_eng("fix50sp2") == NULL) {
+		fputs("couldn't load test engine\n", stderr);
+		res = 1;
+	}
+	msg = make_fixc_from_fixml(foo, sizeof(foo) - 1);
 
 	/* make sure it's 8 fields we generate */
 	if (msg->nflds != 8) {

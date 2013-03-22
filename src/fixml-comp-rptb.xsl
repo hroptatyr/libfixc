@@ -17,9 +17,11 @@
   <xsl:template match="fixc:spec">
     <xsl:text>/* do not edit, gen'd by fixml-comp-rptb.xsl */
 
-#include "fixml-attr.h"
+#include "fixml-attr-</xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>.h"
+#include "fixml-comp-</xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>.h"
 #include "fixml-comp-rptb.h"
-#include "fixml-comp.h"
 
 #if defined __INTEL_COMPILER
 # pragma warning (disable:869)
