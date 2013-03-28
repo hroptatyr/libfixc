@@ -167,7 +167,7 @@ header_HEADERS += fixml-msg-fix50sp2_cme.h
 
 ## our rule for gperf
 %.c: %.gperf
-	$(AM_V_GEN) $(GPERF) $< --output-file $@
+	$(AM_V_GEN) $(GPERF) -L ANSI-C $< --output-file $@
 
 ## rework me!
 dist-hook: fixml-attr-by-ctx.gperfs fixml-comp-by-ctx.gperfs \
