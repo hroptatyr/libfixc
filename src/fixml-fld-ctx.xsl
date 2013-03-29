@@ -16,9 +16,9 @@
     <xsl:text>/* do not edit, gen'd by fixml-fld-ctx.xsl */
 
 #include "fixml-fld-ctx.h"
-#include "fixml-msg.h"
-#include "fixml-comp.h"
-#include "fixml-attr.h"
+#include "fixml-msg-</xsl:text><xsl:value-of select="$versn"/><xsl:text>.h"
+#include "fixml-comp-</xsl:text><xsl:value-of select="$versn"/><xsl:text>.h"
+#include "fixml-attr-</xsl:text><xsl:value-of select="$versn"/><xsl:text>.h"
 
 fixc_fld_ctx_t fixc_get_fld_ctx(fixc_ctxt_t ctx)
 {

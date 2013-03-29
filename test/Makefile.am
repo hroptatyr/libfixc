@@ -220,9 +220,10 @@ TESTS_ENVIRONMENT += top_builddir=$(top_builddir)
 EXTRA_DIST += $(bin_tests)
 bin_tests += fixml2fix_01.sh
 bin_tests += fixml2fix_02.sh
+bin_tests += fixml2fix_03.sh
 bin_tests += fix2fixml_01.sh
 bin_tests += fix2fixml_02.sh
-bin_tests += fixml2fix_03.sh
+#bin_tests += fix2fixml_03.sh
 EXTRA_DIST += fixml_ex_06.xml
 
 ## check behaviour with unkown/custom tags

@@ -37,6 +37,7 @@ MinPxIncr=\"0.000050\"/>\
 	};
 	fixc_msg_t sdm = make_fixc_from_fix(sd, sizeof(sd) - 1);
 	fixc_msg_t msg = make_fixc_msg((fixc_msgt_t)FIXC_MSGT_UNK);
+	fixc_eng_t eng;
 	size_t bsz;
 	int res = 0;
 
@@ -52,6 +53,8 @@ MinPxIncr=\"0.000050\"/>\
 		fixc_add_tag(msg, (fixc_attr_t)sdmfld.tag, v, vz);
 	}
 
+	/* load him dso */
+	eng = fixc_open_eng("fix50sp2");
 	/* render it */
 	bsz = fixc_render_fixml(buf, sizeof(buf), msg);
 
@@ -61,6 +64,10 @@ MinPxIncr=\"0.000050\"/>\
 		fputs("is\n", stderr);
 		fwrite(buf, 1, bsz, stderr);
 		res = 1;
+	}
+
+	if (eng) {
+		fixc_close_eng(eng);
 	}
 
 	free_fixc(sdm);
