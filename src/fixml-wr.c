@@ -34,6 +34,9 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
+#if defined HAVE_CONFIG_H
+# include "config.h"
+#endif	/* HAVE_CONFIG_H */
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -596,7 +599,9 @@ next2p(size_t z)
 	z |= z >> 4U;
 	z |= z >> 8U;
 	z |= z >> 16U;
+#if SIZEOF_LONG >= 8U
 	z |= z >> 32U;
+#endif	/* SIZEOF_LONG */
 	return ++z;
 }
 
