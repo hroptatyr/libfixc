@@ -57,6 +57,8 @@
 #endif	/* DEBUG_FLAG */
 
 static int verbp = 0;
+static const char *engf;
+static fixc_eng_t engm;
 
 static int
 __attribute__((format(printf, 1, 2)))
@@ -157,6 +159,8 @@ Usage: fix2fixml [OPTION]... [FILE]...\n\
   -V                Print version and exit\n\
 \n\
   -v                Verbose mode, show internal states\n\
+\n\
+  -f FILE           Use fix flavour FILE instead of default\n\
 ";
 
 	fwrite(help, 1, sizeof(help) - 1, whither);
@@ -177,13 +181,16 @@ main(int argc, char *argv[])
 {
 	int res = 0;
 
-	for (int opt; (opt = getopt(argc, argv, "hvV")) != -1;) {
+	for (int opt; (opt = getopt(argc, argv, "hvVf:")) != -1;) {
 		switch (opt) {
 		case 'h':
 			pr_usage(stdout);
 			goto out;
 		case 'v':
 			verbp = 1;
+			break;
+		case 'f':
+			engf = optarg;
 			break;
 		case 'V':
 			pr_version(stdout);
@@ -195,8 +202,17 @@ main(int argc, char *argv[])
 		}
 	}
 
+	/* load the dso if any */
+	if (engf) {
+		engm = fixc_open_eng(engf);
+	}
+
 	for (int i = optind; i < argc; i++) {
 		res -= proc1(argv[i]);
+	}
+
+	if (engm) {
+		fixc_close_eng(engm);
 	}
 out:
 	return res;
