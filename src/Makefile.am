@@ -185,14 +185,20 @@ header_HEADERS += fixml-msg-fix50sp2_cme.h
 %.c: %.gperf
 	$(AM_V_GEN) $(GPERF) -L ANSI-C $< --output-file $@
 
-## rework me!
-dist-hook: fixml-attr-by-ctx.gperfs fixml-comp-by-ctx.gperfs \
-		fixml-attr-by-ctx.c fixml-comp-by-ctx.c
-	for i in `cat $(wordlist 1,2,$+)`; do \
+## rework me!  it shouldn't be necessary to add all the DSOs manually here
+dist-hook: fixml-attr-by-ctx-fix50sp2.gperfs \
+		fixml-comp-by-ctx-fix50sp2.gperfs \
+		fixml-attr-by-ctx-fix50sp2_cme.gperfs \
+		fixml-comp-by-ctx-fix50sp2_cme.gperfs \
+		fixml-attr-by-ctx-fix50sp2.c \
+		fixml-comp-by-ctx-fix50sp2.c \
+		fixml-attr-by-ctx-fix50sp2_cme.c \
+		fixml-comp-by-ctx-fix50sp2_cme.c
+	for i in `cat $(wordlist 1,4,$+)`; do \
 		test -f "$(distdir)/$${i}" || \
 			cp -a "`dirname $<`"/"$${i}" "$(distdir)/"; \
 	done
-	cp -a $(wordlist 1,2,$+) "$(distdir)/"
+	cp -a $(wordlist 1,4,$+) "$(distdir)/"
 
 
 ## short cuts for stuff that's in the spec/ dir and named idiotically
