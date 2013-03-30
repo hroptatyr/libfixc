@@ -692,11 +692,19 @@ Output meta data", 1},
 		args_doc,
 		doc
 	};
+	fixc_eng_t e;
+
+	/* load the cme dso */
+	if ((e = fixc_open_eng("fix50sp2_cme")) == NULL) {
+		/* best bugger off right away */
+		return 1;
+	}
 
 	/* parse args
 	 * this also calls the worker funs */
 	argp_parse(&argp, argc, argv, ARGP_NO_HELP, NULL, NULL);
 
+	fixc_close_eng(e);
 	return 0;
 }
 
