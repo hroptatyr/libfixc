@@ -23,7 +23,7 @@ libfixc_la_SOURCES += fix-private.h
 libfixc_la_SOURCES += fixml-wr.c
 libfixc_la_SOURCES += fixml-rd.c
 libfixc_la_SOURCES += nifty.h
-libfixc_la_SOURCES += engdso.c engdso.h
+libfixc_la_SOURCES += engdso.c engdso.h engdso-private.h
 libfixc_la_CPPFLAGS = $(AM_CPPFLAGS) -D_GNU_SOURCE
 libfixc_la_CPPFLAGS += -DPKGLIBDIR="\"$(pkglibdir)\""
 libfixc_la_CPPFLAGS += $(expat_CFLAGS)
