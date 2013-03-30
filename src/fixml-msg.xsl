@@ -103,11 +103,13 @@ struct fixml_msgt_s {
 	fixc_msgt_t mty;
 };
 
+/* forward */
+inline const struct fixml_msgt_s*
+__fixml_mtypify(register const char *str, register unsigned int len);
+
 fixc_msgt_t
 fixc_get_mty(const char *elem, size_t elen)
 {
-        inline const struct fixml_msgt_s*
-        __fixml_mtypify(register const char *str, register unsigned int len);
 	const struct fixml_msgt_s *p = __fixml_mtypify(elem, elen);
 	return p != NULL ? (fixc_msgt_t)p->mty : FIXC_MSGT_UNK;
 }
