@@ -151,7 +151,7 @@ fixc_comp_t (*__get_cid)(fixc_ctxt_t, const char*, size_t) = fixc_get_cid;
 
 #include "fixml-msg.h"
 
-fixc_msgt_t
+__attribute__((weak)) fixc_msgt_t
 fixc_get_mty(const char *UN(elem), size_t UN(elen))
 {
 	EDEBUG("fixc_get_mty() husk called.  Load an engine\n");
