@@ -104,7 +104,11 @@ struct fixml_msgt_s {
 };
 
 /* forward */
-inline const struct fixml_msgt_s*
+inline
+#if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__
+__attribute__((__gnu_inline__))
+#endif
+const struct fixml_msgt_s*
 __fixml_mtypify(register const char *str, register unsigned int len);
 
 fixc_msgt_t
