@@ -185,6 +185,7 @@ add_myself(void)
 	if (moddir[0] == '/') {
 		/* absolute libdir, add him */
 		lt_dladdsearchdir(moddir);
+		return;
 	} else if (moddir[0] == '.') {
 		/* relative libdir? relative to what? */
 		return;

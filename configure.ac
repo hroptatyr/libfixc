@@ -53,25 +53,6 @@ AC_CHECK_HEADERS([fcntl.h])
 SXE_CHECK_ANON_STRUCTS_DECL
 SXE_CHECK_ANON_STRUCTS_INIT
 
-dnl -------------------------------------------------------------------------
-dnl packages we allow/support
-dnl -------------------------------------------------------------------------
-## check for mxml
-PKG_CHECK_MODULES([mxml], [mxml >= 2.7],
-	[have_mxml="yes"], [have_mxml="no"])
-if test "${have_mxml}" = "yes"; then
-	## check for the header
-	SXE_DUMP_LIBS
-	CPPFLAGS="${CPPFLAGS} ${mxml_CFLAGS}"
-	AC_CHECK_HEADERS([mxml.h])
-	SXE_RESTORE_LIBS
-
-	if test "${ac_cv_header_mxml_h}" != "yes"; then
-		have_mxml="no"
-	fi
-fi
-AM_CONDITIONAL([HAVE_MXML], [test "${have_mxml}" = "yes"])
-
 ## check for expat
 PKG_CHECK_MODULES([expat], [expat >= 2.0], [have_expat="yes"], [have_expat="no"])
 if test "${have_expat}" = "yes"; then
