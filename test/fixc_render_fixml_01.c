@@ -6,8 +6,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "fix.h"
-#include "fixml-msg.h"
-#include "fixml-attr.h"
+#include "fixml-msg-fix50sp2.h"
+#include "fixml-attr-fix50sp2.h"
 
 #define countof(x)	(sizeof(x) / sizeof(*x))
 
@@ -31,9 +31,19 @@ main(void)
 		.i32 = 1117,
 	};
 	static char buf[4096];
-	fixc_msg_t msg = make_fixc_msg((fixc_msgt_t)FIXC_MSGT_BATCH);
+	fixc_eng_t eng;
+	fixc_msg_t msg;
 	size_t bsz;
 	int res = 0;
+
+	/* load the 50sp2 engine */
+	if ((eng = fixc_open_eng("fix50sp2")) == NULL) {
+		res = 1;
+		/* don't even try */
+		goto out;
+	}
+
+	msg = make_fixc_msg((fixc_msgt_t)FIXC_MSGT_BATCH);
 
 	fixc_add_fld(msg, f_quot);
 	fixc_add_fld(msg, f_qid);
@@ -54,6 +64,8 @@ main(void)
 	}
 
 	free_fixc(msg);
+	fixc_close_eng(eng);
+out:
 	return res;
 #else  /* !HAVE_ANON_STRUCTS_INIT */
 	return 0;

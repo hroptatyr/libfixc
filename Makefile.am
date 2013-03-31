@@ -3,7 +3,11 @@ LC_ALL = C
 
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = spec src test
+SUBDIRS =
+if DESCEND_LIBLTDL
+SUBDIRS += libltdl
+endif  DESCEND_LIBLTDL
+SUBDIRS += spec src test
 
 pkgconfigdir = @libdir@/pkgconfig
 pkgconfig_DATA = libfixc.pc

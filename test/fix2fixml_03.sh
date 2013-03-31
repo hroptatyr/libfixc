@@ -1,7 +1,7 @@
 #!/bin/sh
 
 tmpout=`mktemp`
-"${top_builddir}/src/fix2fixml" "${srcdir}/fix_ex_05.fix" | \
+"${top_builddir}/src/fix2fixml" -f fix50sp2 "${srcdir}/fix_ex_05.fix" | \
 	sed -e 's/v="[.0-9A-Z ]*"//' | \
 	xmllint --format - > "${tmpout}"
 

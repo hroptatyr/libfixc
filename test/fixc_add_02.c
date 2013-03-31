@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "fix.h"
 #include "fix-private.h"
-#include "fixml-msg.h"
+#include "fixml-msg-fix50sp2.h"
 
 #define countof(x)	(sizeof(x) / sizeof(*x))
 
@@ -17,6 +17,7 @@ main(void)
 		.tag = 35,
 		.typ = FIXC_TYP_MSGTYP,
 	};
+	fixc_eng_t eng;
 	int res = 0;
 
 	fld.mtyp = (fixc_msgt_t)FIXML_MSG_Quote;
@@ -24,6 +25,11 @@ main(void)
 
 	/* and again */
 	fixc_add_fld(msg, fld);
+
+	/* load the dso */
+	eng = fixc_open_eng("fix50sp2");
+
+	/* fix'em up then */
 	fixc_fixup(msg);
 
 	for (size_t i = 0; i < msg->nflds; i++) {
@@ -39,6 +45,9 @@ main(void)
 		}
 	}
 
+	if (eng) {
+		fixc_close_eng(eng);
+	}
 	free_fixc(msg);
 	return res;
 }

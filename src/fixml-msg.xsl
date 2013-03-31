@@ -76,6 +76,8 @@ typedef enum {
 
 #include "fixml-canon-msgt.h"
 #include "fixml-msg.h"
+#include "fixml-msg-</xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>.h"
 
 #define __fixml_mtypify	</xsl:text>
       <xsl:value-of select="$versn"/><xsl:text>_mtypify
@@ -100,6 +102,21 @@ struct fixml_msgt_s {
 	const char *msgt;
 	fixc_msgt_t mty;
 };
+
+/* forward */
+inline
+#if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__
+__attribute__((__gnu_inline__))
+#endif
+const struct fixml_msgt_s*
+__fixml_mtypify(register const char *str, register unsigned int len);
+
+fixc_msgt_t
+fixc_get_mty(const char *elem, size_t elen)
+{
+	const struct fixml_msgt_s *p = __fixml_mtypify(elem, elen);
+	return p != NULL ? (fixc_msgt_t)p->mty : FIXC_MSGT_UNK;
+}
 
 %%
 Batch,(fixc_msgt_t)FIXC_MSGT_BATCH

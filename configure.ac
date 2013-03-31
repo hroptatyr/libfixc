@@ -46,35 +46,12 @@ AC_CHECK_SIZEOF([long])
 AC_CHECK_SIZEOF([int])
 AC_CHECK_SIZEOF([size_t])
 
-## libtool goddess^Wgoodness
-SXE_CHECK_LIBTOOL
-SXE_CHECK_LIBLTDL
-
 AC_CHECK_HEADERS([stdbool.h])
 AC_CHECK_HEADERS([fcntl.h])
 
 ## check for working c11 features
 SXE_CHECK_ANON_STRUCTS_DECL
 SXE_CHECK_ANON_STRUCTS_INIT
-
-dnl -------------------------------------------------------------------------
-dnl packages we allow/support
-dnl -------------------------------------------------------------------------
-## check for mxml
-PKG_CHECK_MODULES([mxml], [mxml >= 2.7],
-	[have_mxml="yes"], [have_mxml="no"])
-if test "${have_mxml}" = "yes"; then
-	## check for the header
-	SXE_DUMP_LIBS
-	CPPFLAGS="${CPPFLAGS} ${mxml_CFLAGS}"
-	AC_CHECK_HEADERS([mxml.h])
-	SXE_RESTORE_LIBS
-
-	if test "${ac_cv_header_mxml_h}" != "yes"; then
-		have_mxml="no"
-	fi
-fi
-AM_CONDITIONAL([HAVE_MXML], [test "${have_mxml}" = "yes"])
 
 ## check for expat
 PKG_CHECK_MODULES([expat], [expat >= 2.0], [have_expat="yes"], [have_expat="no"])
@@ -110,14 +87,6 @@ dnl must come after all AC_LINK_IFELSE clauses
 ## check for the ldflags
 SXE_CHECK_LDFLAGS
 
-fix_repo_dflt="fix50sp2"
-AC_ARG_WITH([fix-repo], AS_HELP_STRING([--with-fix-repo], [dnl
-	Name of repository file to use.  Default: ${fix_repo_dflt}
-]), [fix_repo="${withval}"], [fix_repo="${fix_repo_dflt}"])
-AC_SUBST([fix_repo_dflt])
-AC_SUBST([fix_repo])
-
-
 PKG_CHECK_MODULES([zlib], [zlib], [have_zlib="yes"], [have_zlib="no"])
 if test "${have_zlib}" = "yes"; then
 	## check for that one header
@@ -131,6 +100,10 @@ if test "${have_zlib}" = "yes"; then
 	fi
 fi
 AM_CONDITIONAL([HAVE_ZLIB], [test "${have_zlib}" = "yes"])
+
+## libtool goddess^Wgoodness
+SXE_CHECK_LIBTOOL
+SXE_CHECK_LIBLTDL
 
 dnl -------------------------------------------------------------------------
 dnl final output

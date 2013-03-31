@@ -24,9 +24,10 @@ MinPxIncr=\"0.000050\">\
 </Instrmt>\
 </SecDef>\
 </FIXML>\n";
+	fixc_eng_t eng = fixc_open_eng("fix50sp2");
 	fixc_msg_t msg = make_fixc_from_fixml(sdx, sizeof(sdx) - 1);
 	const char *v;
-	int res = 0;
+	int res = eng == NULL;
 
 	/* check fields for tpc and cnt slots */
 	for (size_t i = 0; i < msg->nflds; i++) {
@@ -115,6 +116,7 @@ MinPxIncr=\"0.000050\">\
 	}
 
 	free_fixc(msg);
+	fixc_close_eng(eng);
 	return res;
 }
 

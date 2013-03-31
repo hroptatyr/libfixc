@@ -58,6 +58,8 @@
 static int verbp = 0;
 static int fixmlp = 0;
 static char tabc = '\t';
+static const char *engf;
+static fixc_eng_t engm;
 
 static int
 __attribute__((format(printf, 1, 2)))
@@ -168,6 +170,8 @@ Usage: fixml2fix [OPTION]... [FILE]...\n\
   -v                Verbose mode, show internal states\n\
   -x                Output FIXML again\n\
 \n\
+  -f FILE           Use fix flavour FILE instead of default\n\
+\n\
   -t CHAR           Use CHAR as tabbing character to separate\n\
                     fix fields (only on a tty)\n\
 ";
@@ -191,7 +195,7 @@ main(int argc, char *argv[])
 	static const char esc_map[] = "\a\bcd\e\fghijklm\nopq\rs\tu\v";
 	int res = 0;
 
-	for (int opt; (opt = getopt(argc, argv, "hxvVt:")) != -1;) {
+	for (int opt; (opt = getopt(argc, argv, "hxvVt:f:")) != -1;) {
 		switch (opt) {
 		case 'h':
 			pr_usage(stdout);
@@ -201,6 +205,9 @@ main(int argc, char *argv[])
 			break;
 		case 'x':
 			fixmlp = 1;
+			break;
+		case 'f':
+			engf = optarg;
 			break;
 		case 't':
 			if ((tabc = *optarg++) != '\\') {
@@ -221,8 +228,17 @@ main(int argc, char *argv[])
 		}
 	}
 
+	/* load the dso if any */
+	if (engf) {
+		engm = fixc_open_eng(engf);
+	}
+
 	for (int i = optind; i < argc; i++) {
 		res -= proc1(argv[i]);
+	}
+
+	if (engm) {
+		fixc_close_eng(engm);
 	}
 out:
 	return res;

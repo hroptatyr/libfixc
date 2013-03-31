@@ -3,7 +3,8 @@
   xmlns:fixc="http://www.ga-group.nl/libfixc_0_1"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:ec="http://exslt.org/common"
-  extension-element-prefixes="ec"
+  xmlns:s="http://exslt.org/strings"
+  extension-element-prefixes="ec s"
   version="1.0">
 
   <xsl:strip-space elements="*"/>
@@ -12,6 +13,12 @@
   <xsl:key name="fldi" match="/fixc:spec/fixc:field" use="@aid"/>
 
   <xsl:param name="MT"/>
+
+  <xsl:variable name="Po">
+    <xsl:variable name="base" select="substring-before($MT, '.Po')"/>
+    <xsl:variable name="pcmp" select="s:tokenize($base, '/')"/>
+    <xsl:value-of select="$pcmp[last()]"/>
+  </xsl:variable>
 
   <xsl:include href="libfixc_0_1_funs.xsl"/>
 
@@ -31,7 +38,8 @@
     <xsl:apply-templates select="fixc:message|fixc:component" mode="gperf"/>
 
     <ec:document href="{$MT}" method="text">
-      <xsl:text>fixml-attr-by-ctx.c: </xsl:text>
+      <xsl:value-of select="$Po"/>
+      <xsl:text>.c: </xsl:text>
       <xsl:for-each select="fixc:message|fixc:component">
         <xsl:text> </xsl:text>
         <xsl:apply-templates select="." mode="deps"/>
@@ -69,8 +77,10 @@
     <!-- build up the main .c file that switches over the context -->
     <xsl:text>/* do not edit, gen'd by fixml-attr-by-ctx.xsl */
 
-#include "fixml-msg.h"
-#include "fixml-comp.h"
+#include "fixml-msg-</xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>.h"
+#include "fixml-comp-</xsl:text>
+      <xsl:value-of select="$versn"/><xsl:text>.h"
 #include "fixml-attr-by-ctx.h"
 
 #if defined __INTEL_COMPILER
